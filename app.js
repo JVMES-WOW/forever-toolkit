@@ -7,12 +7,16 @@
   const $ = selector => document.querySelector(selector);
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
   const storageKey = `forever-${data.gameClass}-talents-v1`;
+  const libraryKey = `forever-${data.gameClass}-saved-builds-v1`;
+  let library = calc.readBuildLibrary(null), savedName = '', libraryWarning = '', protectStoredLibrary = false, libraryAction = null;
+  try { library = calc.readBuildLibrary(localStorage.getItem(libraryKey)); }
+  catch (_) { protectStoredLibrary = true; libraryWarning = 'Saved builds could not be read. New saves stay in this tab; existing browser data is untouched.'; }
   const shareBase = 'https://jvmes-wow.github.io/forever-toolkit/talents.html';
   let points = {}, rules = { ...calc.defaults }, selected = calc.talents[0].id;
   let undoStack = [], query = '';
   let talentDrag = null, talentRepeat = null;
   let initialMessage = '';
-  const sectionNav = '<nav class="section-nav" aria-label="Main navigation"><a href="./">Home</a><span aria-current="page">Talents</span><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>';
+  const sectionNav = '<nav class="toolkit-nav" aria-label="Main navigation"><a href="./">Home</a><a href="talents.html" aria-current="page">Talents</a><a href="abilities.html">Spellbook</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>';
   const classOptions = Object.values(classes).map(item => `<option value="${item.gameClass}" ${item.gameClass === data.gameClass ? 'selected' : ''}>${item.name}</option>`).join('');
   document.title = `${data.name} Talents · Forever Toolkit`;
   try {
@@ -37,12 +41,14 @@
     save(); update();
   }
 
-  $('#root').innerHTML = `<main>
-    <header><a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="38" height="38" alt=""><strong>Forever Toolkit</strong></a>${sectionNav}<label class="class-picker">Class <select id="class-picker">${classOptions}</select></label><button class="ghost" id="share">Share build ↗</button></header>
-    <h1 class="sr-only">${data.name} talent calculator</h1>
+  $('#root').innerHTML = `
+    <header class="topbar toolkit-header"><a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="38" height="38" alt=""><strong>Forever Toolkit</strong></a>${sectionNav}</header>
+    <main id="main"><div class="calculator-actions"><h1>${data.name} talents</h1><label class="class-picker">Class <select id="class-picker">${classOptions}</select></label><button class="ghost" id="share">Share build ↗</button></div>
+    <dialog id="saved-build-dialog" aria-labelledby="saved-build-title"><form id="saved-build-form"><div class="dialog-head"><h2 id="saved-build-title">Save build</h2><button type="button" class="ghost" data-close="saved-build-dialog" aria-label="Close saved build dialog">×</button></div><label id="saved-build-name-label">Build name<input id="saved-build-name" type="text" maxlength="80" autocomplete="off"></label><p id="saved-build-prompt"></p><label id="saved-build-replace-label" hidden><input id="saved-build-replace" type="checkbox"> Replace the existing build with this name</label><p id="saved-build-error" role="alert"></p><div class="actions"><button id="saved-build-confirm" type="submit">Save</button><button type="button" class="ghost" data-close="saved-build-dialog">Cancel</button></div></form></dialog>
+
     <div class="calculator-bar"><div class="toolbar"><label class="search-label">Find a talent <input id="search" type="search" placeholder="Name or effect…" autocomplete="off"></label><span class="editing-hint">Click to add · Right-click to refund<br>Drag 1 point · Tap destination to repeat</span><button class="ghost" id="undo">Undo</button><button class="ghost" id="reset">Reset build</button></div><div class="points"><span>Talent points</span><b id="total"></b><div class="meter"><i id="meter"></i></div><small id="remaining"></small></div></div>
     <p id="status" role="status" aria-live="polite"></p>
-    <section class="workspace"><div class="trees-scroll"><div class="trees" id="trees" aria-label="All ${data.name} talent trees"></div></div><aside><section class="tooltip" id="inspector" aria-label="Talent details"></section><section class="summary"><p class="eyebrow">YOUR BUILD</p><div class="split" id="split"></div><div id="build-list"></div></section></aside></section>
+    <section class="workspace"><div class="trees-scroll"><div class="trees" id="trees" aria-label="All ${data.name} talent trees"></div></div><aside><section class="tooltip" id="inspector" aria-label="Talent details"></section><section class="summary saved-builds" aria-labelledby="saved-builds-title"><div class="saved-builds-heading"><h2 id="saved-builds-title">Saved builds</h2><button type="button" class="ghost" id="save-build">Save as</button></div><ul id="saved-build-list"></ul><p id="saved-build-state" role="status" aria-live="polite"></p><div class="calculator-presets"><button type="button" class="ghost" id="update-build" disabled>Update</button><button type="button" class="ghost" id="rename-build" disabled>Rename</button><button type="button" class="ghost" id="delete-build" disabled>Delete</button></div><p id="saved-build-status" role="status" aria-live="polite"></p></section></aside></section>
     <footer class="page-foot">Forever ${data.name} · ${data.trees.map(tree => `${tree.talents.length} ${tree.name}`).join(' / ')} · Game artwork © Blizzard Entertainment</footer>
     <dialog id="build-dialog"><div class="dialog-head"><h2>Share your build</h2><button class="ghost" data-close="build-dialog" aria-label="Close build sharing">×</button></div><p>Anyone with this link can open your exact talent build.</p><label for="build-link">Build link</label><input id="build-link" type="url" readonly spellcheck="false"><div class="actions"><button id="copy-link">Copy build link</button></div><p id="share-status" role="status" aria-live="polite"></p><details class="build-code-options"><summary>Import / export build code</summary><label for="build-code">Build code</label><textarea id="build-code" rows="4" spellcheck="false"></textarea><div class="actions"><button id="copy-code" class="ghost">Copy code</button><button id="import-code" class="ghost">Import code</button></div></details></dialog>
   </main>`;
@@ -145,6 +151,7 @@
     if (event.key === 'Escape' && (talentDrag || talentRepeat)) clearTalentTransfer();
   });
   function inspect(id) {
+    if (id !== selected) $('#inspector').scrollTop = 0;
     selected = id;
     updateInspector();
     $('#trees').querySelectorAll('.node').forEach(node => node.classList.toggle('inspected', node.dataset.id === selected));
@@ -194,16 +201,95 @@
       const parent = calc.byId[calc.byId[path.dataset.prerequisite].prerequisite];
       path.classList.toggle('ready', (points[parent.id] || 0) === parent.max);
     });
-    $('#split').innerHTML = data.trees.map(t => `<div><span style="background:${t.color}"></span>${t.name}<b>${calc.treeTotal(points, t.id)}</b></div>`).join('');
-    $('#build-list').innerHTML = used ? `<ul>${calc.talents.filter(t => points[t.id]).map(t => `<li><button data-inspect="${t.id}">${escape(t.name)}</button><b>${points[t.id]}/${t.max}</b></li>`).join('')}</ul>` : '<p class="empty">Choose talents from any tree. Hover or focus an icon to see its effect.</p>';
-    $('#build-list').querySelectorAll('[data-inspect]').forEach(button => button.onclick = () => {
-      inspect(button.dataset.inspect);
-      $(`[data-id="${button.dataset.inspect}"]`).focus({ preventScroll: true });
-    });
     $('#undo').disabled = !undoStack.length;
     $('#reset').disabled = !used;
     updateInspector();
+    updateLibraryControls();
   }
+  function updateLibraryControls() {
+    const current = library.builds.find(item => item.name === savedName);
+    const changed = current && calc.encode(points, rules) !== current.code;
+    $('#update-build').disabled = !changed;
+    $('#rename-build').disabled = !current;
+    $('#delete-build').disabled = !current;
+    $('#saved-build-state').textContent = changed ? 'Unsaved changes' : current ? 'Saved' : '';
+    $('#saved-build-list').querySelectorAll('[data-saved-name]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.savedName === savedName)));
+  }
+  function renderLibrary() {
+    $('#saved-build-list').innerHTML = library.builds.length ? [...library.builds].sort((a, b) => a.name.localeCompare(b.name)).map(item => {
+      const allocation = calc.decode(item.code).points;
+      const split = data.trees.map(tree => calc.treeTotal(allocation, tree.id)).join(' / ');
+      return `<li><button type="button" data-saved-name="${escape(item.name)}" aria-label="Load ${escape(item.name)}" aria-pressed="${item.name === savedName}"><span>${escape(item.name)}</span><small>${split}</small></button></li>`;
+    }).join('') : '<li class="empty">No saved builds yet.</li>';
+    $('#saved-build-status').textContent = libraryWarning;
+    updateLibraryControls();
+  }
+  function persistLibrary() {
+    if (!protectStoredLibrary) {
+      try { localStorage.setItem(libraryKey, JSON.stringify(library)); libraryWarning = ''; }
+      catch (_) { libraryWarning = 'Not saved to browser · builds remain available in this tab.'; }
+    }
+    renderLibrary();
+  }
+  function openLibraryAction(action) {
+    clearTalentTransfer();
+    libraryAction = action;
+    const labels = { save: 'Save build', update: 'Update saved build', rename: 'Rename build', delete: 'Delete saved build' };
+    $('#saved-build-title').textContent = labels[action];
+    $('#saved-build-name-label').hidden = action === 'delete' || action === 'update';
+    $('#saved-build-name').value = action === 'rename' ? savedName : '';
+    $('#saved-build-prompt').textContent = action === 'delete' ? `Delete “${savedName}”? Your current talent allocation will stay unchanged.` : action === 'update' ? `Replace “${savedName}” with your current allocation?` : '';
+    $('#saved-build-confirm').textContent = action === 'delete' ? 'Delete' : action === 'update' ? 'Update' : action === 'rename' ? 'Rename' : 'Save';
+    $('#saved-build-error').textContent = '';
+    $('#saved-build-replace').checked = false;
+    $('#saved-build-replace-label').hidden = true;
+    $('#saved-build-dialog').showModal();
+    if (action === 'save' || action === 'rename') $('#saved-build-name').focus();
+  }
+  $('#saved-build-list').onclick = event => {
+    const button = event.target.closest('[data-saved-name]');
+    const entry = library.builds.find(item => item.name === button?.dataset.savedName);
+    if (!entry) return;
+    try {
+      const loaded = calc.decode(entry.code);
+      clearTalentTransfer();
+      undoStack.push({ points: { ...points }, rules: { ...rules } });
+      if (undoStack.length > 100) undoStack.shift();
+      ({ points, rules } = loaded);
+      savedName = entry.name;
+      save(); update();
+      status([`Loaded “${entry.name}”.`, loaded.notice].filter(Boolean).join(' '));
+    } catch (error) { status(error.message); }
+  };
+  for (const [id, action] of [['save-build','save'],['update-build','update'],['rename-build','rename'],['delete-build','delete']]) {
+    $('#' + id).onclick = () => openLibraryAction(action);
+  }
+  $('#saved-build-name').oninput = () => {
+    $('#saved-build-replace').checked = false;
+    $('#saved-build-replace-label').hidden = true;
+    $('#saved-build-error').textContent = '';
+  };
+  $('#saved-build-form').onsubmit = event => {
+    event.preventDefault();
+    try {
+      if (libraryAction === 'delete') {
+        library = calc.deleteNamedBuild(library, savedName); savedName = '';
+      } else if (libraryAction === 'rename') {
+        library = calc.renameNamedBuild(library, savedName, $('#saved-build-name').value);
+        savedName = $('#saved-build-name').value.trim();
+      } else {
+        const name = libraryAction === 'update' ? savedName : $('#saved-build-name').value;
+        if (libraryAction === 'save' && library.builds.some(item => item.name.toLowerCase() === name.trim().toLowerCase()) && !$('#saved-build-replace').checked) {
+          $('#saved-build-replace-label').hidden = false;
+          throw new Error('This name is already saved. Choose another name or allow replacement.');
+        }
+        library = calc.saveNamedBuild(library, name, calc.encode(points, rules), libraryAction === 'update' || $('#saved-build-replace').checked);
+        savedName = name.trim();
+      }
+      persistLibrary(); $('#saved-build-dialog').close();
+      status(libraryAction === 'delete' ? 'Saved build deleted. Current talents unchanged.' : libraryWarning || `Saved “${savedName}”.`);
+    } catch (error) { $('#saved-build-error').textContent = error.message; }
+  };
   $('#search').oninput = event => { clearTalentTransfer(); query = event.target.value.trim().toLowerCase(); update(); };
   $('#reset').onclick = () => { commit({}); status('Build reset. Undo restores it.'); };
   $('#undo').onclick = () => {
@@ -249,5 +335,5 @@
     } catch (error) { status(`Could not load shared build. ${error.message}`); }
   });
   document.querySelectorAll('[data-close]').forEach(button => button.onclick = () => $(`#${button.dataset.close}`).close());
-  renderTrees(); update(); status(initialMessage);
+  renderTrees(); update(); renderLibrary(); status(initialMessage);
 })();

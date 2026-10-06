@@ -5,25 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>Raid Planner · Forever Toolkit</title>
-  <meta name="description" content="WoW Forever raid roster, buffs, and debuffs.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Forever Toolkit">
-  <meta property="og:title" content="Raid Planner · Forever Toolkit">
-  <meta property="og:description" content="Build 5-, 10-, 20-, and 40-player compositions and track buffs, debuffs, Blessings, auras, totems, and camp buffs.">
-  <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/raid.html">
-  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/raid-og.png">
-  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/raid-og.png">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="A five-player WoW Forever party in the Raid Planner with class specializations, camp buffs, and completed buff coverage.">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Raid Planner · Forever Toolkit">
-  <meta name="twitter:description" content="Build raid and dungeon compositions with detailed buff and debuff coverage.">
-  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/raid-og.png">
-  <meta name="twitter:image:alt" content="A five-player WoW Forever party in the Raid Planner with class specializations, camp buffs, and completed buff coverage.">
   <link rel="stylesheet" href="raid.css">
-  <style>.spec-mark,.player-mark{object-fit:cover;border:1px solid var(--class)}.buff-chip{display:flex;align-items:center;gap:4px}.effect-icon{width:16px;height:16px;object-fit:cover;border-radius:3px}.coverage-icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:4px}.rename-player{border:0;background:transparent;color:#697668;padding:7px}.rename-player:hover{color:#e5c77d}.player-name-editor{display:flex;align-items:center;gap:4px;width:100%}.player-name-editor .player-mark{margin-right:4px}.player-name-input{min-width:0;flex:1;padding:6px;font-size:11px}.name-action{border:1px solid #ffffff20;background:#152019;border-radius:4px;padding:5px 7px;font-size:9px}dialog{width:min(520px,calc(100vw - 28px));border:1px solid #ffffff25;border-radius:9px;background:#101a13;color:#e7eadc;padding:18px}dialog::backdrop{background:#000a}.dialog-head{display:flex;justify-content:space-between;align-items:center}.dialog-head h2{font:500 24px Georgia,serif;margin:0}.dialog-head button{padding:6px 10px}.dialog-actions{margin-top:10px}.dialog-actions button{border:1px solid #d1a953;background:#7b5723;border-radius:6px;padding:9px 13px}#raid-share-dialog>input{width:100%;margin-top:5px}#raid-share-dialog>p{color:#9daa99;font-size:11px}</style>
+  <style>.spec-mark,.player-mark{object-fit:cover;border:1px solid var(--class)}.buff-chip{display:flex;align-items:center;gap:4px}.effect-icon{width:16px;height:16px;object-fit:cover;border-radius:3px}.coverage-icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:4px}.rename-player{border:0;background:transparent;color:#7f91aa;padding:7px}.rename-player:hover{color:#e5c77d}.player-name-editor{display:flex;align-items:center;gap:4px;width:100%}.player-name-editor .player-mark{margin-right:4px}.player-name-input{min-width:0;flex:1;padding:6px;font-size:11px}.name-action{border:1px solid #ffffff20;background:#18212d;border-radius:4px;padding:5px 7px;font-size:9px}dialog{width:min(520px,calc(100vw - 28px));border:1px solid #ffffff25;border-radius:9px;background:#151b25;color:#e8edf4;padding:18px}dialog::backdrop{background:#000a}.dialog-head{display:flex;justify-content:space-between;align-items:center}.dialog-head h2{font:500 24px Georgia,serif;margin:0}.dialog-head button{padding:6px 10px}.dialog-actions{margin-top:10px}.dialog-actions button{border:1px solid #d1a953;background:#7b5723;border-radius:6px;padding:9px 13px}#raid-share-dialog>input{width:100%;margin-top:5px}#raid-share-dialog>p{color:#9aa8ba;font-size:11px}</style>
   <style>
     .groups.single-group{grid-template-columns:1fr}
     .groups.single-group .group-card{padding:16px}
@@ -38,15 +21,15 @@
     .camp-panel{margin-top:14px;border-top:1px solid #ffffff12;padding-top:12px}
     .camp-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
     .camp-head h4{margin:0;color:#e7d5a0;font:600 13px Georgia,serif}
-    .camp-head small{color:#7f8d7d;font-size:9px}
+    .camp-head small{color:#879ab4;font-size:9px}
     .camp-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-    .camp-choice{display:flex;align-items:center;gap:7px;min-width:0;border:1px solid #ffffff12;background:#101a13;border-radius:5px;padding:7px;text-align:left;color:#96a393}
+    .camp-choice{display:flex;align-items:center;gap:7px;min-width:0;border:1px solid #ffffff12;background:#151b25;border-radius:5px;padding:7px;text-align:left;color:#9aa8ba}
     .camp-choice:hover{border-color:#9e8248;color:#d7c28c}
     .camp-choice.active{border-color:#d8ad5d;background:#d8ad5d12;color:#f0d99e}
     .camp-choice>span{min-width:0}
     .camp-choice b,.camp-choice small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .camp-choice b{font-size:10px}
-    .camp-choice small{font-size:8px;margin-top:2px;color:#7f8d7d}
+    .camp-choice small{font-size:8px;margin-top:2px;color:#879ab4}
     .camp-active,.coverage-row.camp-covered{border-color:#b49b5d;color:#e4cf98}
     .camp-player{display:flex;align-items:center;gap:6px;border:1px solid #8f7b4e55;background:#8f7b4e0d;color:#bba66f;border-radius:5px;padding:5px 8px;min-width:152px;text-align:left}
     .camp-player:hover{border-color:#d8ad5d;color:#f0d99e}
@@ -54,46 +37,46 @@
     .camp-player-effect{width:27px;height:27px;object-fit:cover;border:1px solid #d8ad5d88;border-radius:5px;flex:0 0 auto}
     .camp-player-copy{min-width:0}
     .camp-player-copy small,.camp-player-copy b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .camp-player-copy small{font-size:7px;letter-spacing:.8px;color:#8f9a87}
+    .camp-player-copy small{font-size:7px;letter-spacing:.8px;color:#8d9fb8}
     .camp-player-copy b{font-size:9px;color:#e1c77f;margin-top:1px}
     .blessing-player{display:flex;align-items:center;gap:5px;border:1px solid #7a69a455;background:#7a69a40d;color:#b8a8d9;border-radius:5px;padding:5px 7px;text-align:left}
     .blessing-player:hover{border-color:#b89de8;color:#dbcaf8}
     .blessing-player>span:first-child{font-size:17px}
     .blessing-player small,.blessing-player b{display:block;white-space:nowrap}
-    .blessing-player small{font-size:7px;letter-spacing:.7px;color:#8f9a87}.blessing-player b{font-size:9px}
+    .blessing-player small{font-size:7px;letter-spacing:.7px;color:#8d9fb8}.blessing-player b{font-size:9px}
     #camp-buff-dialog{width:min(760px,calc(100vw - 28px))}
-    #camp-buff-dialog>p{color:#9daa99;font-size:11px;line-height:1.5}
+    #camp-buff-dialog>p{color:#9aa8ba;font-size:11px;line-height:1.5}
     .camp-assignment-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}
-    .camp-assignment{display:flex;align-items:flex-start;gap:9px;min-width:0;border:1px solid #ffffff15;background:#111b14;border-radius:6px;padding:9px;text-align:left}
+    .camp-assignment{display:flex;align-items:flex-start;gap:9px;min-width:0;border:1px solid #ffffff15;background:#18212d;border-radius:6px;padding:9px;text-align:left}
     .camp-assignment:hover{border-color:#9e8248}
     .camp-assignment.active{border-color:#d8ad5d;background:#d8ad5d12}
     .camp-assignment.redundant{border-color:#a77745}
     .camp-assignment>span{min-width:0}
     .camp-assignment b,.camp-assignment small,.camp-assignment em{display:block}
     .camp-assignment b{font-size:11px}
-    .camp-assignment small{font-size:9px;color:#879586;margin-top:2px}
+    .camp-assignment small{font-size:9px;color:#8d9fb8;margin-top:2px}
     .camp-assignment em{font-size:9px;color:#e3a66f;font-style:normal;margin-top:5px;line-height:1.35}
     #blessing-priority-dialog{width:min(580px,calc(100vw - 28px))}
-    #blessing-priority-summary{color:#9daa99;font-size:11px}
+    #blessing-priority-summary{color:#9aa8ba;font-size:11px}
     .blessing-priority-options{display:grid;gap:7px;margin-top:12px}
-    .blessing-priority-row{display:grid;grid-template-columns:24px 24px 1fr auto;gap:8px;align-items:center;border:1px solid #ffffff15;background:#111b14;border-radius:6px;padding:8px}
+    .blessing-priority-row{display:grid;grid-template-columns:24px 24px 1fr auto;gap:8px;align-items:center;border:1px solid #ffffff15;background:#18212d;border-radius:6px;padding:8px}
     .blessing-priority-row.active{border-color:#8f74c4;background:#8f74c412}.blessing-priority-row.ineligible{opacity:.5}
     .blessing-priority-row.drag-over{border-color:#d8ad5d}.blessing-priority-row.dragging{opacity:.35}
     .blessing-rank{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#ffffff0c;font-size:10px;color:#d8c48d}
-    .blessing-priority-copy b,.blessing-priority-copy small{display:block}.blessing-priority-copy b{font-size:11px}.blessing-priority-copy small{font-size:9px;color:#879586;margin-top:2px}
-    .blessing-priority-controls{display:flex;gap:4px}.blessing-priority-controls button{border:1px solid #ffffff20;background:#172019;border-radius:4px;padding:5px 8px}.blessing-priority-controls button:disabled{opacity:.25}
+    .blessing-priority-copy b,.blessing-priority-copy small{display:block}.blessing-priority-copy b{font-size:11px}.blessing-priority-copy small{font-size:9px;color:#8d9fb8;margin-top:2px}
+    .blessing-priority-controls{display:flex;gap:4px}.blessing-priority-controls button{border:1px solid #ffffff20;background:#18212d;border-radius:4px;padding:5px 8px}.blessing-priority-controls button:disabled{opacity:.25}
     .boss-choice-options{display:flex;gap:5px;flex-wrap:wrap;margin:-1px 0 8px 33px}
-    .boss-choice-option{display:flex;align-items:center;gap:5px;border:1px solid #ffffff18;background:#121d16;border-radius:5px;padding:5px 7px;font-size:9px;color:#98a596}
+    .boss-choice-option{display:flex;align-items:center;gap:5px;border:1px solid #ffffff18;background:#18212d;border-radius:5px;padding:5px 7px;font-size:9px;color:#9aa8ba}
     .boss-choice-option:hover{border-color:#a98c4c;color:#dfc781}.boss-choice-option.active{border-color:#8f7a4d;color:#dbc48a}.boss-choice-option.overridden{background:#d8ad5d16;border-color:#d8ad5d;color:#f0d99e}
-    .spec-button.gap-match{border-color:var(--class);background:linear-gradient(90deg,color-mix(in srgb,var(--class) 18%,transparent),#111c15 70%);box-shadow:inset 3px 0 var(--class)}
-    .spec-button.gap-match:hover{border-color:var(--class);background:color-mix(in srgb,var(--class) 23%,#111c15)}
+    .spec-button.gap-match{border-color:var(--class);background:linear-gradient(90deg,color-mix(in srgb,var(--class) 18%,transparent),#18212d 70%);box-shadow:inset 3px 0 var(--class)}
+    .spec-button.gap-match:hover{border-color:var(--class);background:color-mix(in srgb,var(--class) 23%,#18212d)}
     .spec-button.gap-match>span{flex:1}
-    .spec-button.gap-match>em{flex:0 1 auto;max-width:48%;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--class);background:color-mix(in srgb,var(--class) 16%,#111c15);border-radius:10px;padding:2px 5px;color:#e8eadf;font-size:7px;font-style:normal;font-weight:700;letter-spacing:.35px;text-transform:uppercase;white-space:nowrap}
+    .spec-button.gap-match>em{flex:0 1 auto;max-width:48%;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--class);background:color-mix(in srgb,var(--class) 16%,#18212d);border-radius:10px;padding:2px 5px;color:#e8edf4;font-size:7px;font-style:normal;font-weight:700;letter-spacing:.35px;text-transform:uppercase;white-space:nowrap}
     .group-choices{border-top:1px solid #ffffff10;margin-top:10px;padding-top:9px;display:grid;gap:8px}
     .group-choice{display:grid;gap:5px}
-    .group-choice>small{font-size:8px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:#8d9a88}
+    .group-choice>small{font-size:8px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:#8d9fb8}
     .group-choice-options{display:flex;gap:5px;flex-wrap:wrap}
-    .group-choice-option{display:flex;align-items:center;gap:5px;border:1px solid #ffffff18;background:#121d16;border-radius:5px;padding:5px 7px;font-size:9px;color:#98a596}
+    .group-choice-option{display:flex;align-items:center;gap:5px;border:1px solid #ffffff18;background:#18212d;border-radius:5px;padding:5px 7px;font-size:9px;color:#9aa8ba}
     .group-choice-option:hover{border-color:#a98c4c;color:#dfc781}
     .group-choice-option.active{border-color:#d8ad5d;background:#d8ad5d16;color:#f0d99e}
     .planner-layout.compact-roster{grid-template-columns:minmax(0,1fr) 320px}
@@ -130,11 +113,29 @@
   </style>
   <link rel="stylesheet" href="site-brand.css">
   <link rel="icon" type="image/png" href="toolkit-logo.png">
+  <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/raid.html">
+  <meta name="description" content="Plan WoW Forever parties and raids for 5, 10, 20, or 40 players. Arrange every class and track buffs, debuffs, and group coverage.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Forever Toolkit">
+  <meta property="og:title" content="Raid Planner · Forever Toolkit">
+  <meta property="og:description" content="Plan WoW Forever parties and raids for 5, 10, 20, or 40 players. Arrange every class and track buffs, debuffs, and group coverage.">
+  <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/raid.html">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/raid-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/raid-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Forever Toolkit raid planner showing a mixed-class ten-player roster and buff and debuff coverage.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Raid Planner · Forever Toolkit">
+  <meta name="twitter:description" content="Plan WoW Forever parties and raids for 5, 10, 20, or 40 players. Arrange every class and track buffs, debuffs, and group coverage.">
+  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/raid-og.png?v=20261006-toolkit-icons">
+  <meta name="twitter:image:alt" content="Forever Toolkit raid planner showing a mixed-class ten-player roster and buff and debuff coverage.">
 </head>
-<body>
-  <header class="topbar">
+<body class="toolkit-page toolkit-raid">
+  <header class="topbar toolkit-header">
     <a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="38" height="38" alt=""><strong>Forever Toolkit</strong></a>
-    <nav aria-label="Main navigation"><a href="./">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Abilities</a><a class="active" href="raid.html" aria-current="page">Raid</a><a href="analysis/">Analysis</a></nav>
+    <nav class="toolkit-nav" aria-label="Main navigation"><a href="./">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Spellbook</a><a class="active" href="raid.html" aria-current="page">Raid</a><a href="analysis/">Analysis</a></nav>
   </header>
   <main>
     <section class="page-title">

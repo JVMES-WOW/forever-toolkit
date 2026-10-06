@@ -4,36 +4,60 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Forever Toolkit</title>
-  <meta name="description" content="WoW Forever talent calculators, Druid abilities, raid planner, and Feral survey analysis.">
-  <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Forever Toolkit">
-  <meta property="og:title" content="Forever Toolkit">
-  <meta property="og:description" content="Talent calculators, Druid abilities, raid planner, and Feral survey analysis.">
-  <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/">
-  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/toolkit-logo.png">
-  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#11161e">
   <link rel="icon" type="image/png" href="toolkit-logo.png">
   <link rel="stylesheet" href="home.css">
   <link rel="stylesheet" href="site-brand.css">
   <script src="home.js"></script>
+  <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/">
+  <meta name="description" content="Talent builds, spell ranks, raid composition, and community research for WoW Forever. Tools for all nine classes.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Forever Toolkit">
+  <meta property="og:title" content="Forever Toolkit">
+  <meta property="og:description" content="Talent builds, spell ranks, raid composition, and community research for WoW Forever. Tools for all nine classes.">
+  <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/toolkit-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/toolkit-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Forever Toolkit with all nine class icons and previews of its talent calculator, spellbook, and raid planner.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Forever Toolkit">
+  <meta name="twitter:description" content="Talent builds, spell ranks, raid composition, and community research for WoW Forever. Tools for all nine classes.">
+  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/toolkit-og.png?v=20261006-toolkit-icons">
+  <meta name="twitter:image:alt" content="Forever Toolkit with all nine class icons and previews of its talent calculator, spellbook, and raid planner.">
 </head>
-<body>
+<body class="toolkit-page toolkit-home">
   <a class="skip-link" href="#main">Skip to content</a>
-  <header class="topbar">
+  <header class="topbar toolkit-header">
     <a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="40" height="40" alt=""><strong>Forever Toolkit</strong></a>
-    <nav aria-label="Main navigation"><a href="./" aria-current="page">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>
+    <nav class="toolkit-nav" aria-label="Main navigation"><a href="./" aria-current="page">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Spellbook</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>
   </header>
   <main id="main">
-    <h1>Tools</h1>
+    <h1>Tools &amp; research</h1>
     <div class="tool-grid">
-      <a class="tool-card" href="talents.html"><img src="class-icons/druid.jpg" width="44" height="44" alt=""><div><h2>Talent calculator</h2><p>Builds for all nine classes.</p></div><span class="arrow" aria-hidden="true">↗</span></a>
-      <a class="tool-card" href="abilities.html"><img src="icons/druid/feral-combat.jpg" width="44" height="44" alt=""><div><h2>Druid abilities</h2><p>Spells and ranks by level.</p></div><span class="arrow" aria-hidden="true">↗</span></a>
-      <a class="tool-card" href="raid.html"><img src="class-icons/warrior.jpg" width="44" height="44" alt=""><div><h2>Raid planner</h2><p>Rosters, buffs, and debuffs.</p></div><span class="arrow" aria-hidden="true">↗</span></a>
-      <a class="tool-card" href="analysis/"><img src="ability-icons/cat-form.jpg" width="44" height="44" alt=""><div><h2>Feral analysis</h2><p>767 survey responses · September 20–21, 2026</p></div><span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="tool-card" href="talents.html" aria-labelledby="talents-title" aria-describedby="talents-description">
+        <div class="tool-caption"><img src="tool-icons/talents.png" width="40" height="40" alt=""><div><h2 id="talents-title">Talent calculator</h2><p id="talents-description">Build, save, and share talents for all nine classes.</p></div><span class="open-label" aria-hidden="true">Open <span>↗</span></span></div>
+        <img class="tool-snapshot" src="talents-preview.jpg" width="1386" height="959" alt="Druid talent trees, rank details, and the saved-build sidebar." fetchpriority="high" decoding="async">
+      </a>
+      <a class="tool-card" href="abilities.html" aria-labelledby="abilities-title" aria-describedby="abilities-description">
+        <div class="tool-caption"><img src="tool-icons/spellbook.png" width="40" height="40" alt=""><div><h2 id="abilities-title">Spellbook</h2><p id="abilities-description">Spells and ranks for all nine classes.</p></div><span class="open-label" aria-hidden="true">Open <span>↗</span></span></div>
+        <img class="tool-snapshot" src="abilities-preview.jpg" width="1386" height="959" alt="Multi-class spellbook with level-sorted Feral spells and quick rank switching." loading="lazy" decoding="async">
+      </a>
+      <a class="tool-card" href="raid.html" aria-labelledby="raid-title" aria-describedby="raid-description">
+        <div class="tool-caption"><img src="tool-icons/raid.png" width="40" height="40" alt=""><div><h2 id="raid-title">Raid planner</h2><p id="raid-description">Arrange groups and check buff and debuff coverage.</p></div><span class="open-label" aria-hidden="true">Open <span>↗</span></span></div>
+        <img class="tool-snapshot" src="raid-preview.jpg" width="1280" height="720" alt="A ten-player roster with two groups and a buff coverage panel." loading="lazy" decoding="async">
+      </a>
+      <section class="sim-preview" aria-labelledby="sim-title">
+        <div class="tool-caption"><img src="tool-icons/simulator.png" width="40" height="40" alt=""><div><h2 id="sim-title">Feral simulator</h2><p>Damage, gear comparisons, and rotation testing.</p></div><span class="wip-badge">Private · Work in progress</span></div>
+        <img class="tool-snapshot" src="simulator-preview.jpg" width="1440" height="1070" alt="Completed Feral simulation showing 838.55 DPS, damage by ability, and cast and mana metrics across 1,000 fights." loading="lazy" decoding="async">
+      </section>
+      <a class="tool-card" href="analysis/" aria-labelledby="analysis-title" aria-describedby="analysis-description">
+        <div class="tool-caption"><img src="tool-icons/analysis.png" width="40" height="40" alt=""><div><h2 id="analysis-title">Feral community analysis</h2><p id="analysis-description">767 survey responses · September 20–21, 2026</p></div><span class="open-label" aria-hidden="true">Read <span>↗</span></span></div>
+        <img class="tool-snapshot" src="analysis-preview.jpg" width="1280" height="720" alt="The light-background Feral community report, with its scope and links to methods." loading="lazy" decoding="async">
+      </a>
     </div>
-    <section class="sim-status" aria-labelledby="sim-title"><h2 id="sim-title">Feral simulator</h2><span>Private · Work in progress</span></section>
   </main>
   <footer class="page-foot"><span>JVMES</span><span>Not affiliated with Blizzard Entertainment.</span></footer>
 </body>

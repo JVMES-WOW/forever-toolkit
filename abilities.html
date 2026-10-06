@@ -4,77 +4,71 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <title>Druid Abilities · Forever Toolkit</title>
-  <meta name="description" content="Browse Druid abilities and ranks by required level for WoW Forever.">
+  <title>Spellbook · Forever Toolkit</title>
+  <link rel="stylesheet" href="spellbook.css">
+  <link rel="stylesheet" href="site-brand.css">
+  <link rel="icon" type="image/png" href="toolkit-logo.png">
   <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/abilities.html">
+  <meta name="description" content="Browse WoW Forever spells for all nine classes by spec and level. Search spells, switch ranks, and compare costs and effects.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Forever Toolkit">
-  <meta property="og:title" content="Druid Abilities by Level · Forever Toolkit">
-  <meta property="og:description" content="Browse Druid abilities and ranks by required level for WoW Forever.">
+  <meta property="og:title" content="Spellbook · Forever Toolkit">
+  <meta property="og:description" content="Browse WoW Forever spells for all nine classes by spec and level. Search spells, switch ranks, and compare costs and effects.">
   <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/abilities.html">
-  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png">
-  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261006-toolkit-icons">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Druid Abilities by Level for World of Warcraft Forever">
+  <meta property="og:image:alt" content="Forever Toolkit spellbook with all nine class icons and level-sorted spell lists for Druid, Mage, and Warrior.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Druid Abilities by Level · Forever Toolkit">
-  <meta name="twitter:description" content="Browse Druid abilities and ranks by required level for WoW Forever.">
-  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png">
-  <meta name="twitter:image:alt" content="Druid Abilities by Level for World of Warcraft Forever">
-  <link rel="stylesheet" href="abilities.css">
-  <style>
-    .ability-tooltip{width:min(430px,calc(100vw - 28px));border:1px solid #b89a54;background:linear-gradient(145deg,#121d16,#080d0a);color:#f1eee2;border-radius:10px;padding:20px;box-shadow:0 24px 70px #000c;position:fixed;inset:auto 20px 20px auto;margin:0;z-index:10}
-    .ability-tooltip:not([data-pinned="true"]){pointer-events:none}
-    .ability-tooltip::backdrop{background:#020503b8;backdrop-filter:blur(3px)}
-    .tooltip-close{position:absolute;right:10px;top:8px;border:0;background:transparent;color:#9eaa9d;font-size:1.5rem;cursor:pointer}
-    .tooltip-head{display:flex;align-items:center;gap:13px;padding-right:24px}.tooltip-head img{width:54px;height:54px;border:1px solid #b49c60;border-radius:7px}
-    .tooltip-head h2{margin:0;font:500 1.3rem Georgia,serif;color:#f6d887}.tooltip-head p{margin:4px 0 0;color:#9eaa9d;font-size:.75rem}
-    .tooltip-details{display:grid;grid-template-columns:1fr 1fr;gap:7px 14px;margin:18px 0 14px}.tooltip-details span{font-size:.77rem;border-bottom:1px solid #ffffff12;padding-bottom:7px}
-    .tooltip-description{margin:0;color:#e8dfb7;font-size:.88rem;line-height:1.58}
-  </style>
-  <link rel="stylesheet" href="site-brand.css">
-  <link rel="icon" type="image/png" href="toolkit-logo.png">
+  <meta name="twitter:title" content="Spellbook · Forever Toolkit">
+  <meta name="twitter:description" content="Browse WoW Forever spells for all nine classes by spec and level. Search spells, switch ranks, and compare costs and effects.">
+  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261006-toolkit-icons">
+  <meta name="twitter:image:alt" content="Forever Toolkit spellbook with all nine class icons and level-sorted spell lists for Druid, Mage, and Warrior.">
 </head>
-<body>
-  <header class="topbar">
+<body class="toolkit-page toolkit-spellbook">
+  <header class="topbar toolkit-header">
     <a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home">
       <img src="toolkit-logo.png" width="38" height="38" alt="">
       <strong>Forever Toolkit</strong>
     </a>
-    <nav aria-label="Main navigation">
-      <a href="./">Home</a>
-      <a href="talents.html">Talents</a>
-      <a class="active" href="abilities.html" aria-current="page">Abilities</a>
-      <a href="raid.html">Raid</a>
-      <a href="analysis/">Analysis</a>
+    <nav class="toolkit-nav" aria-label="Main navigation">
+      <a href="./">Home</a><a href="talents.html">Talents</a>
+      <a class="active" href="abilities.html" aria-current="page">Spellbook</a>
+      <a href="raid.html">Raid</a><a href="analysis/">Analysis</a>
     </nav>
   </header>
-
-  <main>
-    <section class="page-title">
-      <div>
-        <h1>Abilities by level</h1>
-      </div>
-    </section>
-
-    <section class="trainer" aria-labelledby="trainer-title">
-      <div class="section-head"><div><h2 id="trainer-title">By level</h2></div></div>
-      <div id="trainer-levels" class="level-grid"></div>
-    </section>
-  </main>
-  <aside id="ability-tooltip" class="ability-tooltip" aria-labelledby="tooltip-name" aria-live="polite" hidden>
-    <button class="tooltip-close" type="button" aria-label="Close tooltip">×</button>
-    <div class="tooltip-head">
-      <img id="tooltip-icon" alt="">
-      <div><h2 id="tooltip-name"></h2><p id="tooltip-rank"></p></div>
+  <main class="spellbook-page">
+    <div class="spellbook-title"><h1>Spellbook</h1><span>WoW Forever</span></div>
+    <div id="spell-classes" class="spell-classes" role="group" aria-label="Class"></div>
+    <div class="spellbook-layout">
+      <section class="spell-browser" aria-label="Browse spells">
+        <div class="spell-toolbar">
+          <div class="spell-search"><label class="sr-only" for="spell-search">Search spells</label><input id="spell-search" type="search" maxlength="120" placeholder="Search spells or IDs…" autocomplete="off"><button id="clear-search" type="button" aria-label="Clear search">×</button></div>
+          <span id="spell-count" role="status"></span>
+          <label class="spell-sort">Sort <select id="spell-sort" aria-label="Sort spells"><option value="level">Level</option><option value="name">Name</option></select></label>
+        </div>
+        <div id="spell-specs" class="spell-specs" role="group" aria-label="Specialization"></div>
+        <div id="spell-list" class="spell-list" aria-label="Spells" tabindex="0"></div>
+      </section>
+      <aside class="spell-detail" aria-label="Selected spell">
+        <p id="spell-detail-empty" hidden>Select a spell to see its ranks.</p>
+        <div id="spell-detail-content">
+          <div class="spell-detail-head"><img id="spell-icon" width="52" height="52" alt=""><div><h2 id="spell-name"></h2><p id="spell-category"></p></div></div>
+          <p id="spell-rank-label" aria-live="polite"></p>
+          <div id="rank-controls" class="rank-controls"><button id="rank-previous" type="button" aria-label="Previous rank">‹</button><div id="rank-buttons" class="rank-buttons" role="group" aria-label="Spell rank"></div><button id="rank-next" type="button" aria-label="Next rank">›</button></div>
+          <dl id="spell-facts" class="spell-facts"></dl>
+          <p id="spell-description"></p>
+          <div class="spell-links"><a id="talent-link">Talent calculator →</a></div>
+          <details class="source-details"><summary>Database reference</summary><p><span id="source-build"></span> · <span id="spell-id"></span></p><p id="source-note"></p></details>
+        </div>
+      </aside>
     </div>
-    <div id="tooltip-details" class="tooltip-details"></div>
-    <p id="tooltip-description" class="tooltip-description"></p>
-  </aside>
-  <script src="abilities-data.js?v=6"></script>
-  <script src="ability-icons.js?v=5"></script>
-  <script src="abilities-ui.js?v=5"></script>
+    <noscript><p>Enable JavaScript to browse the local spell catalog.</p></noscript>
+  </main>
+  <script src="spellbook-data.js?v=1"></script>
+  <script src="spellbook.js?v=1"></script>
+  <script src="spellbook-ui.js?v=1"></script>
 </body>
 </html>

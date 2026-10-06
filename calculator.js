@@ -144,6 +144,45 @@
     }
     return notices.length ? { points, rules, notice: notices.join(' ') } : { points, rules };
   }
-  root.FOREVER_CALCULATOR = { talents, byId, defaults, total, treeTotal, descriptionAtRank, requirements, validate, change, transfer, encode, decode };
+  function buildName(value) {
+    if (typeof value !== 'string' || !value.trim() || value.trim().length > 80) throw new Error('Use a build name of 1–80 characters.');
+    return value.trim();
+  }
+  function readBuildLibrary(raw) {
+    if (!raw) return { version: 1, gameClass: data.gameClass, builds: [] };
+    const library = JSON.parse(raw);
+    if (library?.version !== 1 || library.gameClass !== data.gameClass || !Array.isArray(library.builds)) throw new Error('Unsupported saved build library.');
+    const names = new Set();
+    const builds = library.builds.map(entry => {
+      const name = buildName(entry?.name);
+      if (names.has(name.toLowerCase()) || typeof entry.code !== 'string') throw new Error('Invalid saved build entry.');
+      names.add(name.toLowerCase());
+      decode(entry.code);
+      return { name, code: entry.code };
+    });
+    return { version: 1, gameClass: data.gameClass, builds };
+  }
+  function saveNamedBuild(library, name, code, replace = false) {
+    name = buildName(name);
+    const decoded = decode(code);
+    const entry = { name, code: encode(decoded.points, decoded.rules) };
+    const index = library.builds.findIndex(item => item.name.toLowerCase() === name.toLowerCase());
+    if (index >= 0 && !replace) throw new Error('A build with this name already exists.');
+    const builds = library.builds.map(item => ({ ...item }));
+    if (index < 0) builds.push(entry);
+    else builds[index] = entry;
+    return { ...library, builds };
+  }
+  function renameNamedBuild(library, oldName, newName) {
+    newName = buildName(newName);
+    if (!library.builds.some(item => item.name === oldName)) throw new Error('Saved build not found.');
+    if (library.builds.some(item => item.name !== oldName && item.name.toLowerCase() === newName.toLowerCase())) throw new Error('A build with this name already exists.');
+    return { ...library, builds: library.builds.map(item => ({ ...item, name: item.name === oldName ? newName : item.name })) };
+  }
+  function deleteNamedBuild(library, name) {
+    if (!library.builds.some(item => item.name === name)) throw new Error('Saved build not found.');
+    return { ...library, builds: library.builds.filter(item => item.name !== name).map(item => ({ ...item })) };
+  }
+  root.FOREVER_CALCULATOR = { talents, byId, defaults, total, treeTotal, descriptionAtRank, requirements, validate, change, transfer, encode, decode, readBuildLibrary, saveNamedBuild, renameNamedBuild, deleteNamedBuild };
   if (typeof module !== 'undefined') module.exports = root.FOREVER_CALCULATOR;
 })(globalThis);

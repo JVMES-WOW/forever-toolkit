@@ -6,16 +6,34 @@
   <meta name="color-scheme" content="dark">
   <meta name="robots" content="noindex, nofollow">
   <title>Feral Simulator · Forever Toolkit</title>
-  <meta name="description" content="Damage-first Monte Carlo Feral Druid simulator for WoW Forever.">
   <link rel="stylesheet" href="feral-sim.css">
   <link rel="stylesheet" href="site-brand.css">
   <link rel="icon" type="image/png" href="toolkit-logo.png">
+  <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/feral-sim.html">
+  <meta name="description" content="Experimental Feral Druid damage simulation for WoW Forever. Compare gear, talents, and rotations. Private work in progress; mechanics are still being validated.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Forever Toolkit">
+  <meta property="og:title" content="Feral Simulator · Forever Toolkit">
+  <meta property="og:description" content="Experimental Feral Druid damage simulation for WoW Forever. Compare gear, talents, and rotations. Private work in progress; mechanics are still being validated.">
+  <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/feral-sim.html">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/feral-sim-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/feral-sim-og.png?v=20261006-toolkit-icons">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Forever Toolkit Feral Druid simulator with a completed damage breakdown, marked private and work in progress.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Feral Simulator · Forever Toolkit">
+  <meta name="twitter:description" content="Experimental Feral Druid damage simulation for WoW Forever. Compare gear, talents, and rotations. Private work in progress; mechanics are still being validated.">
+  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/feral-sim-og.png?v=20261006-toolkit-icons">
+  <meta name="twitter:image:alt" content="Forever Toolkit Feral Druid simulator with a completed damage breakdown, marked private and work in progress.">
 </head>
-<body class="feral-workbench">
-  <header class="topbar">
+<body class="feral-workbench toolkit-page toolkit-simulator">
+  <header class="topbar toolkit-header">
     <a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="38" height="38" alt=""><strong>Forever Toolkit</strong></a>
-    <span class="app-title">FERAL SIMULATOR <small>EXPERIMENTAL</small></span><button id="display-open" type="button" class="settings-button">Settings</button><nav aria-label="Main navigation"><a href="./">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a></nav>
+    <nav class="toolkit-nav" aria-label="Main navigation"><a href="./">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Spellbook</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>
   </header>
+  <div class="sim-context"><span class="app-title">FERAL SIMULATOR <small>EXPERIMENTAL</small></span><button id="display-open" type="button" class="settings-button">Settings</button></div>
 
 <dialog id="display-settings" class="settings-dialog" aria-labelledby="display-title"><h2 id="display-title">Display settings</h2><label><input id="display-details" type="checkbox"> Show detailed information</label><p id="display-link-note" hidden>Enable detailed information to view model notes and references.</p><p id="display-status" role="status"></p>  <section class="settings-resets"><h2>Restore defaults</h2><div class="optimizer-actions"><button type="button" id="defaults-gear">Restore default gear</button><button type="button" id="defaults-settings">Restore default settings</button></div><p class="panel-note">Gear restores the starting JVMES equipment and enchants while keeping your race. Settings restores encounter, rotation, buffs, consumables, damage assumptions and editable talents while keeping your character/gear. Saved comparisons are never deleted; neither reset runs a simulation.</p><p id="defaults-status" role="status" aria-live="polite"></p></section><button id="display-close" type="button">Close</button></dialog>
 <dialog id="preset-dialog" class="settings-dialog" aria-labelledby="preset-title"><h2 id="preset-title">Save preset</h2><label id="preset-name-label">Name<input id="preset-name" type="text" maxlength="80" autocomplete="off"></label><p id="preset-prompt"></p><p id="preset-status" role="status"></p><div class="dialog-actions"><button id="preset-confirm" type="button">Save</button><button id="preset-cancel" type="button">Cancel</button></div></dialog>

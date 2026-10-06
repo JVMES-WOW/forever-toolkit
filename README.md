@@ -21,12 +21,12 @@ The [home page](https://jvmes-wow.github.io/forever-toolkit/) brings together th
 - Share links preserve talent identities across layout changes. Older builds remain importable; points in removed talents or branches with unmet requirements are refunded with a notice.
 - Locally hosted game icons with no third-party requests during normal use.
 
-### Druid abilities
+### Spellbook
 
-- Trained Druid spells and ranks from level 1 through 60.
-- Full hover, keyboard-focus, and pinned tooltips with spell details and icons.
-- Active talent abilities shown at the earliest level at which their talent can be learned.
-- Filters for Balance, Feral, Restoration, utility, and shapeshift abilities.
+- All nine Forever classes, grouped by specialization with name and spell-ID search.
+- Compact spell families, direct rank buttons, previous/next controls, and shareable selection URLs.
+- Pinned Wowhead Forever spellbook and active-talent tooltips, with local icons and optional source notes.
+- Database references are separate from live-server verification; no simulator mechanics are changed by these tooltips.
 
 ### Raid composition planner
 
@@ -50,12 +50,21 @@ This repository contains the sanitized static site used by GitHub Pages. Private
 
 ## Data and artwork
 
-The Rank 1 logo is [JVMES-WOW’s public GitHub avatar](https://github.com/JVMES-WOW), bundled locally.
+### Shared theme
+
+`site-brand.css` defines the shared design tokens, header, navigation, controls, and tool surfaces. Load it after the page's layout stylesheet. New tools use `toolkit-page`; report pages use the light `toolkit-research` variation. Keep the same Home / Talents / Spellbook / Raid / Analysis navigation, and put tool-specific actions below the header.
+
+Amber highlights and muted vine green come from the emblem. Semantic class colors, item quality, damage charts, and success/error colors stay distinct. Homepage previews are local screenshots, not recreated interfaces.
+
+### Sources
+
+The toolkit emblem is a generated amber-gem variation of the Hearthstone Legend / Wild artwork supplied by JVMES, with vines and no rank number. It is bundled locally.
 
 - Current Forever talent data: [Sixty Upgrades](https://sixtyupgrades.com/forever/)
 - Spell data and Druid tooltips: [Forever Warcraft Database](https://forever.warcraftdb.com/)
 - Blizzard game artwork and cross-references: [Wowhead](https://www.wowhead.com/)
+- Tool icons: original WoW menu textures from the [Classic interface-art mirror](https://github.com/Gethe/wow-ui-textures/tree/312a6e61bab69370c65ccc0a08f1075d62196294/Buttons). Spellbook, Talents, and Raid use their corresponding game buttons; Analysis uses Quest Log. The simulator uses the Cat Form spell icon. Artwork © Blizzard Entertainment, bundled locally with menu texture padding trimmed.
 
-The social preview cards are deterministic layouts made from real site data and existing game artwork. They do not use AI-generated art.
+The social preview layouts use real site data. The toolkit emblem is AI-generated from the supplied game-art references; the simulator preview is a direct screenshot of a completed run.
 
 Warcraft, World of Warcraft, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. This repository is an unaffiliated fan project.

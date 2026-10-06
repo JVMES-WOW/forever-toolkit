@@ -14,7 +14,7 @@
   let initialMessage = '';
   const sectionNav = '<nav class="section-nav" aria-label="Main navigation"><a href="./">Home</a><span aria-current="page">Talents</span><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>';
   const classOptions = Object.values(classes).map(item => `<option value="${item.gameClass}" ${item.gameClass === data.gameClass ? 'selected' : ''}>${item.name}</option>`).join('');
-  document.title = `WoW Forever — ${data.name} Talents`;
+  document.title = `${data.name} Talents · Forever Toolkit`;
   try {
     const isShared = /^#FF[234]\./.test(location.hash);
     const code = isShared ? location.hash.slice(1) : localStorage.getItem(storageKey);
@@ -38,7 +38,7 @@
   }
 
   $('#root').innerHTML = `<main>
-    <header><div class="brand"><span class="crest" aria-hidden="true">❦</span><div><small>WORLD OF WARCRAFT</small><strong>FOREVER</strong></div></div>${sectionNav}<label class="class-picker">Class <select id="class-picker">${classOptions}</select></label><button class="ghost" id="share">Share build ↗</button></header>
+    <header><a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="38" height="38" alt=""><strong>Forever Toolkit</strong></a>${sectionNav}<label class="class-picker">Class <select id="class-picker">${classOptions}</select></label><button class="ghost" id="share">Share build ↗</button></header>
     <h1 class="sr-only">${data.name} talent calculator</h1>
     <div class="calculator-bar"><div class="toolbar"><label class="search-label">Find a talent <input id="search" type="search" placeholder="Name or effect…" autocomplete="off"></label><span class="editing-hint">Click to add · Right-click to refund<br>Drag 1 point · Tap destination to repeat</span><button class="ghost" id="undo">Undo</button><button class="ghost" id="reset">Reset build</button></div><div class="points"><span>Talent points</span><b id="total"></b><div class="meter"><i id="meter"></i></div><small id="remaining"></small></div></div>
     <p id="status" role="status" aria-live="polite"></p>

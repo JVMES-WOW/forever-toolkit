@@ -3,65 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WoW Forever Toolkit</title>
-  <meta name="description" content="Talent builds, Druid abilities, raid planning, and Feral community research for World of Warcraft: Forever. A community project by JVMES.">
+  <title>Forever Toolkit</title>
+  <meta name="description" content="WoW Forever talent calculators, Druid abilities, raid planner, and Feral survey analysis.">
   <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="WoW Forever Toolkit">
-  <meta property="og:title" content="WoW Forever Toolkit">
-  <meta property="og:description" content="Plan a build, put a raid together, and explore the Feral community's feedback.">
+  <meta property="og:site_name" content="Forever Toolkit">
+  <meta property="og:title" content="Forever Toolkit">
+  <meta property="og:description" content="Talent calculators, Druid abilities, raid planner, and Feral survey analysis.">
   <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/toolkit-logo.png">
   <meta name="twitter:card" content="summary">
-  <meta name="theme-color" content="#0b1010">
+  <meta name="theme-color" content="#11161e">
+  <link rel="icon" type="image/png" href="toolkit-logo.png">
   <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="site-brand.css">
   <script src="home.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="./" aria-label="Forever Toolkit home"><span class="crest" aria-hidden="true">❦</span><span><small>WORLD OF WARCRAFT</small><strong>FOREVER</strong></span></a>
+    <a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="40" height="40" alt=""><strong>Forever Toolkit</strong></a>
     <nav aria-label="Main navigation"><a href="./" aria-current="page">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>
-    <span class="byline">A community project by <strong>JVMES</strong></span>
   </header>
   <main id="main">
-    <section class="hero" aria-labelledby="home-title">
-      <p class="eyebrow">THE FOREVER TOOLKIT</p>
-      <h1 id="home-title">Plan your build.<br><em>Know your options.</em></h1>
-      <p class="intro">A home for character tools, raid planning, and community research in World of Warcraft: Forever.</p>
-      <a class="primary-link" href="talents.html">Build your talents <span aria-hidden="true">↗</span></a>
-      <span class="hero-note">Made for players. Built by JVMES.</span>
-    </section>
-
-    <section class="tools" aria-labelledby="tools-title">
-      <div class="section-heading"><h2 id="tools-title">The tools</h2><span>Open in your browser. No account needed.</span></div>
-      <div class="tool-grid">
-        <a class="tool-card" href="talents.html">
-          <div class="card-top"><img src="class-icons/druid.jpg" width="46" height="46" alt=""><span class="card-number">01 / CHARACTER</span></div>
-          <h3>Talent calculator</h3><p>Find your build across all nine classes. Move points, save your choices, and share a build.</p>
-          <span class="card-action">Plan a build <span aria-hidden="true">↗</span></span>
-        </a>
-        <a class="tool-card" href="abilities.html">
-          <div class="card-top"><img src="icons/druid/feral-combat.jpg" width="46" height="46" alt=""><span class="card-number">02 / SPELLBOOK</span></div>
-          <h3>Druid abilities</h3><p>Explore spells, ranks, and unlock levels. See what changes as your Druid grows.</p>
-          <span class="card-action">Open the spellbook <span aria-hidden="true">↗</span></span>
-        </a>
-        <a class="tool-card" href="raid.html">
-          <div class="card-top"><img src="class-icons/warrior.jpg" width="46" height="46" alt=""><span class="card-number">03 / GROUPS</span></div>
-          <h3>Raid planner</h3><p>Build your roster and check buff coverage, party effects, and the gaps worth filling.</p>
-          <span class="card-action">Put a raid together <span aria-hidden="true">↗</span></span>
-        </a>
-      </div>
-    </section>
-
-    <section class="research" aria-labelledby="research-title">
-      <div class="research-copy"><p class="eyebrow">FROM THE COMMUNITY</p><h2 id="research-title">What makes Feral<br>feel like Feral?</h2><p>A closer look at the play loop, powershifting, and what players want to preserve. The original survey report, with charts, methods, and aggregate downloads.</p><a class="text-link" href="analysis/">Read the Feral analysis <span aria-hidden="true">↗</span></a></div>
-      <div class="survey-snapshot"><span class="snapshot-label">THE SEPTEMBER SNAPSHOT</span><strong>767</strong><span>community responses</span><div class="snapshot-rule"></div><p>September 20–21, 2026<br>A self-selected sample, not a vote by all players.</p></div>
-    </section>
-
-    <section class="in-development" aria-labelledby="sim-title">
-      <div class="development-mark" aria-hidden="true">⌁</div><div><div class="development-title"><h2 id="sim-title">Feral simulator</h2><span class="status-badge">Private · Work in progress</span></div><p>An experimental damage and rotation simulator. Still being developed and validated; no public link is provided here.</p></div>
-    </section>
+    <h1>Tools</h1>
+    <div class="tool-grid">
+      <a class="tool-card" href="talents.html"><img src="class-icons/druid.jpg" width="44" height="44" alt=""><div><h2>Talent calculator</h2><p>Builds for all nine classes.</p></div><span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="tool-card" href="abilities.html"><img src="icons/druid/feral-combat.jpg" width="44" height="44" alt=""><div><h2>Druid abilities</h2><p>Spells and ranks by level.</p></div><span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="tool-card" href="raid.html"><img src="class-icons/warrior.jpg" width="44" height="44" alt=""><div><h2>Raid planner</h2><p>Rosters, buffs, and debuffs.</p></div><span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="tool-card" href="analysis/"><img src="ability-icons/cat-form.jpg" width="44" height="44" alt=""><div><h2>Feral analysis</h2><p>767 survey responses · September 20–21, 2026</p></div><span class="arrow" aria-hidden="true">↗</span></a>
+    </div>
+    <section class="sim-status" aria-labelledby="sim-title"><h2 id="sim-title">Feral simulator</h2><span>Private · Work in progress</span></section>
   </main>
-  <footer class="page-foot"><span>WoW Forever Toolkit · JVMES</span><span>An independent community project. Not affiliated with Blizzard Entertainment.</span></footer>
+  <footer class="page-foot"><span>JVMES</span><span>Not affiliated with Blizzard Entertainment.</span></footer>
 </body>
 </html>

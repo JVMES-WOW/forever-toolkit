@@ -1,4 +1,4 @@
-# WoW Forever Toolkit
+# Forever Toolkit
 
 A static, browser-based toolkit for planning characters and groups in **World of Warcraft: Forever**.
 
@@ -49,6 +49,8 @@ The site has no account system, analytics, or backend. Local drafts use browser 
 This repository contains the sanitized static site used by GitHub Pages. Private source captures, research notes, and authoring tools are excluded from publication.
 
 ## Data and artwork
+
+The Rank 1 logo is [JVMES-WOW’s public GitHub avatar](https://github.com/JVMES-WOW), bundled locally.
 
 - Current Forever talent data: [Sixty Upgrades](https://sixtyupgrades.com/forever/)
 - Spell data and Druid tooltips: [Forever Warcraft Database](https://forever.warcraftdb.com/)

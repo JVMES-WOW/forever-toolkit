@@ -1,0 +1,9 @@
+/* Shared project identity. The Rank 1 artwork is the project's GitHub avatar. */
+.brand.toolkit-brand{display:flex;align-items:center;gap:11px;flex-shrink:0;text-decoration:none;color:#e8edf4}
+.brand.toolkit-brand img{display:block;width:38px;height:38px;object-fit:contain;border:1px solid #eea45e55;border-radius:7px;flex-shrink:0}
+.brand.toolkit-brand strong{display:block;font:650 17px/1.2 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.3px;white-space:nowrap;color:#e8edf4}
+.brand.toolkit-brand:focus-visible{outline:2px solid #eea45e;outline-offset:5px}
+.topbar:has(.toolkit-brand){background:#11161e;border-bottom-color:#ffffff12}
+.topbar:has(.toolkit-brand) nav a{color:#a5afbe}
+.topbar:has(.toolkit-brand) nav a:hover,.topbar:has(.toolkit-brand) nav a.active,.topbar:has(.toolkit-brand) nav a[aria-current]{color:#f6b57a;border-bottom-color:#eea45e}
+@media(max-width:760px){.brand.toolkit-brand{gap:9px}.brand.toolkit-brand img{width:34px;height:34px}.brand.toolkit-brand strong{font-size:16px}}

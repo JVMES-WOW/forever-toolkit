@@ -7,12 +7,12 @@
   const $ = selector => document.querySelector(selector);
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
   const storageKey = `forever-${data.gameClass}-talents-v1`;
-  const shareBase = 'https://jvmes-wow.github.io/forever-toolkit/';
+  const shareBase = 'https://jvmes-wow.github.io/forever-toolkit/talents.html';
   let points = {}, rules = { ...calc.defaults }, selected = calc.talents[0].id;
   let undoStack = [], query = '';
   let talentDrag = null, talentRepeat = null;
   let initialMessage = '';
-  const sectionNav = '<nav class="section-nav" aria-label="Main navigation"><span aria-current="page">Talents</span><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a></nav>';
+  const sectionNav = '<nav class="section-nav" aria-label="Main navigation"><a href="./">Home</a><span aria-current="page">Talents</span><a href="abilities.html">Abilities</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>';
   const classOptions = Object.values(classes).map(item => `<option value="${item.gameClass}" ${item.gameClass === data.gameClass ? 'selected' : ''}>${item.name}</option>`).join('');
   document.title = `WoW Forever — ${data.name} Talents`;
   try {

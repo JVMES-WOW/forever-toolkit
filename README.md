@@ -8,7 +8,11 @@ A static, browser-based toolkit for planning characters and groups in **World of
 
 ## Tools
 
+The [home page](https://jvmes-wow.github.io/forever-toolkit/) brings together the public tools and community research.
+
 ### Talent calculators
+
+[Open the talent calculator](https://jvmes-wow.github.io/forever-toolkit/talents.html). Previously shared root-URL builds still open their original talents.
 
 - Current calculators for all nine classes: Druid, Hunter, Mage, Paladin, Priest, Rogue, Shaman, Warlock, and Warrior.
 - 27 talent trees and 467 talents with ranks, prerequisites, row requirements, and point limits.
@@ -33,6 +37,10 @@ A static, browser-based toolkit for planning characters and groups in **World of
 - Per-player Blessing priorities, selectable Air Totems, and manual debuff-provider overrides.
 - Profession camp buffs for five-player groups, with party-wide effects and redundancy warnings.
 - Shareable links that preserve the complete plan.
+
+## Community research
+
+The [Feral community analysis](https://jvmes-wow.github.io/forever-toolkit/analysis/) restores the September 20–21, 2026 survey report: 767 self-selected responses, charts, methodology, and public aggregate downloads. It is a historical snapshot, not a representative poll or an assessment of later design updates. Raw survey responses and private research are not published.
 
 ## Privacy and storage
 

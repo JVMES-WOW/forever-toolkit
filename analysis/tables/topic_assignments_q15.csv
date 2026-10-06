@@ -1,0 +1,646 @@
+question,document_id,primary_topic,secondary_topic,weight_1,weight_2,weight_3,weight_4,weight_5,weight_6
+Q15,D0001,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0002,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0003,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0004,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0005,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.16893557883970062,0.02026977496495565,0.0,0.0,0.0
+Q15,D0006,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.1483922844560631,0.008481947810480292,0.0
+Q15,D0007,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.17713613331897912,0.0,0.0,0.0
+Q15,D0008,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01833765326843803,0.0
+Q15,D0009,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.08527788905670952,0.0,0.0,0.011191337852352495,0.0,0.0
+Q15,D0010,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0011,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0012,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.10136229162924221
+Q15,D0013,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.006353616290083308,0.0,0.0
+Q15,D0014,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07267031119388549,0.0
+Q15,D0015,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.005117775124788231,0.0
+Q15,D0016,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0017,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0018,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.17175709253105315,0.0,0.0
+Q15,D0019,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.322487364477624,0.0
+Q15,D0020,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.043313862674119144,0.044358943945008736,0.0,0.0,0.0
+Q15,D0021,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.004308399385446093,0.0
+Q15,D0022,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0023,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.16117391141998855,0.0,0.0,0.0
+Q15,D0024,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0025,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.07002431690324942,0.0033997159882519948,0.0,0.0,0.0
+Q15,D0026,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",6.793887932475063e-05,0.0,0.0,0.0,0.0,0.0
+Q15,D0027,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0028,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0029,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0030,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.08275274581808345,0.0,0.0,0.07556360865619392,0.0
+Q15,D0031,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.021888183095208888,0.0
+Q15,D0032,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.09584074230460396,0.0,0.0,0.013400755956857394,0.002954058557623079,0.0
+Q15,D0033,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.27944777452363745,0.0
+Q15,D0034,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.0698303546148061,0.0,0.0,0.0,0.0,0.0
+Q15,D0035,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0036,"Weapon scaling, forms, and toolkit",Strong bleed emphasis,0.0,0.0875356128038129,0.0015089560065963952,0.0,0.0,0.10659139437954077
+Q15,D0037,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.00017690250680056982,0.0,0.0,0.017447249854231392,0.0
+Q15,D0038,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.022924533401938053,0.23271103294969533,0.0,0.0,0.0
+Q15,D0039,Cat/Bear hybrid and talents,Bleed identity and gameplay,0.0,0.0,0.016913098855510938,0.0,0.03507351684821494,0.0
+Q15,D0040,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0041,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.031051222327343826,0.0
+Q15,D0042,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.010589264026058691,0.11687238197906624,0.0,0.0,0.0
+Q15,D0043,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.16821236487195135,0.0,0.0,0.00416058166053806,0.0
+Q15,D0044,"Weapon scaling, forms, and toolkit",Bleed identity and gameplay,0.0,0.0,0.15368398259968272,0.0,0.0,0.24348323898719315
+Q15,D0045,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0046,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0047,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0048,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0049,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.16468227861559617,0.0,0.0,0.0,0.0,0.0
+Q15,D0050,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.004824299293882804,0.0
+Q15,D0051,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0052,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0053,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0054,Strong bleed emphasis,Powershifting/removal (mixed polarity),0.0005455733408138169,0.2278750933356814,0.0,0.0,0.0,0.0
+Q15,D0055,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.0009079513503360743,0.0,0.0,0.011718823451002386,0.0
+Q15,D0056,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0057,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0058,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.1808582240131858,0.011932775827253555,0.0,0.0,0.0
+Q15,D0059,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.08875572632719166,0.0,0.0,0.0,0.0
+Q15,D0060,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0061,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0062,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.003221557610580112,0.1074617330079073,0.0
+Q15,D0063,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.002422354672169316,0.0
+Q15,D0064,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.12808188515357583,0.017716960441966068,0.0,0.0,0.0
+Q15,D0065,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.18531626281230254,0.0,0.0
+Q15,D0066,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.15238221561231644,0.0,0.0,0.0
+Q15,D0067,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0034683190271011747,0.0
+Q15,D0068,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0069,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.1890490640411146,0.015582531968862974,0.0,0.0,0.0
+Q15,D0070,"Tiger's Fury, Berserk, and energy tools",Strong bleed emphasis,0.0,0.1658302538558763,0.0,0.2406022027588954,0.0,0.0
+Q15,D0071,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.00026108672406896673,0.002662755262785782,0.0
+Q15,D0072,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0073,"Weapon scaling, forms, and toolkit",Strong bleed emphasis,0.0,0.061421219229484944,0.0,0.0,0.0,0.11384656726669039
+Q15,D0074,Bleed identity and gameplay,Powershifting/removal (mixed polarity),0.11299012303910466,0.0,0.17388853401963195,0.0,0.0,0.0
+Q15,D0075,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0076,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.19410709717711988
+Q15,D0077,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.1037447894357153,0.0,0.0,0.0,0.0,0.0
+Q15,D0078,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.003459098062103424,3.485659122245487e-05,0.0
+Q15,D0079,Powershifting/removal (mixed polarity),Bleed identity and gameplay,0.07304537253953607,0.0,0.00614519649754283,0.0,0.0,0.0
+Q15,D0080,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.12905171469516616,0.0,0.0,0.0,0.0
+Q15,D0081,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01032099019457611,0.0
+Q15,D0082,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0746593510905921,0.0
+Q15,D0083,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0084,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0085,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10065196349383891,0.0
+Q15,D0086,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0087,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.06502368645444262,0.0
+Q15,D0088,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.40139212762064264,0.0,0.0,0.0
+Q15,D0089,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07941148664442296,0.0
+Q15,D0090,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0091,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0092,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.049029686379303154,0.0
+Q15,D0093,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0094,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.23176009366173672,0.0,0.0,0.0
+Q15,D0095,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0096,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0097,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.11158774821355846,0.0,0.005134837617013399,0.0
+Q15,D0098,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.10913785544475296,0.0,0.0,0.0,0.0
+Q15,D0099,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0100,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.07158434615008882,0.0,0.0,0.0,0.0,0.0
+Q15,D0101,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.14189307312239363,0.0
+Q15,D0102,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.02461630096862844,0.0,0.002855757965270446,0.0
+Q15,D0103,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.11622225997964403,0.006842452346244733,0.0,0.0,0.0
+Q15,D0104,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0105,Powershifting/removal (mixed polarity),Strong bleed emphasis,0.12691193557072786,0.0702050487766012,0.0,0.0,0.0,0.0
+Q15,D0106,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.09146241208329435,0.0,0.0,0.04491959265078505,0.0
+Q15,D0107,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05699003372117149,0.0
+Q15,D0108,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.009533497627496623,0.0
+Q15,D0109,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0110,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0111,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0006607857610998785,0.0
+Q15,D0112,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0113,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.005172909440927795,0.0
+Q15,D0114,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.004286988851831815,0.0
+Q15,D0115,"Tiger's Fury, Berserk, and energy tools",Bleed identity and gameplay,0.0,0.0,0.07320748726435344,0.08701419227551019,0.0,0.0
+Q15,D0116,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.12718600478461808,0.011371293068559574,0.0,0.013563294444884648,0.0
+Q15,D0117,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0118,Bleed identity and gameplay,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.01647072153680977,0.0013080807216087438,0.0,0.0
+Q15,D0119,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0120,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.08135095886252602,0.0,0.0,0.08272605582799362,0.0
+Q15,D0121,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0122,Cat/Bear hybrid and talents,Bleed identity and gameplay,0.0,0.0,0.004146809993763844,0.0,0.008621559283269997,0.0
+Q15,D0123,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0124,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.17016300447270463,0.010736061394694326,0.0,0.0,0.0
+Q15,D0125,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.010594585063356076,0.0
+Q15,D0126,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.09509845599655871,0.00779325786303792,0.0
+Q15,D0127,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0128,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0129,Cat/Bear hybrid and talents,Bleed identity and gameplay,0.0,0.00018989885828589036,0.0004656003497466772,0.0,0.025988247121972563,0.0
+Q15,D0130,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10774111426462153,0.0
+Q15,D0131,Bleed identity and gameplay,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.16614736479145334,0.15278647300759812,0.0,0.0
+Q15,D0132,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0133,Cat/Bear hybrid and talents,Bleed identity and gameplay,0.0,0.04268305571402668,0.08055103455594105,0.0,0.08981391046306464,0.0
+Q15,D0134,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10661254586966268,0.0
+Q15,D0135,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07337153472295369,0.0
+Q15,D0136,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.005758064759699397,0.0
+Q15,D0137,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07152355671380158,0.0
+Q15,D0138,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.09618224434327718,0.0,0.0,0.0,0.0
+Q15,D0139,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.017381274289837864,0.19310595001270728,0.0,0.0,0.0
+Q15,D0140,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.15829873972789854,0.0,0.0,0.020338668000794497,0.0
+Q15,D0141,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.40139212762064264,0.0,0.0,0.0
+Q15,D0142,Strong bleed emphasis,"Tiger's Fury, Berserk, and energy tools",0.0,0.13851689759661537,0.0,0.0046081996597551154,0.0,0.0
+Q15,D0143,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0144,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.12180782010128033,0.05046349507874349,0.0,0.0031818515301470503,0.0
+Q15,D0145,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0146,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0147,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0148,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.19729872315843275,0.007111295645216652,0.0
+Q15,D0149,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0150,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.3233452618040889,0.0
+Q15,D0151,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0152,"Tiger's Fury, Berserk, and energy tools",Powershifting/removal (mixed polarity),0.061284286073651204,0.0,0.0,0.09232105938143473,0.0,0.0
+Q15,D0153,Cat/Bear hybrid and talents,Bleed identity and gameplay,0.0,0.0,0.00016808440390181904,0.0,0.06824838951556374,0.0
+Q15,D0154,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0155,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.09613010531660139,0.0,0.0,0.0,0.0
+Q15,D0156,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.004844508671713256,0.27033281843994966,0.0,0.0,0.0
+Q15,D0157,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0158,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.16073810029859822,0.0,0.0,0.0,0.0
+Q15,D0159,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.04259160989709209,0.0
+Q15,D0160,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0161,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0730117961760612,0.0
+Q15,D0162,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0163,"Tiger's Fury, Berserk, and energy tools",Powershifting/removal (mixed polarity),0.12439572522533678,0.0,0.0,0.17376572292896394,0.0,0.0
+Q15,D0164,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.060057814176637705,0.0
+Q15,D0165,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07200973896534882,0.0
+Q15,D0166,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.13800801451967784,0.003610762057780521,0.0,0.0,0.0
+Q15,D0167,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.04914306706954603,0.0,0.0,0.09030945621928123,0.007546608602652479,0.0813796948651252
+Q15,D0168,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.06211064037288225,0.008219311905183768,0.0,0.014236849159478003,0.0
+Q15,D0169,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0170,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0171,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.06923507260145222,0.0,0.005844036657092538,0.0
+Q15,D0172,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0173,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.11692584462338973,0.0,0.0,0.014546173778940304,0.0,0.0
+Q15,D0174,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0175,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0176,"Tiger's Fury, Berserk, and energy tools",Bleed identity and gameplay,0.0,0.0710810662754422,0.08769601185902766,0.11198415462923254,0.0,0.0
+Q15,D0177,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0178,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0179,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.04881298578616191,0.0
+Q15,D0180,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0181,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0182,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0183,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.03403708282240749,0.0
+Q15,D0184,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0185,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0186,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.0011066045568879485,0.0,0.0,0.014210152060274747,0.0
+Q15,D0187,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.000365741424621283,0.20840137729569602,0.0,0.0,0.0
+Q15,D0188,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.018690384166592352,0.09721021040187756,0.0
+Q15,D0189,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0190,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0191,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.13725567266675212,0.0
+Q15,D0192,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.002664219351192719,0.0,0.0
+Q15,D0193,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0194,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0195,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.00087764707986866,0.0
+Q15,D0196,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.13042011703443238,0.0,0.0,0.01713982599422147,0.005078649375635767,0.0
+Q15,D0197,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.050819511097055146,0.0
+Q15,D0198,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.05798377111316077,0.08647122888975062,0.0
+Q15,D0199,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0200,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0201,Powershifting/removal (mixed polarity),Strong bleed emphasis,0.22898820476086645,0.000989411745803295,0.0,0.0,0.0,0.0
+Q15,D0202,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.09702359331131774,0.0,0.0,0.0,0.0,0.0
+Q15,D0203,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.00019818999757402643,0.0,0.0
+Q15,D0204,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0205,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.40139212762064264,0.0,0.0,0.0
+Q15,D0206,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0207,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0208,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.06665083994743723,0.0,0.0,0.0,0.0,0.0
+Q15,D0209,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0210,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0588904011330706,0.0
+Q15,D0211,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0212,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.13099549447427322,0.0,0.0
+Q15,D0213,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.019660391729026807,0.007654922023774917,0.0
+Q15,D0214,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0215,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.1593531980042661,0.0,0.0
+Q15,D0216,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.12985635557684547,0.0,0.0,0.0,0.0
+Q15,D0217,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.11475387004375949,0.0
+Q15,D0218,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0219,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.013835006564867648,0.0
+Q15,D0220,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0221,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0222,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.12303906934064263,0.0,0.0,0.0,0.0
+Q15,D0223,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.10958721587965518,0.0,0.0,0.0,0.0
+Q15,D0224,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0225,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.14246808165629488,0.0,0.0
+Q15,D0226,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.19773424156401942,0.0,0.0,0.0,0.0
+Q15,D0227,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.18858221364686795,0.0,0.0,0.0
+Q15,D0228,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07468534804490098,0.0
+Q15,D0229,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0230,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.07558841452377615,0.0,0.0,0.0
+Q15,D0231,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05953471486809949,0.0
+Q15,D0232,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.09537019993537281,0.0,0.0,0.0,0.0
+Q15,D0233,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.20385780709696202,0.0,0.0,0.0,0.0
+Q15,D0234,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.17283417934044928,0.0,0.0
+Q15,D0235,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0236,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.3285236572822628
+Q15,D0237,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.19478621529436072,0.0,0.0,0.0,0.0
+Q15,D0238,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0239,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0032000935642799507,0.00030877635408230094
+Q15,D0240,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1765745285239611,0.0
+Q15,D0241,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0242,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10514944189364782,0.0
+Q15,D0243,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0244,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.009384090104048014,0.0
+Q15,D0245,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.06373632840768628,0.0
+Q15,D0246,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0247,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0248,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.048650070404936685,0.0,0.0010153252330844574,0.0,0.04105310236164035,0.0
+Q15,D0249,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.12419944784082247,0.0,0.0,0.0
+Q15,D0250,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0251,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.2142005544706186,0.0,0.0,0.009585288917986445,0.0
+Q15,D0252,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0253,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.21740231606193702,0.0,0.0,0.0
+Q15,D0254,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.006353616290083308,0.0,0.0
+Q15,D0255,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10865548500729483,0.0
+Q15,D0256,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0257,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.06222458876745541,0.0
+Q15,D0258,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0259,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1032242863760856,0.0
+Q15,D0260,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.10493142997044143,0.0,0.0,0.0,0.0
+Q15,D0261,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0262,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0263,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.000365741424621283,0.20840137729569602,0.0,0.0,0.0
+Q15,D0264,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.00781605654995024,0.02346800385514152,0.0,0.0,0.0
+Q15,D0265,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.40139212762064264,0.0,0.0,0.0
+Q15,D0266,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.2079132497916556
+Q15,D0267,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0268,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0269,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.076676988961555,0.0,0.0,0.0,0.059729765877355616,0.0
+Q15,D0270,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.1607004660799342,0.0,0.0,0.0,0.0
+Q15,D0271,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.11590967489691385,0.0,0.0,0.0,0.0
+Q15,D0272,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0273,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.09473850899407903
+Q15,D0274,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.09278111302263521,0.0,0.009763869310452408,0.0
+Q15,D0275,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0276,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.20510123495464483,0.0,0.0
+Q15,D0277,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0278,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0279,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.22504016180916372,0.0,0.0,0.004511400992546184,0.0019591924013239786,0.0
+Q15,D0280,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.07375485341298017,0.0019363735871069676,0.0,0.0,0.0
+Q15,D0281,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0282,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006431419518438395,0.0
+Q15,D0283,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10248631749306818,0.0
+Q15,D0284,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.0031718389703772757,0.20050763083664033,0.0
+Q15,D0285,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0812936600825961,0.0,0.0,0.0,0.06485024464345432,0.0
+Q15,D0286,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.002187118445612171,0.0,0.0
+Q15,D0287,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.16662197196466136,0.0
+Q15,D0288,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.12406680936849494,0.0
+Q15,D0289,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006730653350875632,0.0
+Q15,D0290,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.056919514297376156,0.0
+Q15,D0291,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.15200741021528094,0.0,0.0,0.0,0.02034123553713618,0.0
+Q15,D0292,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0011867015808259896,0.0
+Q15,D0293,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0006063645210746185,0.0,0.0,0.0076861422245860424,0.08116527501859169
+Q15,D0294,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0295,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.09198708023207412,0.0,0.0,0.1448869819581028,0.0
+Q15,D0296,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006371410563558202,0.0
+Q15,D0297,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0298,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0299,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0007303095604170817,0.0,0.0,0.05332726891710986,0.011189528307637718,0.0
+Q15,D0300,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0067527765479365,0.0
+Q15,D0301,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0302,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0303,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.001637155243075912,0.0,0.0,0.0,0.0
+Q15,D0304,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0305,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0306,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.22663005126403676,0.017657619662951075,0.0,0.0,0.0
+Q15,D0307,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0308,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0309,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0310,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.008867565465816097,0.13120362081860065,0.0
+Q15,D0311,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0312,Strong bleed emphasis,"Tiger's Fury, Berserk, and energy tools",0.0,0.08440849989822964,0.0,0.08030836491085196,0.019481526887425306,0.0
+Q15,D0313,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.15691643500381458,0.0
+Q15,D0314,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0315,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0316,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0317,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.05898562073782541,0.0,0.0,0.006986049521084538,0.0,0.0
+Q15,D0318,Powershifting/removal (mixed polarity),Bleed identity and gameplay,0.055443046661436485,0.0,0.004087472227437332,0.0,0.0,0.0
+Q15,D0319,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.03036346032709471,0.0
+Q15,D0320,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.27385405468336543,0.0
+Q15,D0321,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0322,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0323,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1668314894551061,0.0
+Q15,D0324,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0325,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0010214383728946671,0.0,0.004940536211324818,0.04992499140773039,0.0
+Q15,D0326,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0327,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0328,"Tiger's Fury, Berserk, and energy tools",Strong bleed emphasis,0.0,0.06002098547622072,0.0,0.084941963017094,0.0,0.0
+Q15,D0329,Bleed identity and gameplay,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.17469101440557622,0.013525802194875782,0.001998067336773943,0.0
+Q15,D0330,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.03948168821782824,0.0
+Q15,D0331,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0332,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0333,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.06624056519484667,0.0
+Q15,D0334,"Weapon scaling, forms, and toolkit",Strong bleed emphasis,0.0,0.1110877037576772,0.0,0.0,0.0,0.18937720706792902
+Q15,D0335,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10042773127513595,0.0
+Q15,D0336,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0337,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.10330561347110115,0.0,0.0,0.0,0.0,0.0
+Q15,D0338,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0339,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.11902232201020846,0.0
+Q15,D0340,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.14364743680125583,0.0,0.0,0.0,0.0,0.0
+Q15,D0341,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.13206893915623383,0.0,0.0,0.0,0.0
+Q15,D0342,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.17217174761481946,0.0
+Q15,D0343,Powershifting/removal (mixed polarity),Strong bleed emphasis,0.06947165971539536,0.06855402540059805,0.0,0.0,0.0,0.0
+Q15,D0344,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0007303095604170817,0.0,0.0,0.05332726891710986,0.011189528307637718,0.0
+Q15,D0345,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.09667167072187118,0.01026670597381246,0.0,0.0,0.0
+Q15,D0346,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.00024246308074642644,0.0
+Q15,D0347,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.042586426305338806,0.0,0.0,0.005186218042988027,0.0
+Q15,D0348,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0349,Strong bleed emphasis,"Tiger's Fury, Berserk, and energy tools",0.0,0.11850675783374669,0.0,0.0019579102677802196,0.0,0.0
+Q15,D0350,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.08043813141382232,0.0
+Q15,D0351,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.10487864296718878,0.0,0.0,0.0,0.0
+Q15,D0352,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0353,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0354,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.02337343505096114,0.0
+Q15,D0355,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0004936916199909844,0.0
+Q15,D0356,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.18568963614245523,0.0,0.0
+Q15,D0357,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01316123166185819,0.0
+Q15,D0358,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0035218572349609858,0.0,0.0,0.0
+Q15,D0359,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.01771584540210116,0.008435476970359524,0.0,0.0,0.0
+Q15,D0360,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.1890490640411146,0.015582531968862974,0.0,0.0,0.0
+Q15,D0361,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0362,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.06133019721291245,0.0
+Q15,D0363,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0364,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.07970202243515256,0.0,0.0,0.0,0.0
+Q15,D0365,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0366,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0367,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.03656134813420913,0.0
+Q15,D0368,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.1771554335675847,0.004193457863531649,0.0
+Q15,D0369,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.18541094983747977,0.0,0.0,0.0,0.0,0.0
+Q15,D0370,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0018333676439865273,0.0,0.0,0.0
+Q15,D0371,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.020017689251049377,0.0,0.0,0.0
+Q15,D0372,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.1526030316371287,0.008341637119298887,0.0024891519652670605,0.009895839344690474,0.0
+Q15,D0373,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.06155222032076001,0.15294480176414094,0.0
+Q15,D0374,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,2.0161820308919266e-06,0.007819847302880014,0.18031491210133282
+Q15,D0375,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.03166210374337456,0.0,0.0,0.014186017723078996,0.0
+Q15,D0376,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.2261680083953731,0.0,0.0,0.0
+Q15,D0377,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.007339919135145986,0.0
+Q15,D0378,Cat/Bear hybrid and talents,Powershifting/removal (mixed polarity),0.035002642848751965,0.0,0.0006255263492782224,0.0,0.08504390093228371,0.0
+Q15,D0379,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.16070674196522786,0.0
+Q15,D0380,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.07930855574996107,0.05483066876490825,0.007750498077016346,0.040992718968450144,0.06060681651854681
+Q15,D0381,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.07778011262868073,0.0,0.0
+Q15,D0382,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0383,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.12040050450478082,0.0,0.0,0.0,0.0
+Q15,D0384,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.005015336958963366,0.12326285653802542,0.0,0.0,0.0
+Q15,D0385,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006877124282897243,0.0
+Q15,D0386,Bleed identity and gameplay,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.09494729817429988,0.013059784645091657,0.0,0.0
+Q15,D0387,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.22663005126403676,0.017657619662951075,0.0,0.0,0.0
+Q15,D0388,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.08364604509316116,0.0,0.0,0.0,0.0
+Q15,D0389,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.006752196621744697,0.08249686797358131
+Q15,D0390,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1269099507819681,0.0
+Q15,D0391,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0392,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.2872250569690931,0.0,0.0
+Q15,D0393,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0394,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.019660391729026807,0.007654922023774917,0.0
+Q15,D0395,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0396,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0397,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0398,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.08426040850390552,0.0,0.0,0.012358675938612219,0.0
+Q15,D0399,"Tiger's Fury, Berserk, and energy tools",Strong bleed emphasis,0.0,0.09402846479815809,0.0,0.11613159094511029,0.0,0.0
+Q15,D0400,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.08926448456685697,0.0,0.0
+Q15,D0401,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.07445426402004125,0.0,0.0,0.07462096405674154,0.0
+Q15,D0402,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.2261680083953731,0.0,0.0,0.0
+Q15,D0403,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.00545927546800908,0.0
+Q15,D0404,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006395495422902953,0.0
+Q15,D0405,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.09662353887127265,0.016551801114053726,0.0,0.0,0.0
+Q15,D0406,Strong bleed emphasis,Powershifting/removal (mixed polarity),0.10075203758484436,0.11733470711787441,0.01096416819593451,0.0,0.0,0.0
+Q15,D0407,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.08625372968757028,0.0,0.0,0.0,0.0,0.0
+Q15,D0408,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.04043573023259594,0.0
+Q15,D0409,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0410,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0411,Powershifting/removal (mixed polarity),Strong bleed emphasis,0.05684192479658755,0.00813980884225198,0.005753556461351014,0.0,0.0,0.0
+Q15,D0412,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.10472808778705861,0.0
+Q15,D0413,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.322487364477624,0.0
+Q15,D0414,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0415,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.23176009366173672,0.0,0.0,0.0
+Q15,D0416,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0417,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.06342751107222007,0.0,0.008885299318838719,0.0
+Q15,D0418,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0419,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1316793186209528,0.0
+Q15,D0420,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0421,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0422,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0423,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0424,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.09685409795743559,0.0,0.0,0.11413126891983319,0.0
+Q15,D0425,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.054986044366422585,0.05889194238474812,0.0,0.004801449311357576,0.0
+Q15,D0426,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0427,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.005958578658585126,0.0,0.0,0.0
+Q15,D0428,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.09037877909014387,0.0
+Q15,D0429,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0030145500236765745,0.0
+Q15,D0430,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.08815471021170446,0.0,0.0,0.0
+Q15,D0431,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0432,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0433,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0434,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.07873780019063205,0.0,0.0,0.0,0.0,0.0
+Q15,D0435,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0436,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.2068143634827959,0.0,0.0
+Q15,D0437,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05349445189106099,0.0
+Q15,D0438,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.21410344956671937,0.001308692716584892,0.0
+Q15,D0439,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.1845947743274763,0.0,0.0,0.0,0.0,0.0
+Q15,D0440,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.016496279673220073,0.25458623331045704
+Q15,D0441,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.018201676949976726,0.20023989956315147,0.0,0.0,0.0
+Q15,D0442,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.129904021820072,0.06891592896675312,0.0,0.0,0.0
+Q15,D0443,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0444,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.1389398783347968,0.0,0.0,0.0
+Q15,D0445,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.14090884538174395,0.0,0.0,0.0
+Q15,D0446,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.015608174370794124,0.16150996140845833,0.0,0.0,0.0
+Q15,D0447,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05953471486809949,0.0
+Q15,D0448,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01700885093347166,0.0
+Q15,D0449,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0450,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.17368159506137637,0.0
+Q15,D0451,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.007297683153954954,0.0
+Q15,D0452,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.2468414158350983,0.0,0.0
+Q15,D0453,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0454,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.2261680083953731,0.0,0.0,0.0
+Q15,D0455,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0456,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0457,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0458,Cat/Bear hybrid and talents,Bleed identity and gameplay,0.0,0.0,0.005902981364408846,0.004710005088295403,0.07137056264946329,0.0
+Q15,D0459,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.04161928798842396,0.0,0.0,0.005207425766802378,0.014794766540253967,0.0
+Q15,D0460,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.19122053896799604,0.0,0.0,0.0,0.0,0.0
+Q15,D0461,"Tiger's Fury, Berserk, and energy tools",Strong bleed emphasis,0.0,0.05080279887268173,0.0012184162923545912,0.07492324746158768,0.0013512330706701332,0.0
+Q15,D0462,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.1765225204272443,0.0,0.0,0.0
+Q15,D0463,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0009312280745908558,0.0,0.0,0.0
+Q15,D0464,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0465,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0466,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.1122782678982804,0.0,0.0,0.0,0.0
+Q15,D0467,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.1307263606425674,0.0,0.0,0.0
+Q15,D0468,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.11696403614869338,0.0
+Q15,D0469,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0470,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0471,Bleed identity and gameplay,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.09437476916441988,0.0013490583349198703,0.0,0.0
+Q15,D0472,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0473,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.24799505464937951,0.0
+Q15,D0474,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0475,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.003672242469332175,0.004265677666558741,0.0,0.0,0.0
+Q15,D0476,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0477,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.12952604110168484,0.0
+Q15,D0478,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0479,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.17213530058485868,0.0,0.0,0.0
+Q15,D0480,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0481,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.0015797803623993785,0.11735794365006336,0.0
+Q15,D0482,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.15200741021528094,0.0,0.0,0.0,0.02034123553713618,0.0
+Q15,D0483,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.005442543155229487,0.0
+Q15,D0484,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.14966416632538213,0.0,0.0,0.0
+Q15,D0485,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0767070970232203,0.0
+Q15,D0486,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.004924390805917051,0.0
+Q15,D0487,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.12323627287261404,0.0
+Q15,D0488,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.07563805720490796,0.0
+Q15,D0489,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0490,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0491,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.1452912665545552,0.0,0.0,0.0
+Q15,D0492,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0002760476179202805
+Q15,D0493,Powershifting/removal (mixed polarity),Bleed identity and gameplay,0.12064925761910472,0.0,0.0011691308013898572,0.0,0.0,0.0
+Q15,D0494,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.12519821706823192,0.0
+Q15,D0495,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0496,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.20756284919944396,0.0,0.0,0.0
+Q15,D0497,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.1890490640411146,0.015582531968862974,0.0,0.0,0.0
+Q15,D0498,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0499,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.00048047023847280925,0.0
+Q15,D0500,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.019660391729026807,0.007654922023774917,0.0
+Q15,D0501,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0502,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.19571286452424067,0.0
+Q15,D0503,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05225368895593732,0.0
+Q15,D0504,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0505,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.005648820080845745,0.0,0.0
+Q15,D0506,Cat/Bear hybrid and talents,Strong bleed emphasis,0.0,0.03326355513174427,0.0,0.0,0.08665098763936697,0.0
+Q15,D0507,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.2401337551821565,0.0
+Q15,D0508,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0509,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0510,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.20260056993663098,0.0,0.0
+Q15,D0511,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.06778061751580915,0.0
+Q15,D0512,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.0005502874824343683,0.20714525289891803,0.0,0.0,0.0
+Q15,D0513,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0514,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0515,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.1221562573667723,0.009588413319941116,0.002673014657831172,0.0,0.0
+Q15,D0516,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.1765225204272443,0.0,0.0,0.0
+Q15,D0517,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0518,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.07911228148941818,0.0,0.0,0.0014024791452401698,0.0
+Q15,D0519,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.010833946141869714,0.0
+Q15,D0520,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0521,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.1110985159770023,0.0,0.0,0.0
+Q15,D0522,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0523,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0524,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.1293521757855911,0.0,0.0,0.0,0.0
+Q15,D0525,Strong bleed emphasis,Powershifting/removal (mixed polarity),0.0023101640018030117,0.003741443981917144,0.0,0.0,0.0,0.0
+Q15,D0526,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01568508663696968,0.0
+Q15,D0527,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0528,Powershifting/removal (mixed polarity),Bleed identity and gameplay,0.04403908811435747,0.0,0.0006680502121793433,0.0,0.0,0.0
+Q15,D0529,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0530,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0531,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.43370107176459416,0.0,0.0
+Q15,D0532,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0533,Cat/Bear hybrid and talents,Powershifting/removal (mixed polarity),0.03249170318412848,0.0,0.0,0.0,0.03390133769419621,0.0
+Q15,D0534,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0174687394679591,0.0
+Q15,D0535,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.40139212762064264,0.0,0.0,0.0
+Q15,D0536,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.018051666643350804,0.1886803360170195,0.0,0.0,0.0
+Q15,D0537,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.3931114623109266,0.0,0.0,0.0,0.0
+Q15,D0538,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0539,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.002664219351192719,0.0,0.0
+Q15,D0540,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01531754498805076,0.0
+Q15,D0541,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0016767351677639327,0.0,0.007465499673189558,0.002609464816900534,0.0
+Q15,D0542,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.2474813858055481,0.0,0.0
+Q15,D0543,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0544,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.0035778797702474526,0.0
+Q15,D0545,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.012032499518986823,0.0
+Q15,D0546,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.16893557883970062,0.02026977496495565,0.0,0.0,0.0
+Q15,D0547,"Tiger's Fury, Berserk, and energy tools",Powershifting/removal (mixed polarity),0.06102700049064499,0.0,0.0,0.08881824329085707,0.0,0.0
+Q15,D0548,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.1033305957690216,0.0,0.022093246050953953,0.0
+Q15,D0549,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.010601993467883151,0.0
+Q15,D0550,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0551,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.13825561882908227,0.0,0.0,0.0,0.0
+Q15,D0552,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.27944777452363745,0.0
+Q15,D0553,Powershifting/removal (mixed polarity),"Tiger's Fury, Berserk, and energy tools",0.07548655140713206,0.0,0.0,0.01771719024605477,0.00022545607229729244,0.0
+Q15,D0554,"Tiger's Fury, Berserk, and energy tools",Strong bleed emphasis,0.0,0.09958259450465345,0.0,0.12656659435771078,0.00893305346019122,0.0
+Q15,D0555,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.4614596283215606
+Q15,D0556,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0557,"Weapon scaling, forms, and toolkit",Strong bleed emphasis,0.0,0.14626612981756143,0.0,0.0,0.0,0.26802299982726313
+Q15,D0558,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0559,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0560,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.044898529335108836,0.0,0.0,0.0,0.011951319216441693,0.0
+Q15,D0561,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.06662583658725525,0.0,0.0,0.0,0.0
+Q15,D0562,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.009931049656978327,0.14297208743258558,0.0,0.0,0.0
+Q15,D0563,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.17785846106123632,0.0,0.0,0.0
+Q15,D0564,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.17408477802681016,0.0
+Q15,D0565,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0566,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.16218302015262154,0.01418627245828156,0.0,0.0,0.0
+Q15,D0567,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0568,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0569,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.01930056172779152,0.20190459899990257,0.0,0.0,0.0
+Q15,D0570,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.014482207492527183,0.0
+Q15,D0571,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1911073618271525,0.0
+Q15,D0572,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.0018587306901458323,0.031913440280781386,0.0
+Q15,D0573,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0574,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0575,"Weapon scaling, forms, and toolkit",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.1268568639691468,0.24882408187286859
+Q15,D0576,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.13017270766597988,0.0,0.0,0.0,0.0
+Q15,D0577,Strong bleed emphasis,Powershifting/removal (mixed polarity),0.046552384959682086,0.05107545254186782,0.005313541389974317,0.0,0.0018029948269390969,0.0
+Q15,D0578,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.009264795585399728,0.0
+Q15,D0579,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.02531704230233206,0.0,0.0,0.0
+Q15,D0580,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0581,Cat/Bear hybrid and talents,"Tiger's Fury, Berserk, and energy tools",0.0,0.0,0.0,0.004668226056878655,0.012487591717204365,0.0
+Q15,D0582,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.18723635897664348,0.0,0.0
+Q15,D0583,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.022294521852803492,0.0,0.0
+Q15,D0584,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0585,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.08364917377202175,0.0
+Q15,D0586,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0587,Bleed identity and gameplay,Cat/Bear hybrid and talents,0.0,0.0,0.08232291150007386,0.0,0.0014913448995671804,0.0
+Q15,D0588,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.13852451838424912,0.0,0.0,0.019960707141319478,0.0
+Q15,D0589,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006880819472772974,0.0
+Q15,D0590,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0591,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.09876813220236345,0.0,0.0,0.0,0.00015341053918690073,0.0
+Q15,D0592,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.22663005126403676,0.017657619662951075,0.0,0.0,0.0
+Q15,D0593,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.008551227010182296,0.0
+Q15,D0594,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.23176009366173672,0.0,0.0,0.0
+Q15,D0595,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.02167824815542584,0.20001342857999607,0.0,0.0,0.0
+Q15,D0596,Strong bleed emphasis,Bleed identity and gameplay,0.0,0.1994139963004743,0.004414698009611522,0.0,0.0,0.0
+Q15,D0597,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.14871052155612308,0.0,0.0,0.0,0.0
+Q15,D0598,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0599,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.005310050134800267,0.0,0.0
+Q15,D0600,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0601,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.12397059959822826,0.0,0.0,0.0
+Q15,D0602,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.054927516499269274,0.0,0.0,0.0,0.0,0.0
+Q15,D0603,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.187230739695173,0.0,0.0
+Q15,D0604,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.11757916418342261,0.0,0.0,0.0
+Q15,D0605,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.21694137593969903,0.0
+Q15,D0606,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0607,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.2015299505965846,0.0,0.0,0.0
+Q15,D0608,Bleed identity and gameplay,"Weapon scaling, forms, and toolkit",0.0,0.0,0.07856475653301556,0.0,0.0,0.0
+Q15,D0609,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.0023923522238252226,0.0,0.0,0.0,0.0
+Q15,D0610,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0611,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05971685968939218,0.0
+Q15,D0612,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0613,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0614,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0615,"Tiger's Fury, Berserk, and energy tools","Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0005309711969836648,0.0,0.0
+Q15,D0616,Strong bleed emphasis,"Tiger's Fury, Berserk, and energy tools",0.0,0.10082343478765422,0.0024959168001722153,0.08942389864654691,0.0,0.0
+Q15,D0617,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.006437847644309089,0.0
+Q15,D0618,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0619,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.05953471486809949,0.0
+Q15,D0620,Powershifting/removal (mixed polarity),Bleed identity and gameplay,0.05363377410306405,0.0,0.002768763876942742,0.0020259921665019237,0.0,0.0
+Q15,D0621,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.07195085829678856,0.0,0.0,0.0,0.0
+Q15,D0622,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0623,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.1251555825214036,0.0
+Q15,D0624,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0625,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.27944777452363745,0.0
+Q15,D0626,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.027175330960203806,0.0
+Q15,D0627,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.025130249577386823,0.0
+Q15,D0628,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.01404544616325508,0.0
+Q15,D0629,Strong bleed emphasis,"Weapon scaling, forms, and toolkit",0.0,0.1100034484414388,0.0,0.0,0.0,0.0
+Q15,D0630,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.012096543407080882,0.0
+Q15,D0631,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0632,Bleed identity and gameplay,Powershifting/removal (mixed polarity),0.02874250319328997,0.0,0.045744395180693044,0.0,0.0,0.0
+Q15,D0633,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.00980084345459484,0.007856606019044034,0.0
+Q15,D0634,Strong bleed emphasis,Cat/Bear hybrid and talents,0.0,0.12019761502965422,0.0,0.0,0.0020873796966965922,0.0
+Q15,D0635,Bleed identity and gameplay,Strong bleed emphasis,0.0,0.08681403435746632,0.10196394226422922,0.0,0.0,0.0
+Q15,D0636,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0637,Powershifting/removal (mixed polarity),"Weapon scaling, forms, and toolkit",0.3696788774276835,0.0,0.0,0.0,0.0,0.0
+Q15,D0638,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0,0.0,0.013180160155583752,0.0004248865196317027,0.0
+Q15,D0639,Cat/Bear hybrid and talents,"Weapon scaling, forms, and toolkit",0.0,0.0,0.0,0.0,0.015526468219697548,0.0
+Q15,D0640,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0641,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0642,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0,0.0022731567337985633,0.0,0.1526196754128626,0.014780681714240877,0.0
+Q15,D0643,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0
+Q15,D0644,"Tiger's Fury, Berserk, and energy tools",Cat/Bear hybrid and talents,0.0022504211310748873,0.0,0.0,0.04740839628948706,0.017537856318044217,0.0
+Q15,D0645,Powershifting/removal (mixed polarity),Cat/Bear hybrid and talents,0.0,0.0,0.0,0.0,0.0,0.0

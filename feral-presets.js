@@ -1,23 +1,24 @@
 // Named, browser-local equipment, talent and rotation presets. Never stores results.
 (function(root, factory) {
-  const api = factory();
+  const api = factory(typeof module === 'object' && module.exports ? require('./feral-rotation.js') : root.FOREVER_FERAL_ROTATION);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.FOREVER_FERAL_PRESETS = api;
-})(globalThis, function() {
+})(globalThis, function(rotation) {
   'use strict';
-  const KEY = 'forever-feral.presets.v1', VERSION = 1;
+  const KEY = 'forever-feral.presets.v1', VERSION = 2;
   const clone = value => JSON.parse(JSON.stringify(value));
   // Only controls on the Rotation tab. Character, encounter, consumables,
   // talents, search options and display preferences are deliberately excluded.
   const ROTATION_ENUMS = { rakeMode: ['maintain', 'ripDown'], shiftingMode: ['automatic', 'manual'], teaPolicy: ['berserk', 'any', 'disabled'] };
   const ROTATION_RANGES = { ripMinCP: [1, 5], biteMinCP: [1, 5], shiftingThreshold: [0, 100], biteMaxEnergy: [35, 100], biteRipOutside: [0, 30], biteRipBerserk: [0, 30] };
   const ROTATION_BOOLEANS = ['berserkGCD', 'omenOfClarity', 'startingClearcasting', 'faerieFire'];
-  const ROTATION_KEYS = [...Object.keys(ROTATION_ENUMS), ...Object.keys(ROTATION_RANGES), ...ROTATION_BOOLEANS];
+  const ROTATION_KEYS = [...Object.keys(ROTATION_ENUMS), ...Object.keys(ROTATION_RANGES), ...ROTATION_BOOLEANS, ...Object.keys(rotation.DEFAULTS)];
   function validateRotation(value) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) value = { ...rotation.DEFAULTS, ...value };
     if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length !== ROTATION_KEYS.length
       || Object.keys(value).some(key => !ROTATION_KEYS.includes(key))) throw new Error('Invalid or incomplete rotation preset.');
-    const result = {};
-    for (const key of ROTATION_KEYS) {
+    const result = rotation.normalize(value);
+    for (const key of ROTATION_KEYS.filter(k => !Object.hasOwn(rotation.DEFAULTS, k))) {
       const input = value[key], range = ROTATION_RANGES[key];
       if (range) {
         const number = (typeof input === 'number' || typeof input === 'string' && input.trim() !== '') ? Number(input) : NaN;
@@ -48,7 +49,7 @@
       if (text) {
         if (text.length > 1_000_000) throw new Error('Preset library is too large.');
         const parsed = JSON.parse(text), ids = new Set(), names = new Set();
-        if (parsed.version !== VERSION || !Array.isArray(parsed.entries) || parsed.entries.length > 500) throw new Error('Unsupported preset library.');
+        if (![1, VERSION].includes(parsed.version) || !Array.isArray(parsed.entries) || parsed.entries.length > 500) throw new Error('Unsupported preset library.');
         entries = parsed.entries.map(entry => {
           if (!Number.isSafeInteger(entry.id) || entry.id < 1 || ids.has(entry.id)) throw new Error('Invalid preset identity.');
           const label = name(entry.name), key = entry.kind + ':' + label.toLowerCase();
@@ -63,7 +64,7 @@
       if (protectedStorage) return;
       try {
         if (!storage) throw new Error('No storage');
-        storage.setItem(KEY, JSON.stringify({ version: VERSION, entries })); warning = '';
+        storage.setItem(KEY, JSON.stringify({ version: VERSION, rotationRevision: rotation.REVISION, entries })); warning = '';
       } catch (_) { warning = 'Not saved to browser · available in this tab only.'; }
     }
     const find = id => { const entry = entries.find(e => e.id === Number(id)); if (!entry) throw new Error('Preset no longer exists.'); return entry; };

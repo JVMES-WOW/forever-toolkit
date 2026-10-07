@@ -70,7 +70,15 @@
   function replace(build, slot, choice) {
     const next = clone(build), changes = [];
     if (!SLOTS[slot]) throw new Error('Unknown equipment slot.');
-    if (choice) next.slots[slot] = choice; else delete next.slots[slot];
+    if (choice) {
+      // Item-only swaps retain the slot's enchant. An explicit empty string is
+      // still an intentional removal (enchant selector, imports, benchmarks).
+      const previous = build.slots[slot]?.enchant || '';
+      const inherits = choice.enchant === undefined;
+      const retained = enchantCompatible(data.enchants[previous], data.items[choice.id], slot);
+      next.slots[slot] = { ...choice, enchant: inherits ? (retained ? previous : '') : choice.enchant };
+      if (inherits && previous && !retained) changes.push(`${data.enchants[previous]?.name || 'Current enchant'} cannot be used on this item; enchant removed.`);
+    } else delete next.slots[slot];
     if (choice && slot === 'MAIN_HAND' && data.items[choice.id]?.handType === 4 && next.slots.OFF_HAND) { delete next.slots.OFF_HAND; changes.push('Unequip off hand for the two-handed weapon.'); }
     if (choice && slot === 'OFF_HAND' && data.items[next.slots.MAIN_HAND?.id]?.handType === 4) { delete next.slots.MAIN_HAND; changes.push('Unequip the two-handed main hand.'); }
     return { build: validate(next), changes };

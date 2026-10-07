@@ -1,12 +1,13 @@
 // Local saved-run comparisons. No combat RNG or simulation policy lives here.
 (function (root, factory) {
-  const api = factory(typeof module === 'object' && module.exports ? require('./feral-display.js') : root.FOREVER_FERAL_DISPLAY);
+  const api = factory(typeof module === 'object' && module.exports ? require('./feral-display.js') : root.FOREVER_FERAL_DISPLAY,
+    typeof module === 'object' && module.exports ? require('./feral-rotation.js') : root.FOREVER_FERAL_ROTATION);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.FOREVER_FERAL_COMPARISON = api;
-})(typeof globalThis === 'object' ? globalThis : this, function (display) {
+})(typeof globalThis === 'object' ? globalThis : this, function (display, rotation) {
   'use strict';
   // Keep the storage key so v1 pairs can be migrated without loss.
-  const VERSION = 4, STORAGE_KEY = 'forever-feral.saved-comparison.v1';
+  const VERSION = 5, STORAGE_KEY = 'forever-feral.saved-comparison.v1';
   const clone = value => JSON.parse(JSON.stringify(value));
   const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
     ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
@@ -49,9 +50,9 @@
   function deserialize(text, validateConfig, expectedFields) {
     if (typeof text !== 'string' || text.length > 4_000_000) throw new Error('Saved comparison is too large or unreadable.');
     const data = JSON.parse(text);
-    if (![1, 2, 3, VERSION].includes(data.version) || !data.current || !data.reference) throw new Error('Saved comparison uses an unsupported format.');
+    if (![1, 2, 3, 4, VERSION].includes(data.version) || !data.current || !data.reference) throw new Error('Saved comparison uses an unsupported format.');
     if (data.version < VERSION) {
-      const additions = { ...(data.version === 1 ? { characterMode: 'totals', gearBuild: '', gearAreaTypes: '', targetCreature: 'other' } : {}), ...(data.version < 3 ? { giftOfArthas: false } : {}), crystalYield: false };
+      const additions = { ...rotation.DEFAULTS, ...(data.version === 1 ? { characterMode: 'totals', gearBuild: '', gearAreaTypes: '', targetCreature: 'other' } : {}), ...(data.version < 3 ? { giftOfArthas: false } : {}), crystalYield: false };
       for (const entry of [data.current, data.reference]) for (const setup of [entry.setup, entry.draft]) {
         if (setup?.values) for (const [key, value] of Object.entries(additions)) if (expectedFields.includes(key) && !Object.hasOwn(setup.values, key)) setup.values[key] = value;
       }

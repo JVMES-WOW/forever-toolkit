@@ -180,8 +180,9 @@
     "form": "cat"
   }
 };
-  // Latest user-selected screenshot preset, 2026-10-05: Timbermaw Tunic,
-  // Don Julio + Tarnished Elven rings, and +8 Agility Voracity on head/legs.
+  // User-selected screenshot preset, updated 2026-10-06: Timbermaw Tunic
+  // with +4 Greater Stats, Don Julio + Tarnished Elven rings, and
+  // +8 Agility Voracity on head/legs.
   // Enchant keys retain effect, compatible slot, and catalog record identity.
   character.defaultGear = {
     version: 1,
@@ -191,7 +192,7 @@
       NECK: { id: 19491, variant: '0', suffix: 0, enchant: '904:2:72' },
       SHOULDERS: { id: 272105, variant: '0', suffix: 0, enchant: '' },
       BACK: { id: 13340, variant: '0', suffix: 0, enchant: '7667:4:207' },
-      CHEST: { id: 252484, variant: '0', suffix: 0, enchant: '' },
+      CHEST: { id: 252484, variant: '0', suffix: 0, enchant: '1891:5:121' },
       WRISTS: { id: 19587, variant: '0', suffix: 0, enchant: '7656:6:198' },
       HANDS: { id: 272099, variant: '0', suffix: 0, enchant: '2564:7:152' },
       WAIST: { id: 272396, variant: '0', suffix: 0, enchant: '' },
@@ -204,6 +205,35 @@
       MAIN_HAND: { id: 19323, variant: '0', suffix: 0, enchant: '1896:13:125' },
       RANGED: { id: 272427, variant: '0', suffix: 0, enchant: '' }
     }
+  };
+  // Explicitly selected browser startup/reset recipe, not legacy engine
+  // fallbacks. From best.params in feral-rotation-1443639312.json, candidate 51,
+  // validated on 500 paired fights (iterations 51–550). Keep saved runs,
+  // historical policy migration, reference weights, and benchmarks unchanged.
+  character.defaultRotation = {
+    shiftingThreshold: 50,
+    biteMaxEnergy: 35,
+    biteRipOutside: 10,
+    biteRipBerserk: 2,
+    ripMinCP: 5,
+    biteMinCP: 2,
+    shiftingMode: 'automatic',
+    shiftDelayPenalty: 0.5,
+    teaTiming: 'threshold',
+    teaMaxEnergy: 20,
+    teaDelayPenalty: 1,
+    clipRipShift: false,
+    clipRipShiftRemaining: 2,
+    clipRipShiftEnergy: 30,
+    clipRipTea: false,
+    clipRipTeaRemaining: 2,
+    clipRipTeaEnergy: 10,
+    clipRakeShift: true,
+    clipRakeShiftRemaining: 1,
+    clipRakeShiftEnergy: 30,
+    clipRakeTea: false,
+    clipRakeTeaRemaining: 3,
+    clipRakeTeaEnergy: 10
   };
   if (typeof module === 'object' && module.exports) module.exports = character;
   root.FOREVER_FERAL_DEFAULT_CHARACTER = character;

@@ -178,6 +178,15 @@
       const key = id === 'rake' ? 'rakeTick' : 'rip', interval = id === 'rake' ? 3 : 2, duration = id === 'rake' ? 9 : 12;
       dots[key] = { next: time + interval, expires: time + duration, interval, cp };
     }
+    function foregoneTick(id, s) {
+      const key = id === 'rake' ? 'rakeTick' : 'rip', dot = dots[key];
+      if (!dot || dot.next > c.duration + 1e-9) return 0;
+      const at = dot.next, crit = Math.min(1, (c.crit + (key === 'rakeTick' && at < s.berserkExpires - 1e-9 ? 100 : 0)) / 100);
+      const amount = critical => base(c, key, apAt(at), dot.cp) * multiplier(c, key, true, critical, armor(c, activeFF(at))) + giftBonus(c, key, true, critical);
+      // Conditional on known buffs surviving to the scheduled tick. No new
+      // procs, random draws, or claim of the full counterfactual damage delta.
+      return amount(false) * (1 - crit) + amount(true) * crit;
+    }
     function windfury(time, trigger) { wfExpires = time + 1; wfCharges = trigger === 'auto' || trigger === 'windfury' ? 1 : 2; }
     function mightyRage(time, bonusAP) { rageStarts = time; rageExpires = time + 20; rageAP = bonusAP; }
     function faerieFire(time) {
@@ -187,7 +196,7 @@
       return landed;
     }
     function finish(s) { advance(c.duration, s); return { ...d, dps: d.total / c.duration }; }
-    return { advance, attack, applyBleed, windfury, mightyRage, faerieFire, finish };
+    return { advance, attack, applyBleed, foregoneTick, windfury, mightyRage, faerieFire, finish };
   }
   function aggregate(fights) {
     if (!fights.length || !fights.every(f => f.damage)) return null;

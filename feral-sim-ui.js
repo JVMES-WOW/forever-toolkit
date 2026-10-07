@@ -2,6 +2,8 @@
   'use strict';
   const sim = window.FOREVER_FERAL_SIM;
   const optimizer = window.FOREVER_FERAL_OPTIMIZER;
+  const policies = sim.rotation;
+  const rotationView = window.FOREVER_FERAL_ROTATION_UI?.mount(document, policies, optimizer);
   const tradeoffs = window.FOREVER_FERAL_TRADEOFFS;
   const importer = window.FOREVER_FERAL_IMPORT;
   const damage = window.FOREVER_FERAL_DAMAGE;
@@ -52,6 +54,7 @@
     try {
       const current = config();
       return Boolean(lastResult && (JSON.stringify(current) !== JSON.stringify(sim.normalize(lastResult.config))
+        || lastResult.rotationRevision !== policies.REVISION
         || (lastResult.config.windfury && lastResult.windfuryModel !== sim.WINDFURY_MODEL)
         || (current.gearIdol && lastResult.idolModel !== sim.IDOL_MODEL)
         || (current.characterMode === 'gear' && lastResult.config.gearStatModel !== gear.STAT_MODEL)
@@ -74,6 +77,7 @@
     $('#log-count').textContent = 'Settings restored. Replay an iteration to inspect this setup.';
   }
   function invalidateSearches() {
+    $('#rotation-export').disabled = true;
     optimizationResult = null; optimizationSnapshot = null; optimizationObjectiveSnapshot = null; optimizationApplied = false;
     tradeResult = null; tradeSnapshot = null; tradeValidation = null; tradeSelected = null; tradeApplied = false;
     potionResult = null; potionSnapshot = null; potionSelected = null; potionApplied = false;
@@ -349,7 +353,8 @@
     if (preview.errors.length || preview.requiresCatConfirmation) throw new Error('Invalid bundled starting character.');
     const patch = { ...preview.patch, baseSwingTimer: 1, damageEnabled: true, ...buffs.DEFAULT_BUFFS, ...buffs.ALL_DEBUFFS,
       mongoose: true, jujuPower: true, jujuMight: true, scorpok: true, filet: true, sharpeningStone: true,
-      naturalFlask: 'precision', flaskZone: true, potionStrategy: 'openerRage', usePotions: true };
+      naturalFlask: 'precision', flaskZone: true, potionStrategy: 'openerRage', usePotions: true,
+      ...supplied.defaultRotation };
     sim.normalize({ ...rawConfig(), ...patch });
     const changes = Object.entries(patch).map(([key, value]) => {
       const input = $(`#config [name="${key}"]`);
@@ -570,6 +575,7 @@
     return min === max ? number(min) : `${number(min)}–${number(max)}`;
   }
   function render(result) {
+    rotationView?.diagnostics(result);
     lastResult = result;
     if (gear) {
       $('#gear-result-coverage').hidden = result.config.characterMode !== 'gear';
@@ -733,9 +739,10 @@
   }
   function updateShiftingControls() {
     const automatic = $('#shifting-mode').value === 'automatic';
+    const searchingModes = $('#opt-shiftingMode-on')?.checked;
     $('#shiftingThreshold').disabled = automatic;
-    $('#opt-shiftingThreshold-on').disabled = automatic;
-    $('#opt-shiftingThreshold-values').disabled = automatic;
+    $('#opt-shiftingThreshold-on').disabled = automatic && !searchingModes;
+    $('#opt-shiftingThreshold-values').disabled = automatic && !searchingModes;
   }
   function optimizerBusy(busy) {
     optimizing = busy;
@@ -747,15 +754,17 @@
   function renderOptimization(result) {
     $('#opt-score-label').textContent = result.options.objective === 'dps' ? 'DPS' : 'Objective / min';
     const gain = value => `${value > 0 ? '+' : ''}${fixed(value)}`;
-    $('#optimizer-status').textContent = `Complete · ${result.candidatesTested} of ${number(result.space)} combinations tested${result.exhaustive ? ' (entire selected grid)' : ' (sampled grid)'} · ${number(result.completedFights)} fights · seed ${result.config.seed}.`;
+    $('#optimizer-status').textContent = `Complete · ${result.candidatesTested} candidates tested · ${number(result.space)} grid combinations plus deduplicated references${result.exhaustive ? ' (entire selected grid)' : ' (sampled grid)'} · ${number(result.completedFights)} fights · seed ${result.config.seed}.`;
     $('#optimizer-summary').textContent = `Best tested ${optimizer.objectiveLabel(result.options)}: ${fixed(result.best.score)} vs current ${fixed(result.baseline.score)} (${gain(result.best.scoreGain)}). Attack CPM ${fixed(result.best.cpm)} · Finisher CPM ${fixed(result.best.finisherCPM)} (Rip ${fixed(result.best.abilityCPM.rip)} + Bite ${fixed(result.best.abilityCPM.bite)}). Finalists retested on ${result.options.validationIterations} fresh fights each, iterations ${result.validationFirstIteration}–${result.validationLastIteration}.`;
-    $('#optimizer-best-settings').textContent = Object.entries(optimizer.PARAMETERS).map(([key, parameter]) => key === 'shiftingThreshold' && result.config.shiftingMode === 'automatic'
-      ? 'Shifting: automatic energy-loss comparison' : `${parameter.label}: ${number(result.config[key])} → ${number(result.best.params[key])}`).join(' · ');
+    $('#optimizer-best-settings').textContent = Object.entries(optimizer.PARAMETERS).filter(([key]) => policies.active(key, { ...result.config, ...result.best.params })).map(([key, parameter]) =>
+      `${parameter.label}: ${result.config[key]} → ${result.best.params[key]}`).join(' · ');
+    rotationView?.results(result);
+    $('#rotation-export').disabled = false;
     $('#optimizer-table').innerHTML = result.ranked.map(item => {
       const cells = [item.id === 0 ? 'Current settings' : item.id === result.best.id ? 'Best tested' : `Candidate ${item.id}`,
         fixed(item.score), gain(item.scoreGain), fixed(item.scoreSe), fixed(item.cpm), fixed(item.finisherCPM),
         fixed(item.abilityCPM.rip), fixed(item.abilityCPM.bite), `${fixed(item.ripUptime)}%`,
-        result.config.shiftingMode === 'automatic' ? 'Auto' : number(item.params.shiftingThreshold),
+        item.params.shiftingMode === 'automatic' ? 'Auto' : number(item.params.shiftingThreshold),
         number(item.params.biteMaxEnergy), number(item.params.biteRipOutside), number(item.params.biteRipBerserk),
         number(item.params.ripMinCP), number(item.params.biteMinCP), `${fixed(item.rakeUptime)}%`, `${fixed(item.oomPercent)}%`];
       return `<tr>${cells.map(value => `<td>${value}</td>`).join('')}</tr>`;
@@ -769,12 +778,13 @@
     $('#optimizer-results').hidden = false;
     optimizationResult = null; optimizationSnapshot = null; optimizationObjectiveSnapshot = null; optimizationApplied = false;
     $('#optimizer-table').innerHTML = ''; $('#optimizer-summary').textContent = ''; $('#optimizer-best-settings').textContent = '';
+    $('#rotation-search-results').replaceChildren(); $('#rotation-export').disabled = true;
     $('#optimizer-progress').max = 1; $('#optimizer-progress').value = 0;
     optimizerBusy(false);
     try {
       const base = config();
       const parameterValues = Object.fromEntries(Object.keys(optimizer.PARAMETERS)
-        .filter(key => $(`#opt-${key}-on`).checked && (key !== 'shiftingThreshold' || base.shiftingMode === 'manual')).map(key => [key, $(`#opt-${key}-values`).value]));
+        .filter(key => $(`#opt-${key}-on`).checked && (key !== 'shiftingThreshold' || base.shiftingMode === 'manual' || $('#opt-shiftingMode-on')?.checked)).map(key => [key, $(`#opt-${key}-values`).value]));
       const objective = optimizerObjective();
       const options = optimizer.normalizeOptions({ preset: $('#opt-preset').value, parameterValues, ...objective });
       const searchConfig = { ...base, seed: $('#fresh-seed').checked ? freshSeed(base.seed, lastOptimizationSeed) : base.seed };
@@ -825,7 +835,11 @@
     if (optimizerObjectiveStale()) {
       $('#optimizer-status').textContent = 'Optimization objective or weights changed since this search. Optimize again before applying its result.'; return;
     }
-    for (const key of Object.keys(optimizationResult.options.parameterValues)) $(`#${key}`).value = String(optimizationResult.best.params[key]);
+    for (const [key, value] of Object.entries(optimizationResult.best.params)) {
+      const input = $(`#config [name="${key}"]`) || $(`#${key}`);
+      if (typeof value === 'boolean') input.checked = value; else input.value = String(value);
+    }
+    updateShiftingControls();
     optimizationApplied = true; $('#opt-apply').disabled = true;
     $('#optimizer-status').textContent = `Best tested parameters applied. Running your full simulation with optimizer seed ${optimizationResult.config.seed}.`;
     // Reproduce this search seed once, without changing the user's fresh-seed
@@ -862,6 +876,11 @@
     updateBuffControls();
     updatePotionButtons();
     const busy = running || optimizing || exploring || comparing || weighing;
+    updateShiftingControls();
+    try {
+      const c = config();
+      rotationView?.sync(c, busy, { rip: sim.testing.abilityCost(c, 'rip'), rake: sim.testing.abilityCost(c, 'rake') });
+    } catch (_) { /* Leave invalid fields editable; normal validation reports errors. */ }
     workbench?.setTalentBusy(busy);
     presetView?.sync();
     updateComparison();
@@ -1110,6 +1129,23 @@
   $('#optimize').addEventListener('click', optimizeRotation);
   $('#opt-stop').addEventListener('click', stopOptimization);
   $('#opt-apply').addEventListener('click', applyOptimization);
+  $('#rotation-export').addEventListener('click', () => {
+    if (!optimizationResult || optimizing || running || exploring || comparing || weighing) return;
+    const payload = { format: 'forever-rotation-search-v1', ...optimizationResult };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a'); link.href = url; link.download = `feral-rotation-${optimizationResult.config.seed}.json`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  rotationView?.onApply(patch => {
+    if (running || optimizing || exploring || comparing || weighing) return;
+    sim.normalize({ ...rawConfig(), ...patch });
+    for (const [key, value] of Object.entries(patch)) {
+      const input = $(`#config [name="${key}"]`);
+      if (typeof value === 'boolean') input.checked = value; else input.value = String(value);
+    }
+    invalidateSearches(); clearReplayForRestore(); updateTradeButtons(); updateObjectiveControls();
+    $('#results-stale').hidden = !completedRunDirty();
+  });
   loadDefaultCharacter();
   if (weights) weightsView = window.FOREVER_FERAL_WEIGHTS_UI?.init(document, weights, {
     config, busy: () => running || optimizing || exploring || comparing || weighing,

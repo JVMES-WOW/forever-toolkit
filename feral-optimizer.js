@@ -1,9 +1,11 @@
 (function (root, factory) {
-  const api = factory(typeof module === 'object' && module.exports ? require('./feral-sim.js') : root.FOREVER_FERAL_SIM);
+  const api = factory(typeof module === 'object' && module.exports ? require('./feral-sim.js') : root.FOREVER_FERAL_SIM,
+    typeof module === 'object' && module.exports ? require('./feral-rotation.js') : root.FOREVER_FERAL_ROTATION);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.FOREVER_FERAL_OPTIMIZER = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (sim) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (sim, policies) {
   'use strict';
+  policies = policies || sim.rotation;
 
   const ATTACKS = ['rake', 'shred', 'rip', 'bite'];
   const PARAMETERS = Object.freeze({
@@ -12,7 +14,9 @@
     biteRipOutside: { label: 'Bite Rip safety', min: 0, max: 30, values: [0, 2, 4, 6, 8, 10, 12] },
     biteRipBerserk: { label: 'Berserk Bite safety', min: 0, max: 30, values: [0, 2, 4, 6, 8, 10, 12] },
     ripMinCP: { label: 'Rip minimum CP', min: 1, max: 5, integer: true, values: [1, 2, 3, 4, 5] },
-    biteMinCP: { label: 'Bite minimum CP', min: 1, max: 5, integer: true, values: [1, 2, 3, 4, 5] }
+    biteMinCP: { label: 'Bite minimum CP', min: 1, max: 5, integer: true, values: [1, 2, 3, 4, 5] },
+    shiftingMode: { label: 'Shift policy', choices: ['automatic', 'manual'], labels: ['Energy-loss comparison', 'Manual threshold'], values: ['automatic', 'manual'], optional: true },
+    ...Object.fromEntries(Object.entries(policies.DEFINITIONS).map(([key, p]) => [key, { ...p, values: p.choices || p.values, optional: true }]))
   });
   const PRESETS = Object.freeze({
     quick: { candidateLimit: 24, screeningIterations: 8, validationIterations: 80, finalists: 3 },
@@ -58,7 +62,16 @@
     if (!parameter) throw new Error(`Unknown rotation parameter: ${key}`);
     const items = typeof input === 'string' ? input.split(',').map(item => item.trim()) : input;
     if (!Array.isArray(items) || !items.length || items.length > 32 || items.some(item => item === '' || item == null)) {
-      throw new Error(`${parameter.label}: enter 1–32 comma-separated numbers.`);
+      throw new Error(`${parameter.label}: enter 1–32 comma-separated ${parameter.choices ? 'choices' : 'numbers'}.`);
+    }
+    if (parameter.choices) {
+      const values = items.map(value => {
+        if (parameter.choices.includes(value)) return value;
+        const label = parameter.labels?.findIndex(text => text.toLowerCase() === String(value).toLowerCase()) ?? -1;
+        return label >= 0 ? parameter.choices[label] : value === 'true' ? true : value === 'false' ? false : value;
+      });
+      if (values.some(value => !parameter.choices.includes(value))) throw new Error(`${parameter.label}: choose ${(parameter.labels || parameter.choices).join(', ')}.`);
+      return [...new Set(values)];
     }
     const values = items.map(Number);
     if (values.some(value => !Number.isFinite(value) || value < parameter.min || value > parameter.max || (parameter.integer && !Number.isInteger(value)))) {
@@ -73,7 +86,7 @@
     for (const [key, max] of [['candidateLimit', 256], ['screeningIterations', 500], ['validationIterations', 1000], ['finalists', 16]]) {
       if (!Number.isInteger(result[key]) || result[key] < 1 || result[key] > max) throw new Error(`Invalid optimizer ${key}.`);
     }
-    const supplied = options.parameterValues ?? Object.fromEntries(Object.entries(PARAMETERS).map(([key, parameter]) => [key, parameter.values]));
+    const supplied = options.parameterValues ?? Object.fromEntries(Object.entries(PARAMETERS).filter(([, p]) => !p.optional).map(([key, parameter]) => [key, parameter.values]));
     if (!supplied || !Object.keys(supplied).length) throw new Error('Select at least one parameter to optimize.');
     result.parameterValues = Object.fromEntries(Object.entries(supplied).map(([key, values]) => [key, parseValues(values, key)]));
     if (result.candidateLimit * result.screeningIterations + (result.finalists + 1) * result.validationIterations > 25000) {
@@ -85,40 +98,69 @@
     return Object.fromEntries(Object.keys(PARAMETERS).map(key => [key, config[key]]));
   }
   function makeCandidates(config, options) {
-    const keys = Object.keys(PARAMETERS).filter(key => Object.hasOwn(options.parameterValues, key)
-      && (key !== 'shiftingThreshold' || config.shiftingMode === 'manual'));
-    const domains = keys.map(key => [...new Set([config[key], ...options.parameterValues[key]])].sort((a, b) => a - b));
-    const space = domains.reduce((total, domain) => total * domain.length, 1);
-    const limit = Math.min(space, options.candidateLimit), candidates = [], seen = new Set();
+    const keys = Object.keys(PARAMETERS).filter(key => Object.hasOwn(options.parameterValues, key));
+    const domains = Object.fromEntries(keys.map(key => [key, [...new Set([config[key], ...options.parameterValues[key]])]
+      .sort((a, b) => PARAMETERS[key].choices ? 0 : a - b)]));
+    const candidates = [], seen = new Map();
     const base = rotation(config);
-    const add = params => {
-      const signature = JSON.stringify(params);
-      if (!seen.has(signature)) { seen.add(signature); candidates.push({ id: candidates.length, params }); }
+    const signature = params => JSON.stringify(Object.fromEntries(Object.entries(params).filter(([key]) => policies.active(key, { ...config, ...params }))));
+    const add = (params, reference) => {
+      const key = signature(params);
+      let item = seen.get(key);
+      if (!item) { item = { id: candidates.length, params, references: [] }; seen.set(key, item); candidates.push(item); }
+      if (reference && !item.references.includes(reference)) item.references.push(reference);
     };
-    const decode = index => {
-      const params = { ...base };
-      keys.forEach((key, i) => { params[key] = domains[i][index % domains[i].length]; index = Math.floor(index / domains[i].length); });
+    // Enumerate only small categorical branches. Numeric cross-products stay
+    // lazy, and inactive controls contribute no dimensions or duplicate rows.
+    const categorical = keys.filter(k => PARAMETERS[k].choices), groups = [];
+    const group = (params, i) => {
+      if (i < categorical.length) {
+        const key = categorical[i];
+        for (const value of policies.active(key, { ...config, ...params }) ? domains[key] : [base[key]]) group({ ...params, [key]: value }, i + 1);
+      } else {
+        const live = keys.filter(k => !PARAMETERS[k].choices && policies.active(k, { ...config, ...params }));
+        groups.push({ params, keys: live, space: live.reduce((n, k) => n * domains[k].length, 1) });
+      }
+    };
+    group(base, 0);
+    const space = groups.reduce((n, g) => n + g.space, 0), limit = Math.min(space, options.candidateLimit);
+    const decode = (g, index) => {
+      const params = { ...g.params };
+      for (const key of g.keys) { params[key] = domains[key][index % domains[key].length]; index = Math.floor(index / domains[key].length); }
       return params;
     };
-    add(base); // Always compare against the exact current settings.
-    if (space <= limit) {
-      for (let index = 0; index < space; index++) add(decode(index));
+    add(base, 'Current settings');
+    if (keys.includes('teaTiming') && config.teaPolicy !== 'disabled') {
+      add({ ...base, teaTiming: 'threshold', teaMaxEnergy: 10 }, 'Original Tea timing');
+      add({ ...base, teaTiming: 'protectShift', teaMaxEnergy: 10 }, 'Strict Shift protection');
+      if (options.candidateLimit < candidates.length) throw new Error('Allow at least three candidates for Tea policy references.');
+    }
+    const referenceCount = candidates.length;
+    const target = options.candidateLimit;
+    let exhaustive = false;
+    if (space <= target) {
+      exhaustive = true;
+      for (const g of groups) for (let i = 0; i < g.space; i++) {
+        const params = decode(g, i);
+        if (candidates.length < target || seen.has(signature(params))) add(params);
+        else exhaustive = false;
+      }
     } else {
-      // Spend half the budget on single-parameter changes, interleaved by
-      // parameter; spend the rest on joint combinations. No combat RNG used.
-      const alternatives = domains.map((domain, i) => domain.filter(value => value !== config[keys[i]])
-        .sort((a, b) => Math.abs(a - config[keys[i]]) - Math.abs(b - config[keys[i]]) || a - b));
+      const alternatives = keys.map(key => domains[key].filter(v => v !== base[key]).sort((a, b) => PARAMETERS[key].choices ? 0 : Math.abs(a - base[key]) - Math.abs(b - base[key]) || a - b));
       const axisLimit = Math.ceil(limit / 2);
-      for (let row = 0; row < Math.max(...alternatives.map(values => values.length)) && candidates.length < axisLimit; row++) {
+      for (let row = 0; row < Math.max(0, ...alternatives.map(a => a.length)) && candidates.length < axisLimit; row++) {
         for (let i = 0; i < keys.length && candidates.length < axisLimit; i++) {
           if (row < alternatives[i].length) add({ ...base, [keys[i]]: alternatives[i][row] });
         }
       }
       const rng = sim.createRng(sim.deriveSeed(config.seed, 0x4f505449));
-      for (let attempt = 0; candidates.length < limit && attempt < limit * 40; attempt++) add(decode(Math.floor(rng() * space)));
-      for (let index = 0; candidates.length < limit; index++) add(decode(index));
+      for (let attempt = 0; candidates.length < limit && attempt < limit * 100; attempt++) {
+        if (groups.length === 1 && Number.isSafeInteger(space)) { add(decode(groups[0], Math.floor(rng() * space))); continue; }
+        const g = groups[Math.floor(rng() * groups.length)];
+        add({ ...g.params, ...Object.fromEntries(g.keys.map(key => [key, domains[key][Math.floor(rng() * domains[key].length)]])) });
+      }
     }
-    return { candidates, space, exhaustive: candidates.length === space };
+    return { candidates, space, exhaustive, referenceCount };
   }
   function attackCount(fight) { return ATTACKS.reduce((sum, id) => sum + fight.casts[id], 0); }
   function summarize(samples, options = {}) {
@@ -130,6 +172,8 @@
       finisherCPM: samples.reduce((sum, sample) => sum + sample.casts.rip + sample.casts.bite, 0) * 60 / duration,
       score: samples.reduce((sum, sample) => sum + objectiveCount(sample, scoring), 0) * (scoring.objective === 'dps' ? 1 : 60) / duration,
       dps: samples.every(sample => Number.isFinite(sample.damageTotal)) ? samples.reduce((sum, sample) => sum + sample.damageTotal, 0) / duration : null,
+      resourceMetrics: Object.fromEntries(['shifts', 'teaUses', 'energyWaste', 'clips', 'overwrites', 'fulfilled', 'onCooldown', 'ticks', 'foregoneTickDamage'].map(key => [key,
+        key === 'foregoneTickDamage' && samples.some(s => s[key] == null) ? null : samples.reduce((n, s) => n + (s[key] || 0), 0) / samples.length])),
       totalCPM: samples.reduce((sum, sample) => sum + sample.totalCasts, 0) * 60 / duration,
       rakeUptime: samples.reduce((sum, sample) => sum + sample.rakeUptime * sample.duration, 0) / duration,
       ripUptime: samples.reduce((sum, sample) => sum + sample.ripUptime * sample.duration, 0) / duration,
@@ -154,22 +198,27 @@
   function* optimize(input = {}, inputOptions = {}) {
     const config = sim.normalize(input);
     const activeInput = { ...inputOptions };
-    if (config.shiftingMode === 'automatic' && inputOptions.parameterValues) {
+    if (config.shiftingMode === 'automatic' && inputOptions.parameterValues && !inputOptions.parameterValues.shiftingMode) {
       activeInput.parameterValues = Object.fromEntries(Object.entries(inputOptions.parameterValues).filter(([key]) => key !== 'shiftingThreshold'));
       if (!Object.keys(activeInput.parameterValues).length) throw new Error('Automatic shifting has no threshold to optimize. Select another parameter or use manual shifting.');
     }
     const options = normalizeOptions(activeInput);
     if (options.objective === 'dps' && !config.damageEnabled) throw new Error('Enable experimental damage and supply AP and weapon damage before optimizing DPS.');
-    if (config.shiftingMode === 'automatic') delete options.parameterValues.shiftingThreshold;
-    const { candidates, space, exhaustive } = makeCandidates(config, options);
-    const finalistCount = Math.min(candidates.length, options.finalists + 1);
+    if (config.shiftingMode === 'automatic' && !options.parameterValues.shiftingMode) delete options.parameterValues.shiftingThreshold;
+    const { candidates, space, exhaustive, referenceCount } = makeCandidates(config, options);
+    const finalistCount = Math.min(candidates.length, Math.max(referenceCount, options.finalists + 1));
     let completedFights = 0;
     let totalFights = candidates.length * options.screeningIterations + finalistCount * options.validationIterations;
+    if (totalFights > 25000) throw new Error('Search including policy references exceeds the 25,000-fight limit.');
     function* evaluate(candidate, iterations, offset, phase, candidateIndex, candidateCount) {
       const samples = [], candidateConfig = { ...config, ...candidate.params, debug: false };
       for (let i = 1; i <= iterations; i++) {
         const fight = sim.simulateFight(candidateConfig, { iteration: offset + i, debug: false });
+        const clips = Object.values(fight.clipping || {});
         samples.push({ duration: fight.duration, attacks: attackCount(fight), casts: Object.fromEntries(ATTACKS.map(id => [id, fight.casts[id]])),
+          shifts: fight.casts.shiftingPower, teaUses: fight.tea?.uses || 0, energyWaste: fight.energy?.waste || 0,
+          ...Object.fromEntries([['clips', 'attempts'], ['overwrites', 'overwrites'], ['fulfilled', 'fulfilled'], ['onCooldown', 'onCooldown'], ['ticks', 'ticks'], ['foregoneTickDamage', 'foregoneTickDamage']]
+            .map(([key, field]) => [key, field === 'foregoneTickDamage' && !candidateConfig.damageEnabled ? null : clips.reduce((n, r) => n + r[field], 0)])),
           damageTotal: fight.damage?.total ?? null,
           totalCasts: sim.ABILITIES.reduce((sum, id) => sum + fight.casts[id], 0),
           rakeUptime: fight.uptime.rake, ripUptime: fight.uptime.rip, oom: fight.oomTime !== null });
@@ -181,17 +230,21 @@
     const screened = [];
     for (let i = 0; i < candidates.length; i++) screened.push(yield* evaluate(candidates[i], options.screeningIterations, 0, 'Screening', i + 1, candidates.length));
     screened.sort((a, b) => compareScores(a.summary, b.summary) || a.candidate.id - b.candidate.id);
-    const finalists = [candidates[0], ...screened.filter(item => item.candidate.id !== 0).slice(0, options.finalists).map(item => item.candidate)];
+    const finalists = [...candidates.slice(0, referenceCount), ...screened.filter(item => item.candidate.id >= referenceCount).slice(0, finalistCount - referenceCount).map(item => item.candidate)];
     totalFights = completedFights + finalists.length * options.validationIterations;
     const validated = [];
     for (let i = 0; i < finalists.length; i++) validated.push(yield* evaluate(finalists[i], options.validationIterations, options.screeningIterations, 'Validation', i + 1, finalists.length));
     const baseline = validated[0];
     const ranked = validated.map(item => {
       const scoreDelta = pairedGain(baseline.samples, item.samples, options);
-      return { id: item.candidate.id, params: item.candidate.params, ...item.summary,
+      const dpsDelta = config.damageEnabled ? pairedGain(baseline.samples, item.samples, { objective: 'dps' }) : null;
+      return { id: item.candidate.id, params: item.candidate.params, references: item.candidate.references,
+        recipe: policies.recipe({ ...config, ...item.candidate.params }), ...item.summary,
+        dpsGain: dpsDelta?.gain ?? null, dpsSe: dpsDelta?.se ?? null,
         ...pairedGain(baseline.samples, item.samples), scoreGain: scoreDelta.gain, scoreSe: scoreDelta.se };
     }).sort((a, b) => compareScores(a, b) || a.id - b.id);
-    return { config, options, candidatesTested: candidates.length, space, exhaustive, completedFights,
+    return { config, options, rotationRevision: policies.REVISION, screeningFirstIteration: 1, screeningLastIteration: options.screeningIterations,
+      candidatesTested: candidates.length, space, exhaustive, completedFights,
       validationFirstIteration: options.screeningIterations + 1, validationLastIteration: options.screeningIterations + options.validationIterations,
       baseline: ranked.find(item => item.id === 0), best: ranked[0], ranked };
   }

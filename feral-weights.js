@@ -178,12 +178,24 @@
     }
     for (const variant of options?.standardOnly ? ['0'] : Object.keys(item.variants)) for (const suffix of item.randomSuffixOptions?.length ? item.randomSuffixOptions : [0]) {
       if (suffix && !gear.data.suffixes[suffix]) continue;
-      const choice = { id: item.id, variant, suffix, enchant: '' };
-      let value;
-      try { value = result.version === 2 && options?.rankingBuild && options?.rankingSlot
-        ? rankingScore(gear.replace(options.rankingBuild, options.rankingSlot, choice).build, result, options) - rankingScore(options.rankingBuild, result, options)
-        : score(choice, result, options) + (item.id === 8345 ? wolfsheadEstimate(options?.rankingBuild?.slots.RANGED?.id === 272427)?.gain || 0 : 0); } catch (_) { continue; } // Incompatible unique-item replacement.
-      if (!best || value > best.score) best = { choice, score: value,
+      let choice = { id: item.id, variant, suffix }, value, enchantExcluded = false;
+      try {
+        let reference = options?.rankingBuild, replacement;
+        if (reference && options?.rankingSlot) {
+          replacement = gear.replace(reference, options.rankingSlot, choice).build;
+          choice = replacement.slots[options.rankingSlot];
+          // Item rows compare like-for-like, even when a two-hand-only enchant
+          // cannot transfer. Never charge only one side for that enchant.
+          if (equipped?.enchant && equipped.enchant !== choice.enchant) {
+            enchantExcluded = true;
+            reference = gear.replace(reference, options.rankingSlot, { ...equipped, enchant: '' }).build;
+          }
+        } else choice.enchant = '';
+        value = result.version === 2 && replacement
+          ? rankingScore(replacement, result, options) - rankingScore(reference, result, options)
+          : score(choice, result, options) + (item.id === 8345 ? wolfsheadEstimate(reference?.slots.RANGED?.id === 272427)?.gain || 0 : 0);
+      } catch (_) { continue; } // Incompatible unique-item replacement.
+      if (!best || value > best.score) best = { choice, score: value, enchantExcluded,
         ...(item.id === 8345 ? { effectBonus: wolfsheadEstimate(options?.rankingBuild?.slots.RANGED?.id === 272427)?.gain || 0 } : {}) };
     }
     return best;

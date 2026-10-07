@@ -131,12 +131,17 @@
         const score = el('span', null, 'gear-item-score');
         score.append(el('b', ranked ? signed(ranked.score) + ' DPS' : '—', 'dps-value ' + scoreClass(ranked?.score)),
           el('small', ranked ? (ranked.equipped ? 'Equipped · Δ DPS' : ranked.benchmark ? 'reference Δ DPS' : weights?.version === 2 ? 'estimated Δ DPS' : 'DPS value') : 'No estimate'));
+        const currentEnchant = build.slots[slot]?.enchant;
+        if (currentEnchant && !gear.enchantCompatible(gear.data.enchants[currentEnchant], item, slot)) {
+          score.append(badge('Enchant incompatible'));
+          if (ranked && weights?.version === 2) score.append(el('small', 'Both compared without enchant'));
+        }
         button.append(icon(item), el('span', item.name, 'gear-item-name'), score);
         button.disabled = busy; button.setAttribute('aria-pressed', String(build.slots[slot]?.id === item.id));
-        button.addEventListener('click', () => equipChoice(ranked?.choice || { id: item.id, variant: '0', suffix: 0, enchant: '' })); return button;
+        button.addEventListener('click', () => equipChoice({ ...(ranked?.choice || { id: item.id, variant: '0', suffix: 0 }), enchant: undefined })); return button;
       }));
       $('#gear-found').textContent = `${results.length.toLocaleString()} items · showing ${Math.min(limit, results.length)}`;
-      $('#gear-found-detail').textContent = `Standard items only. Selecting an item equips it immediately. The equipped row retains its exact enchant and always has zero replacement delta.${slot === 'RANGED' && api?.idolBenchmarks ? ' Reference DPS Δ = paired idol replacement tests in the recorded benchmark setup, versus the equipped idol. Includes modeled effects; not stat EP or a prediction for your current build.' : weights ? (weights.version === 2 ? ' DPS Δ = replacement estimate, capped hit/expertise; other candidate items have no enchant.' : ' DPS value = weighted stats, no enchant.') + (slot === 'HEAD' ? ' Includes Wolfshead’s fixed measured effect bonus, adding it when equipped and subtracting it when replaced; +50.13 with Howling, +45.00 otherwise. Not a full simulation.' : ' Other special effects are excluded; not a full simulation.') : ' No DPS weights available; default order is highest item level first. Item level is not a DPS estimate.'}`;
+      $('#gear-found-detail').textContent = `Standard items only. Selecting an item equips it immediately and retains the current enchant when compatible. The equipped row always has zero replacement delta. An incompatible enchant is excluded from both sides of item comparisons and removed on equip, with a notice.${slot === 'RANGED' && api?.idolBenchmarks ? ' Reference DPS Δ = paired idol replacement tests in the recorded benchmark setup, versus the equipped idol. Includes modeled effects; not stat EP or a prediction for your current build.' : weights ? (weights.version === 2 ? ' DPS Δ = item replacement estimate with the same enchant on both sides and capped hit/expertise.' : ' DPS value = weighted stats including the retained enchant.') + (slot === 'HEAD' ? ' Includes Wolfshead’s fixed measured effect bonus, adding it when equipped and subtracting it when replaced; +50.13 with Howling, +45.00 otherwise. Not a full simulation.' : ' Other special effects are excluded; not a full simulation.') : ' No DPS weights available; default order is highest item level first. Item level is not a DPS estimate.'}`;
       $('#gear-more').hidden = results.length <= limit;
     }
     function choose(choice) {

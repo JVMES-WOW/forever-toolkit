@@ -1,10 +1,11 @@
 (function (root, factory) {
   const api = factory(typeof module === 'object' && module.exports ? require('./feral-damage.js') : root.FOREVER_FERAL_DAMAGE,
     typeof module === 'object' && module.exports ? require('./feral-buffs.js') : root.FOREVER_FERAL_BUFFS,
-    typeof module === 'object' && module.exports ? require('./feral-gear.js') : root.FOREVER_FERAL_GEAR);
+    typeof module === 'object' && module.exports ? require('./feral-gear.js') : root.FOREVER_FERAL_GEAR,
+    typeof module === 'object' && module.exports ? require('./feral-rotation.js') : root.FOREVER_FERAL_ROTATION);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.FOREVER_FERAL_SIM = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (damage, buffs, gear) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (damage, buffs, gear, rotation) {
   'use strict';
 
   const ABILITIES = ['rake', 'shred', 'rip', 'bite', 'shiftingPower', 'berserk', 'faerieFire'];
@@ -30,9 +31,11 @@
   const CP_METRICS = ['normal', 'bloodFrenzy', 'waste', 'ripConsumed', 'biteConsumed',
     'atCapCasts', 'atCapWaste', 'rakeAtCapCasts', 'rakeAtCapWaste', 'shredAtCapCasts', 'shredAtCapWaste'];
   const RIP_DURATION = 12;
+  const TEA_ENERGY = 100, TEA_COOLDOWN = 300;
   // Unimproved Vanilla Mana Spring: 25 MP5 delivered on 2-second ticks.
   const MANA_SPRING_INTERVAL = 2, MANA_SPRING_AMOUNT = 10;
   const DEFAULTS = Object.freeze({
+    ...rotation.DEFAULTS,
     ...damage.DEFAULTS,
     ...buffs.DEFAULTS,
     characterMode: 'totals', gearBuild: '', gearAreaTypes: '', targetCreature: 'other',
@@ -55,6 +58,8 @@
   function normalize(input = {}) {
     const supplied = { ...DEFAULTS, ...input };
     const c = damage.normalize(buffs.apply(gear ? gear.apply(supplied) : supplied));
+    Object.assign(c, rotation.normalize(c));
+    c.rotationRevision = rotation.REVISION;
     if (!['other', 'elemental'].includes(c.targetCreature)) throw new Error('Invalid target creature type.');
     // The opener is now determined solely by whether Berserk uses the GCD.
     delete c.preBerserk;
@@ -144,7 +149,7 @@
       manaRaw: { spirit: 0, blessing: 0, spring: 0, jow: 0, potion: 0, tide: 0, ...(config.gearMP5 ? { gear: 0 } : {}) },
       manaSpent: 0, manaWaste: 0,
       cp: Object.fromEntries(CP_METRICS.map(key => [key, 0])),
-      biteEvents: [], ripApplications: [],
+      biteEvents: [], ripApplications: [], ripCP: 0, clipEvents: [],
       bloodFrenzy: { attempts: 0, procs: 0 }, jow: { attempts: 0, procs: 0 },
       potion: { uses: 0, rolled: 0, gained: 0, waste: 0, timestamps: [] },
       potionsUsed: 0, potionSequence: [], mightyRageExpires: -Infinity,
@@ -328,7 +333,7 @@
     const attack = resolveAttack(s, false, id);
     if (attack.success) {
       if (id === 'rip') {
-        s.cp.ripConsumed += s.combo; s.ripExpires = s.time + duration;
+        s.cp.ripConsumed += s.combo; s.ripCP = s.combo; s.ripExpires = s.time + duration;
         s.damage?.applyBleed('rip', s.time, s.combo);
         s.ripApplications.push({ time: s.time, expires: s.ripExpires });
       }
@@ -374,6 +379,7 @@
     if (!spendMana(s, cost)) return false;
     const cooldown = shiftingPowerCooldown(s.config);
     recordCast(s, 'shiftingPower'); s.cooldowns.shiftingPower = eventTime(s.time + cooldown);
+    fulfillClip(s, 'shift');
     const energy = gainEnergy(s, shiftingPowerEnergy(s.config), 'shifting');
     addLog(s, 'Shifting Power', before, `Mana -${fmt(cost)} · Energy +${fmt(energy.gained)}${energy.wasted ? ` · ${fmt(energy.wasted)} wasted` : ''} · Cooldown ${cooldown.toFixed(1)}s`);
     return true;
@@ -397,6 +403,13 @@
   }
 
   function canShredWithoutBreakingRefresh(s) {
+    if (!teaSuppressedProjections.has(s)) return projectShredRefresh(s);
+    const cache = teaForecastCache(s.config).rotation;
+    const key = 'refresh|' + teaForecastKey(s, s.config.duration, false);
+    if (!cache.has(key)) cache.set(key, projectShredRefresh(s));
+    return cache.get(key);
+  }
+  function projectShredRefresh(s) {
     if (s.energy + 1e-9 < energyCost(s, abilityCost(s.config, 'shred'))) return false;
     const mandatory = [];
     const guaranteedBonusCP = s.config.bloodFrenzy === 100 && (s.config.crit === 100 || s.time < s.berserkExpires - 1e-9) ? 1 : 0;
@@ -420,14 +433,23 @@
     return mandatory.every(need => shredded[need.id] <= pooled[need.id] + 1e-9);
   }
 
+  // Private forecast context, never part of a configuration or saved result.
+  // Descendant projections must inherit it so comparing Tea cannot recursively
+  // ask whether Tea itself should be used.
+  const teaSuppressedProjections = new WeakSet();
+  const teaForecastCaches = new WeakMap();
+  const rotationProjections = new WeakSet(), clipSelections = new WeakMap();
   function policyProjection(s) {
     // Deliberately omit RNG, counters, and logs from the projection.
-    return { config: s.config, time: s.time, energy: s.energy, mana: s.mana, combo: s.combo,
-      gcdUntil: s.gcdUntil, rakeExpires: s.rakeExpires, ripExpires: s.ripExpires,
+    const projected = { config: s.config, time: s.time, energy: s.energy, mana: s.mana, combo: s.combo,
+      gcdUntil: s.gcdUntil, rakeExpires: s.rakeExpires, ripExpires: s.ripExpires, ripCP: s.ripCP,
       berserkExpires: s.berserkExpires, clearcastingExpires: s.clearcastingExpires,
       lastManaSpend: s.lastManaSpend, cooldowns: { ...s.cooldowns }, potionsUsed: s.potionsUsed,
       nextEnergyTick: s.nextEnergyTick, nextManaTick: s.nextManaTick,
       nextWisdomTick: s.nextWisdomTick, nextSpringTick: s.nextSpringTick, nextTideTick: s.nextTideTick, tideTick: s.tideTick, projectedEnergyWaste: 0 };
+    if (teaSuppressedProjections.has(s)) teaSuppressedProjections.add(projected);
+    rotationProjections.add(projected);
+    return projected;
   }
   function projectedOffGcd(s) {
     // Forecast guaranteed resources only. Never roll RNG or mutate combat
@@ -439,20 +461,26 @@
       s.cooldowns.potion = s.time + 120;
       s.potionsUsed++;
     }
-    if (shouldTea(s)) { s.projectedEnergyWaste += s.energy; s.energy = 100; s.cooldowns.tea = s.time + 300; }
+    if (shouldTea(s)) projectTea(s);
   }
   function advanceProjection(s, end) {
     const future = time => time > s.time + 1e-9 ? time : Infinity;
-    const next = Math.min(end, future(s.nextEnergyTick), future(s.nextManaTick),
+    // With Tea suppressed there is no energy-dependent off-GCD decision.
+    // Batch energy ticks during a GCD, still stopping at every other event.
+    const energyAt = teaSuppressedProjections.has(s) && s.gcdUntil > s.time + 1e-9
+      ? Math.max(s.nextEnergyTick, s.gcdUntil) : s.nextEnergyTick;
+    const next = Math.min(end, future(energyAt), future(s.nextManaTick),
       s.config.blessingWisdom ? future(s.nextWisdomTick) : Infinity,
       s.config.manaSpring ? future(s.nextSpringTick) : Infinity,
       s.config.manaTide ? future(s.nextTideTick) : Infinity,
-      future(s.gcdUntil), future(s.cooldowns.shiftingPower), future(s.cooldowns.berserk), future(s.cooldowns.potion), future(s.cooldowns.tea),
+      future(s.gcdUntil), future(s.cooldowns.shiftingPower), future(s.cooldowns.berserk), future(s.cooldowns.potion),
+      teaSuppressedProjections.has(s) ? Infinity : future(s.cooldowns.tea),
       future(s.rakeExpires), future(s.ripExpires), future(s.berserkExpires), future(s.clearcastingExpires));
     const nextTime = eventTime(next);
     if (nextTime <= s.time + 1e-9) return false;
     s.time = nextTime;
-    if (Math.abs(s.time - s.nextEnergyTick) < 1e-9) { s.projectedEnergyWaste += Math.max(0, s.energy + 1 - 100); s.energy = Math.min(100, s.energy + 1); s.nextEnergyTick = roundTime(s.nextEnergyTick + 0.1); }
+    const energyTicks = Math.max(0, Math.floor((s.time - s.nextEnergyTick) * 10 + 1e-9) + 1);
+    if (energyTicks) { s.projectedEnergyWaste += Math.max(0, s.energy + energyTicks - 100); s.energy = Math.min(100, s.energy + energyTicks); s.nextEnergyTick = roundTime(s.nextEnergyTick + energyTicks / 10); }
     if (Math.abs(s.time - s.nextManaTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + spiritManaPerTick(s) + (s.config.gearMP5 || 0) * 2 / 5); s.nextManaTick += 2; }
     if (s.config.blessingWisdom && Math.abs(s.time - s.nextWisdomTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + 40); s.nextWisdomTick += 5; }
     if (s.config.manaSpring && Math.abs(s.time - s.nextSpringTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + springAmount(s.config)); s.nextSpringTick += MANA_SPRING_INTERVAL; }
@@ -517,6 +545,7 @@
   function projectedNonShiftCast(s, action) {
     s.gcdUntil = eventTime(s.time + 1);
     if (action === 'berserk') { activateBerserk(s); return; }
+    if (action === 'faerieFire') { s.cooldowns.faerieFire = s.time + 6; return; }
     s.energy -= energyCost(s, abilityCost(s.config, action));
     s.clearcastingExpires = -Infinity;
     // Deterministic lookahead: assume attacks land, credit only guaranteed
@@ -526,10 +555,18 @@
       s.combo = Math.min(5, s.combo + 1 + bonus);
       if (action === 'rake') s.rakeExpires = s.time + 9;
     } else {
-      s.combo = 0;
-      if (action === 'rip') s.ripExpires = s.time + RIP_DURATION;
+      if (action === 'rip') { s.ripCP = s.combo; s.ripExpires = s.time + RIP_DURATION; }
       else s.energy = 0;
+      s.combo = 0;
     }
+  }
+  function projectedShift(s) {
+    s.mana -= shiftingPowerCost(s.config); s.lastManaSpend = s.time;
+    const gain = shiftingPowerEnergy(s.config);
+    s.projectedEnergyWaste += Math.max(0, s.energy + gain - 100);
+    s.energy = Math.min(100, s.energy + gain);
+    s.gcdUntil = eventTime(s.time + 1);
+    s.cooldowns.shiftingPower = eventTime(s.time + shiftingPowerCooldown(s.config));
   }
   function shiftGcdOverflow(s) {
     // Include ticks through GCD completion: live regeneration happens before
@@ -539,6 +576,13 @@
     return Math.max(0, s.energy + shiftingPowerEnergy(s.config) + ticks - 100);
   }
   function compareShiftTiming(state, checkShredRefresh = true, alternative) {
+    if (!teaSuppressedProjections.has(state) || alternative) return projectShiftTiming(state, checkShredRefresh, alternative);
+    const cache = teaForecastCache(state.config).rotation;
+    const key = 'shift|' + Number(checkShredRefresh) + '|' + teaForecastKey(state, state.config.duration, false);
+    if (!cache.has(key)) cache.set(key, projectShiftTiming(state, checkShredRefresh));
+    return cache.get(key);
+  }
+  function projectShiftTiming(state, checkShredRefresh = true, alternative) {
     if (!knowsShift(state.config)) return { useNow: false, reason: 'not-learned' };
     // Local opportunity-cost heuristic, not a full rotation/CPM optimizer.
     // Shift unless a reachable non-shift plan loses less total energy:
@@ -557,7 +601,7 @@
     const nowLoss = now.projectedEnergyWaste + shiftGcdOverflow(now);
     const result = { useNow: true, nowLoss, delay: 0, delayLoss: nowLoss, overflowLater: shiftGcdOverflow(now) };
     if (nowLoss <= 1e-9) return result; // No delayed plan can beat zero loss.
-    const gainRate = shiftingPowerEnergy(state.config) / shiftingPowerCooldown(state.config);
+    const gainRate = shiftingPowerEnergy(state.config) / shiftingPowerCooldown(state.config) * state.config.shiftDelayPenalty;
     // Once delay alone costs as much as shifting now, later plans cannot win.
     const horizon = eventTime(Math.min(end, readyAt + nowLoss / gainRate));
     const later = policyProjection(state);
@@ -601,8 +645,8 @@
       if (canAffordShiftingPower(s)) return 'shiftingPower';
       if (recordOom && s.oomTime === null) s.oomTime = s.time;
     }
-    // Re-evaluate every event while waiting; Tea or other resource changes
-    // can make reserving the GCD unnecessary before the cooldown finishes.
+    // Re-evaluate every event while waiting. Tea's energy-loss comparison
+    // and actual resource changes can both change this reservation.
     if (shouldWaitForShiftingPower(s, checkShredRefresh)) return null;
     return chooseNonShiftAction(s, checkShredRefresh);
   }
@@ -624,11 +668,68 @@
     if (s.energy >= energyCost(s, abilityCost(c, 'shred')) && (!checkShredRefresh || canShredWithoutBreakingRefresh(s))) return 'shred';
     return null;
   }
-  function chooseAction(s) {
-    const action = choosePriorityAction(s);
+  function chooseAction(s, recordOom = true) {
+    clipSelections.delete(s);
+    const action = choosePriorityAction(s, recordOom);
     if (action) return action;
+    const clip = selectClip(s);
+    if (clip) { clipSelections.set(s, clip); return clip.bleed; }
     if (s.config.faerieFire && s.cooldowns.faerieFire <= s.time + 1e-9 && hasFreeFaerieFireGlobal(s)) return 'faerieFire';
     return null;
+  }
+
+  function selectClip(s) {
+    if (rotationProjections.has(s) || !rotation.RULES.some(r => s.config[r.prefix])
+      || s.gcdUntil > s.time + 1e-9 || clearcastingActive(s)
+      || shouldWaitForShiftingPower(s) || shouldTea(s)) return null;
+    for (const rule of rotation.RULES) {
+      if (!s.config[rule.prefix]) continue;
+      const remaining = s[rule.bleed + 'Expires'] - s.time;
+      // Ticks due at this timestamp are already flushed; within one interval
+      // of expiration means exactly the final tick remains. No pandemic carry.
+      if (remaining <= 1e-9 || remaining > rule.interval + 1e-9 || remaining > s.config[rule.prefix + 'Remaining'] + 1e-9
+        || s.time + rule.interval > s.config.duration + 1e-9) continue;
+      if (rule.bleed === 'rip' && (s.combo < s.config.ripMinCP || s.combo < s.ripCP)) continue;
+      if (rule.bleed === 'rake' && s.config.rakeMode === 'ripDown' && s.ripExpires > s.time + 1e-9) continue;
+      const cost = energyCost(s, abilityCost(s.config, rule.bleed));
+      if (cost <= 0 || s.energy + 1e-9 < cost) continue;
+      const at = eventTime(s.time + (rule.resource === 'shift' ? 1 : 0));
+      if (at >= s.config.duration - 1e-9) continue;
+      if (rule.resource === 'shift' && (!canAffordShiftingPower(s) || s.cooldowns.shiftingPower > at + 1e-9)) continue;
+      const after = policyProjection(s), waiting = policyProjection(s);
+      projectedNonShiftCast(after, rule.bleed);
+      if (rule.resource === 'shift') {
+        projectedOffGcd(after);
+        while (after.time < at - 1e-9) { if (!advanceProjection(after, at)) break; projectedOffGcd(after); }
+        while (waiting.time < at - 1e-9) if (!advanceProjection(waiting, at)) break;
+        if (!canAffordShiftingPower(after) || !shiftEnergyEligible(after)) continue;
+      } else if (!teaEligible(after) || !shouldTea(after)) continue;
+      if (after.energy > s.config[rule.prefix + 'Energy'] + 1e-9) continue;
+      const waste = p => p.projectedEnergyWaste + (rule.resource === 'shift' ? shiftGcdOverflow(p) : p.energy);
+      const relief = waste(waiting) - waste(after);
+      if (relief <= 1e-9) continue;
+      return { rule: rule.id, bleed: rule.bleed, resource: rule.resource, time: s.time, followupAt: at,
+        resourceReadyAt: s.cooldowns[rule.resource === 'shift' ? 'shiftingPower' : 'tea'],
+        remaining, energyBeforeResource: after.energy, capRelief: relief,
+        foregoneTickDamage: s.damage?.foregoneTick(rule.bleed, s) ?? null };
+    }
+    return null;
+  }
+  function fulfillClip(s, resource) {
+    for (const event of s.clipEvents) if (event.overwrite && !event.fulfilled && event.resource === resource
+      && Math.abs(event.followupAt - s.time) < 1e-9) {
+      event.fulfilled = true; event.resourceDelay = Math.max(0, s.time - event.resourceReadyAt);
+      event.onCooldown = event.resourceDelay < 1e-9;
+    }
+  }
+  function clipDiagnostics(s) {
+    return Object.fromEntries(rotation.RULES.map(r => {
+      const events = s.clipEvents.filter(e => e.rule === r.id), overwritten = events.filter(e => e.overwrite);
+      return [r.id, { attempts: events.length, overwrites: overwritten.length,
+        fulfilled: events.filter(e => e.fulfilled).length, ticks: overwritten.length,
+        onCooldown: events.filter(e => e.onCooldown).length,
+        foregoneTickDamage: s.config.damageEnabled ? overwritten.reduce((n, e) => n + (e.foregoneTickDamage || 0), 0) : null }];
+    }));
   }
 
   function shouldManaPotion(s) {
@@ -667,13 +768,155 @@
       reason: s.config.potionStrategy === 'adaptive' ? `below ${fmt(s.config.potionManaReserve)}% reserve; mana policy eligible` : 'mana policy eligible' });
     addLog(s, 'Major Mana Potion', before, `Rolled ${fmt(rolled)} · Mana +${fmt(mana.gained)}${mana.wasted ? ` · ${fmt(mana.wasted)} wasted` : ''}`);
   }
+  function projectTea(s) {
+    s.projectedEnergyWaste += s.energy;
+    s.energy = 100; s.cooldowns.tea = s.time + TEA_COOLDOWN;
+  }
+  function teaForecastCache(c) {
+    // Per-configuration, bounded and private. Include every rotation/resource
+    // input used by these forecasts, so even in-place test edits invalidate it.
+    const signature = JSON.stringify([c.duration, c.startingMana, c.spirit, c.spiritMode, c.divineSpirit,
+      c.reflection, c.gearMP5, c.blessingWisdom, c.manaSpring, c.manaSpringImproved, c.manaTide,
+      c.usePotions, c.potionPolicy, c.potionStrategy, c.potionManaReserve, c.teaPolicy, c.teaTiming, c.teaMaxEnergy, c.teaDelayPenalty, c.shiftDelayPenalty, c.berserkGCD, c.faerieFire,
+      c.rakeMode, c.ripMinCP, c.biteMinCP, c.biteMaxEnergy, c.biteRipOutside, c.biteRipBerserk,
+      c.bloodFrenzy, c.crit, c.shiftingMode, c.shiftingThreshold, knowsShift(c), knowsBerserk(c),
+      shiftingPowerCost(c), shiftingPowerCooldown(c), shiftingPowerEnergy(c), abilityCost(c, 'rake'), abilityCost(c, 'shred')]);
+    let cache = teaForecastCaches.get(c);
+    if (!cache || cache.signature !== signature) {
+      cache = { signature, paths: new Map(), decisions: new Map(), rotation: new Map() }; teaForecastCaches.set(c, cache);
+    }
+    if (cache.paths.size > 4096) cache.paths.clear();
+    if (cache.decisions.size > 4096) cache.decisions.clear();
+    if (cache.rotation.size > 4096) cache.rotation.clear();
+    return cache;
+  }
+  function teaForecastKey(s, stop, untilSpend) {
+    // Tea is suppressed, so its cooldown cannot affect a branch. Omitting it
+    // lets repeated probes share the same deterministic suffix after refilling.
+    return [stop, Number(untilSpend), s.time, s.energy, s.mana, s.combo, s.gcdUntil,
+      s.rakeExpires, s.ripExpires, s.berserkExpires, s.clearcastingExpires, s.lastManaSpend,
+      s.cooldowns.shiftingPower, s.cooldowns.berserk, s.cooldowns.faerieFire, s.cooldowns.potion,
+      s.potionsUsed, s.nextEnergyTick, s.nextManaTick, s.nextWisdomTick, s.nextSpringTick, s.nextTideTick, s.tideTick].join('|');
+  }
+  function forecastTeaBranch(state, end = state.config.duration, teaNow = false, untilSpend = false) {
+    const s = policyProjection(state);
+    teaSuppressedProjections.add(s);
+    if (teaNow) projectTea(s);
+    const stop = Math.min(end, s.config.duration);
+    const cache = teaForecastCache(s.config).paths, visited = [];
+    const finish = result => {
+      if (cache.size + visited.length > 4096) cache.clear();
+      for (const [key, overflow] of visited.slice(-4096)) cache.set(key, { at: result.at, overflow: result.overflow - overflow });
+      return result;
+    };
+    while (s.time < s.config.duration - 1e-9 && s.time <= stop + 1e-9) {
+      const key = teaForecastKey(s, stop, untilSpend), known = cache.get(key);
+      if (known) return finish({ at: known.at, overflow: s.projectedEnergyWaste + known.overflow });
+      visited.push([key, s.projectedEnergyWaste]);
+      projectedOffGcd(s);
+      if (s.gcdUntil <= s.time + 1e-9) {
+        const action = chooseAction(s, false);
+        if (action === 'shiftingPower') return finish({ at: s.time, overflow: s.projectedEnergyWaste + shiftGcdOverflow(s) });
+        const energy = s.energy;
+        if (action) projectedNonShiftCast(s, action);
+        projectedOffGcd(s);
+        if (untilSpend && s.energy < energy - 1e-9) break;
+      }
+      if (!advanceProjection(s, stop)) break;
+    }
+    return finish({ at: Infinity, overflow: s.projectedEnergyWaste });
+  }
+  function nextShiftWithoutFurtherTea(state, end = state.config.duration, teaNow = false) {
+    if (!knowsShift(state.config) || state.cooldowns.shiftingPower >= state.config.duration - 1e-9) return Infinity;
+    return forecastTeaBranch(state, end, teaNow).at;
+  }
+  function teaEligible(s) {
+    return s.config.teaPolicy !== 'disabled' && s.cooldowns.tea <= s.time + 1e-9
+      && s.time < s.config.duration - 1e-9 && s.energy < 100 - 1e-9
+      && (s.config.teaPolicy === 'any' || s.time < s.berserkExpires - 1e-9);
+  }
+  function teaTimingLoss(s, withoutTeaAt = nextShiftWithoutFurtherTea(s)) {
+    // Cap loss includes Tea, ticks while locked/pooling, and the next Shift's
+    // GCD. Without a reachable Shift, stop at the first energy spend instead.
+    const branch = forecastTeaBranch(s, s.config.duration, true, !Number.isFinite(withoutTeaAt));
+    const shiftDelay = Number.isFinite(withoutTeaAt)
+      ? Math.max(0, Math.min(branch.at, s.config.duration) - withoutTeaAt) : 0;
+    const shiftLoss = shiftDelay * shiftingPowerEnergy(s.config) / shiftingPowerCooldown(s.config) * s.config.shiftDelayPenalty;
+    return { withoutTeaAt, withTeaAt: branch.at, overflow: branch.overflow, shiftDelay, shiftLoss,
+      loss: branch.overflow + shiftLoss };
+  }
+  function cheaperTeaPlan(state, nowLoss, referenceAt, end = state.config.duration) {
+    const rate = TEA_ENERGY / TEA_COOLDOWN * state.config.teaDelayPenalty;
+    if (nowLoss <= 1e-9) return null;
+    const later = policyProjection(state);
+    teaSuppressedProjections.add(later);
+    let horizon = Math.min(end, state.config.duration, state.time + nowLoss / rate);
+    // If the next Berserk cannot start inside the cost bound, time after the
+    // current window contains no eligible Tea candidate. Do not replay it.
+    if (state.config.teaPolicy !== 'any' && (!knowsBerserk(state.config)
+      || state.cooldowns.berserk >= horizon - 1e-9)) horizon = Math.min(horizon, state.berserkExpires);
+    while (later.time < state.config.duration - 1e-9) {
+      projectedOffGcd(later);
+      const check = () => {
+        if (!teaEligible(later)) return null;
+        const delay = later.time - state.time;
+        const waitLoss = delay * rate + later.projectedEnergyWaste;
+        // Immediate Tea overflow is a lower bound; avoid expensive forecasts
+        // for candidates that cannot beat now even with no Shift delay.
+        if (waitLoss + later.energy >= nowLoss - 1e-9) return null;
+        if (referenceAt === undefined || referenceAt < later.time - 1e-9) referenceAt = nextShiftWithoutFurtherTea(later);
+        const candidate = teaTimingLoss(later, referenceAt), delayLoss = waitLoss + candidate.loss;
+        return delayLoss < nowLoss - 1e-9
+          ? { delay, delayLoss, teaDelayLoss: delay * rate,
+            waitingOverflow: later.projectedEnergyWaste, later: candidate } : null;
+      };
+      const beforeCast = check(); if (beforeCast) return beforeCast;
+      if (later.gcdUntil <= later.time + 1e-9) {
+        const action = chooseAction(later, false);
+        if (action === 'shiftingPower') { projectedShift(later); referenceAt = -Infinity; }
+        else if (action) projectedNonShiftCast(later, action);
+        projectedOffGcd(later);
+        const afterCast = check(); if (afterCast) return afterCast;
+      }
+      if (later.time >= horizon - 1e-9
+        || later.projectedEnergyWaste + (later.time - state.time) * rate >= nowLoss - 1e-9
+        || !advanceProjection(later, horizon)) break;
+    }
+    return null;
+  }
+  function compareTeaTiming(state) {
+    // Same local opportunity-cost framing as Shift: use now unless a
+    // reachable later use loses less. Past cooldown drift is common to both
+    // choices; charge only additional waiting, at 100 / 300 energy per second.
+    const now = teaTimingLoss(state);
+    const result = { useNow: true, ...now, nowLoss: now.loss, delay: 0, delayLoss: now.loss };
+    const better = cheaperTeaPlan(state, now.loss, now.withoutTeaAt);
+    if (better) return { ...result, ...better, useNow: false };
+    return result; // Ties use Tea now; do not indefinitely bank its cooldown.
+  }
   function shouldTea(s) {
-    if (s.config.teaPolicy === 'disabled' || s.cooldowns.tea > s.time + 1e-9) return false;
-    return s.energy <= 10 && (s.config.teaPolicy === 'any' || s.time < s.berserkExpires - 1e-9);
+    if (teaSuppressedProjections.has(s) || !teaEligible(s)) return false;
+    if (s.config.teaTiming !== 'loss') {
+      if (s.energy > s.config.teaMaxEnergy + 1e-9) return false;
+      if (s.config.teaTiming === 'threshold') return true;
+      const reference = nextShiftWithoutFurtherTea(s);
+      return !Number.isFinite(reference) || nextShiftWithoutFurtherTea(s, reference, true) <= reference + 1e-9;
+    }
+    const cache = teaForecastCache(s.config).decisions;
+    const key = teaForecastKey(s, s.config.duration, false) + '|' + s.cooldowns.tea;
+    if (cache.has(key)) return cache.get(key);
+    // A nearby spend can often prove holding cheaper than Tea's immediate
+    // overflow alone. This is only a fast rejection: all other cases still
+    // run the complete cost-bounded comparison, not a fixed hold window.
+    const useNow = s.energy >= 20 && cheaperTeaPlan(s, s.energy, undefined, s.time + 2)
+      ? false : compareTeaTiming(s).useNow;
+    cache.set(key, useNow);
+    return useNow;
   }
   function useTea(s) {
-    const before = snapshot(s), energy = gainEnergy(s, 100, 'tea'); s.cooldowns.tea = s.time + 300;
+    const before = snapshot(s), energy = gainEnergy(s, TEA_ENERGY, 'tea'); s.cooldowns.tea = s.time + TEA_COOLDOWN;
     s.tea.uses++; s.tea.gained += energy.gained; s.tea.waste += energy.wasted; s.tea.timestamps.push(eventTime(s.time));
+    fulfillClip(s, 'tea');
     addLog(s, 'Thistle Tea', before, `Energy +${fmt(energy.gained)}${energy.wasted ? ` · ${fmt(energy.wasted)} wasted` : ''} · off GCD`);
   }
 
@@ -726,6 +969,7 @@
   function executeDecision(s) {
     if (offGcdBerserkReady(s)) castBerserk(s);
     const action = chooseAction(s);
+    const clip = clipSelections.get(s), oldExpires = clip ? s[clip.bleed + 'Expires'] : null;
     if (action === 'shiftingPower') castShiftingPower(s);
     else if (action === 'berserk') castBerserk(s);
     else if (action === 'rip') castFinisher(s, 'rip', 30, RIP_DURATION);
@@ -733,8 +977,15 @@
     else if (action === 'bite') castFinisher(s, 'bite', 35, 0);
     else if (action === 'faerieFire') castFaerieFire(s);
     else if (action === 'shred') castBuilder(s, 'shred', abilityCost(s.config, 'shred'), 0);
-    // Off-GCD Tea must see the post-spend energy immediately, before the next
-    // natural tick can lift a qualifying 10 energy to 11 and skip the use.
+    if (clip) {
+      const event = { ...clip, overwrite: s[clip.bleed + 'Expires'] > oldExpires + 1e-9, fulfilled: false };
+      s.clipEvents.push(event);
+      if (s.debug) {
+        const entry = s.log.findLast(e => e.time === s.time && e.action === LABELS[clip.bleed]);
+        if (entry) entry.detail += ` · Clip for ${clip.resource === 'shift' ? 'Shift' : 'Tea'} · ${fmt(clip.remaining)}s left · predicted cap relief ${fmt(clip.capRelief)} energy${event.overwrite ? ' · 1 tick sacrificed' : ' · avoided: old bleed retained'}`;
+      }
+    }
+    // Off-GCD Tea rechecks the loss comparison immediately after a spend.
     if (shouldTea(s)) useTea(s);
   }
 
@@ -841,7 +1092,7 @@
     s.time = config.duration;
     const damageResult = s.damage ? s.damage.finish(s) : null;
     return {
-      damage: damageResult, windfuryModel: WINDFURY_MODEL, ...(config.gearIdol ? { idolModel: IDOL_MODEL } : {}),
+      damage: damageResult, rotationRevision: rotation.REVISION, clipping: clipDiagnostics(s), clipEvents: s.debug ? s.clipEvents : [], windfuryModel: WINDFURY_MODEL, ...(config.gearIdol ? { idolModel: IDOL_MODEL } : {}),
       iteration, seed, duration: config.duration, casts: s.casts, berserkCasts: s.berserkCasts, berserkCrits: s.berserkCrits,
       energy: s.energyStats, endingEnergy: s.energy, manaGained: s.manaGained, manaRaw: s.manaRaw,
       manaSpent: s.manaSpent, manaWaste: s.manaWaste, endingMana: s.mana, cp: s.cp,
@@ -889,6 +1140,9 @@
         ? fights.reduce((sum, fight) => sum + fight.berserkCrits[key], 0) / berserkUses : null])) };
     return {
       config, fights: fights.length, durationStats, abilityStats, berserkCrits, damage: damage.aggregate(fights), windfuryModel: WINDFURY_MODEL, ...(config.gearIdol ? { idolModel: IDOL_MODEL } : {}),
+      rotationRevision: rotation.REVISION,
+      clipping: Object.fromEntries(rotation.RULES.map(r => [r.id, Object.fromEntries(['attempts', 'overwrites', 'fulfilled', 'onCooldown', 'ticks', 'foregoneTickDamage']
+        .map(key => [key, key === 'foregoneTickDamage' && !config.damageEnabled ? null : metric(fights, f => f.clipping[r.id][key])]))])),
       totalCasts: { ...totalCasts, cpm: totalCasts.mean * 60 / durationStats.mean },
       finisherCasts: { ...finisherCasts, cpm: finisherCasts.mean * 60 / durationStats.mean },
       energy: aggregateObject('energy', ['natural', 'shifting', 'tea', 'waste', 'shiftingWaste', 'teaWaste']),
@@ -928,9 +1182,9 @@
   }
 
   return {
-    ABILITIES, LABELS, DEFAULTS, WINDFURY_MODEL, IDOL_MODEL, normalize, deriveSeed, createRng, shiftingPowerCost, shiftingPowerCooldown, shiftingPowerEnergy, simulateFight, runSimulation, replay, stats,
-    testing: { biteDiagnostics, sampleFightDuration, createState, gainEnergy, gainMana, gainCombo, resolveAttack, bloodFrenzy, castBuilder, castFinisher,
-      castShiftingPower, castBerserk, castFaerieFire, shouldPotion, potionChoice, usePotion, shouldTea, useTea, processManaTick, policyProjection, projectedOffGcd,
+    ABILITIES, LABELS, DEFAULTS, WINDFURY_MODEL, IDOL_MODEL, rotation, normalize, deriveSeed, createRng, shiftingPowerCost, shiftingPowerCooldown, shiftingPowerEnergy, simulateFight, runSimulation, replay, stats,
+    testing: { selectClip, clipDiagnostics, biteDiagnostics, sampleFightDuration, createState, gainEnergy, gainMana, gainCombo, resolveAttack, bloodFrenzy, castBuilder, castFinisher,
+      castShiftingPower, castBerserk, castFaerieFire, shouldPotion, potionChoice, usePotion, shouldTea, useTea, compareTeaTiming, teaTimingLoss, nextShiftWithoutFurtherTea, processManaTick, policyProjection, projectedOffGcd,
       clearcastingActive, energyCost, abilityCost, applyStartingClearcasting, compareShiftTiming, shiftGcdOverflow, shouldWaitForShiftingPower, chooseAction, choosePriorityAction, hasFreeFaerieFireGlobal, canShredWithoutBreakingRefresh, executeDecision, expireAuras, processAuto, processWindfury }
   };
 });

@@ -26,7 +26,7 @@
       $('#weights-use').disabled = busy || !result || result.kind === 'preset' || !same();
       $('#weights-default').disabled = busy;
       $('#weights-iterations').disabled = busy; $('#weights-scale').disabled = busy;
-      let stale = false; try { stale = applied && applied.kind !== 'preset' && applied.signature !== api.signature(callbacks.config()); } catch (_) { stale = Boolean(applied); }
+      let stale = false; try { stale = applied && (applied.kind === 'preset' || applied.signature !== api.signature(callbacks.config())); } catch (_) { stale = Boolean(applied); }
       $('#weights-active').textContent = (applied?.kind === 'preset' ? `Using your supplied default DPS weights · seed ${applied.seed} · ${applied.iterations} fights per setting. Original full setup/mechanics and iteration range were not included in the export: these are reference estimates, not verified weights for this setup. Cap-aware ranking uses your current gear and buffs. Generate weights to personalize.`
         : applied ? `Gear ranking uses DPS weights from seed ${applied.seed}, ${applied.iterations} paired fights per setting.${applied.version === 1 ? ' Legacy forward-only weights: regenerate for below-cap measurements and cap-aware rankings.' : ' Hit and expertise estimates stop at their caps.'}${stale ? ' Setup or mechanics changed since generation—ranking is a local estimate; regenerate to update it.' : ''}` : 'No generated weights applied. Gear picker defaults to highest item level first until you generate and use DPS weights.') + (storageNote ? ' ' + storageNote : '');
       $('#weights-badge').textContent = [applied?.kind === 'preset' ? 'Reference weights' : applied ? 'Generated weights' : 'No weights', ...(stale ? ['Weights need updating'] : []), ...(storageNote ? [storageNote] : [])].join(' · ');
@@ -135,7 +135,7 @@
     return { sync, refreshDisplay() { sync(); }, weights: () => applied,
       capture: () => applied,
       restore(value) { applied = value ? api.validate(value) : null; if (applied) persist(); else try { storage?.removeItem(KEY); } catch (_) { /* Keep in-memory preferences usable. */ } sync(); },
-      stale: () => { try { return Boolean(applied && applied.kind !== 'preset' && applied.signature !== api.signature(callbacks.config())); } catch (_) { return true; } } };
+      stale: () => { try { return Boolean(applied && (applied.kind === 'preset' || applied.signature !== api.signature(callbacks.config()))); } catch (_) { return true; } } };
   }
   root.FOREVER_FERAL_WEIGHTS_UI = { init, cells };
   if (typeof module === 'object' && module.exports) module.exports = { init, cells };

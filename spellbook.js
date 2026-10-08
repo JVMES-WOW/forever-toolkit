@@ -32,7 +32,13 @@
     if (state.rankId) p.set('rank', state.rankId);
     return '?' + p.toString();
   }
-  const api = { filterSpells, rankLabel, defaultRank, readSelection, selectionQuery };
+  function pageSpells(book, state, size = 12) {
+    size = [6, 12, 24].includes(size) ? size : 12;
+    const spells = filterSpells(book, state.spec, state.query, state.sort);
+    const page = Math.floor(Math.max(0, spells.findIndex(s => s.key === state.spellKey)) / size);
+    return { spells, page, pages: Math.max(1, Math.ceil(spells.length / size)), visible: spells.slice(page * size, (page + 1) * size) };
+  }
+  const api = { filterSpells, rankLabel, defaultRank, readSelection, selectionQuery, pageSpells };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.ForeverSpellbook = api;
 })(globalThis);

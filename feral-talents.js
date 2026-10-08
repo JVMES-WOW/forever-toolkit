@@ -74,7 +74,8 @@
       if (STAT_IDS.some(id => (build[id] || 0) !== (baseline[id] || 0))) throw new Error('This export includes talent stat bonuses. Import talent-free Cat stats before changing stat-affecting talents.');
     }
     const rank = id => build[id] || 0;
-    const effects = { rakeCost: 40 - rank('ferocity'), shredCost: 60 - 6 * rank('shredding-attacks'),
+    const effects = { ranks: { ...build }, shiftingRank: rank('shifting-power') ? 1 + rank('improved-shifting-power') : 0,
+      rakeCost: 40 - rank('ferocity'), shredCost: 60 - 6 * rank('shredding-attacks'),
       shiftingKnown: Boolean(rank('shifting-power')), berserkKnown: Boolean(rank('berserk')), shiftingCooldown: 16 - 4 * rank('improved-shifting-power'),
       crit: 2 * rank('natures-majesty') + 3 * rank('sharpened-claws'), hit: 2 * rank('natures-reach'),
       attackPower: 30 * rank('predatory-strikes'), leader: Boolean(rank('leader-of-the-pack')) };
@@ -87,7 +88,7 @@
   }
   const COVERAGE = {
     ferocity: 'Rake costs 40 minus rank energy. Other affected abilities are not in this rotation.',
-    'shredding-attacks': 'Shred costs 60 minus 6 × rank energy.',
+    'shredding-attacks': 'Shred costs 60 minus 6 × rank Energy; Lacerate costs 15 minus rank Rage.',
     'shifting-power': 'Unlocks Shifting Power. This is not a shapeshift and does not trigger Furor.',
     'improved-shifting-power': 'Shifting Power: 16 seconds minus 4 × rank, then equipment reductions.',
     berserk: 'Unlocks Berserk, including its configured pre-pull / off-GCD use and dynamic crit effects.',
@@ -96,7 +97,7 @@
     reflection: 'Retains 0/17/33/50% of Spirit mana regeneration within the five-second rule.',
     naturalist: 'All modeled damage +1% per rank, including autos and bleed ticks. Healing is outside this model.',
     genesis: 'Periodic bleed damage +1% per rank.',
-    'savage-fury': 'Rake initial/ticks and Shred damage +5% per rank.',
+    'savage-fury': 'Rake initial/ticks, Shred and Maul damage +5% per rank.',
     'predatory-instincts': 'Ability critical damage multiplier +0.1 per rank. White crits are unchanged.',
     'rend-and-tear': 'Modeled melee-special damage +2% per rank while an own bleed is active.',
     'natures-majesty': 'Melee crit +2 percentage points per rank; spell crit is not used by this rotation.',
@@ -106,7 +107,8 @@
     'heart-of-the-wild': 'Cat Strength and Intellect +2% per rank, applied with selected buffs.',
     'living-spirit': 'Spirit +5% per rank, applied with selected buffs.',
     'leader-of-the-pack': 'Own +3% crit aura. Does not stack with the selected external crit aura.',
-    furor: 'No effect while staying in Cat Form. Shifting Power does not leave/re-enter Cat Form.'
+    furor: 'Bearweave evaluation holds 5/5: 10 Rage on Bear entry. Energy follows the selected Furor variant. Shifting Power is not a form change.',
+    'primal-bite': 'Unlocks Primal Bite for experimental Bearweaving.'
   };
   return { SOURCE, DEFAULTS, DEFAULT_BUILD, STAT_IDS, COVERAGE, data, nodes, byId, total, validate, encode, decode, fromExport, change, transfer, apply };
 });

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dungeon-first leveling · Forever Toolkit</title>
+  <meta name="description" content="Private work in progress. Faction routes, dungeon preparation and local quest checklists for WoW Forever.">
+  <meta name="theme-color" content="#11161e">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="toolkit-logo.png"><link rel="stylesheet" href="leveling.css"><link rel="stylesheet" href="site-brand.css">
+  <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/leveling.html">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="Forever Toolkit">
+  <meta property="og:title" content="Dungeon-first leveling · Forever Toolkit">
+  <meta property="og:description" content="Private work in progress. Faction routes, dungeon preparation and local quest checklists for WoW Forever.">
+  <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/leveling.html">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/leveling-og.png?v=20261007-leveling-wip">
+  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/leveling-og.png?v=20261007-leveling-wip">
+  <meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Forever Toolkit dungeon-first leveling itinerary with preparation steps and quest progress.">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Dungeon-first leveling · Forever Toolkit">
+  <meta name="twitter:description" content="Private work in progress. Faction routes, dungeon preparation and local quest checklists for WoW Forever.">
+  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/leveling-og.png?v=20261007-leveling-wip">
+  <meta name="twitter:image:alt" content="Forever Toolkit dungeon-first leveling itinerary with preparation steps and quest progress.">
+  <script defer src="leveling-data.js"></script><script defer src="leveling-routes.js"></script><script defer src="leveling.js"></script><script defer src="leveling-ui.js"></script>
+</head>
+<body class="toolkit-page toolkit-leveling">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar toolkit-header">
+    <a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="40" height="40" alt=""><strong>Forever Toolkit</strong></a>
+    <nav class="toolkit-nav" aria-label="Main navigation"><a href="./">Home</a><a href="talents.html">Talents</a><a href="abilities.html">Spellbook</a><a href="raid.html">Raid</a><a href="analysis/">Analysis</a></nav>
+  </header>
+  <main id="main">
+    <div class="leveling-heading"><div><h1>Dungeon-first leveling</h1><p>Alliance &amp; Horde · Levels 1–60</p></div><span class="badge">Private · Work in progress</span></div>
+    <p id="message" role="status" aria-live="polite" hidden></p>
+    <div id="review-banner" class="notice" hidden></div>
+    <section class="character-bar" aria-label="Character controls">
+      <label>Character<select id="characters"></select></label><button id="new-character" type="button">New character</button>
+      <button id="edit-character" type="button" aria-expanded="false" aria-controls="setup">Character settings</button>
+      <button id="export-progress" type="button">Export progress</button><button id="import-button" type="button">Import progress</button><input id="import-progress" type="file" accept="application/json,.json" hidden>
+      <button id="share-route" type="button">Share route</button>
+    </section>
+    <form id="setup" class="setup" hidden>
+      <label>Name<input id="character-name" maxlength="80" required autocomplete="off"></label>
+      <label>Faction<select id="faction"><option>Horde</option><option>Alliance</option></select></label>
+      <label>Race<select id="race"></select></label><label>Class<select id="game-class"></select></label>
+      <label>Current level<input id="level" type="number" min="1" max="60" value="1" required></label>
+      <fieldset id="professions"><legend>Professions</legend></fieldset>
+      <div class="form-actions"><button type="submit">Save character</button><button id="cancel-setup" type="button">Cancel</button></div>
+    </form>
+    <div id="share-box" class="notice" hidden><label>Selections and chapter only—no character name or progress<input id="share-link" readonly></label></div>
+    <section id="overview" class="overview" aria-label="Route progress"></section>
+    <div class="leveling-layout">
+      <aside class="itinerary"><h2>Itinerary</h2><label class="mobile-chapters">Chapter<select id="mobile-chapter"></select></label><label class="chapter-filter">Find a dungeon<input id="chapter-filter" type="search" placeholder="Name or region" autocomplete="off"></label><nav id="chapters" aria-label="Leveling chapters"></nav></aside>
+      <div class="route-content"><section id="chapter" aria-live="polite"></section></div>
+    </div>
+    <details id="coverage"><summary>Quest coverage &amp; unresolved records</summary><div id="coverage-body"></div></details>
+    <details id="evidence"><summary>Evidence, rules &amp; data versions</summary><div id="evidence-body"></div></details>
+    <noscript>This guide needs JavaScript for local checklists. No account or game access is used.</noscript>
+  </main>
+  <footer>JVMES · Forever Toolkit</footer>
+</body>
+</html>

@@ -7,7 +7,7 @@
 })(typeof globalThis === 'object' ? globalThis : this, function (display, rotation) {
   'use strict';
   // Keep the storage key so v1 pairs can be migrated without loss.
-  const VERSION = 5, STORAGE_KEY = 'forever-feral.saved-comparison.v1';
+  const VERSION = 8, STORAGE_KEY = 'forever-feral.saved-comparison.v1';
   const clone = value => JSON.parse(JSON.stringify(value));
   const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
     ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
@@ -50,10 +50,11 @@
   function deserialize(text, validateConfig, expectedFields) {
     if (typeof text !== 'string' || text.length > 4_000_000) throw new Error('Saved comparison is too large or unreadable.');
     const data = JSON.parse(text);
-    if (![1, 2, 3, 4, VERSION].includes(data.version) || !data.current || !data.reference) throw new Error('Saved comparison uses an unsupported format.');
+    if (![1, 2, 3, 4, 5, 6, 7, VERSION].includes(data.version) || !data.current || !data.reference) throw new Error('Saved comparison uses an unsupported format.');
     if (data.version < VERSION) {
-      const additions = { ...rotation.DEFAULTS, ...(data.version === 1 ? { characterMode: 'totals', gearBuild: '', gearAreaTypes: '', targetCreature: 'other' } : {}), ...(data.version < 3 ? { giftOfArthas: false } : {}), crystalYield: false };
+      const additions = { ...rotation.DEFAULTS, racialRace: 'TAUREN', leyLineNearby: false, leyLineSpellHaste: 0, ...(data.version === 1 ? { characterMode: 'totals', gearBuild: '', gearAreaTypes: '', targetCreature: 'other' } : {}), ...(data.version < 3 ? { giftOfArthas: false } : {}), crystalYield: false };
       for (const entry of [data.current, data.reference]) for (const setup of [entry.setup, entry.draft]) {
+        if (setup?.values && expectedFields.includes('biteRank') && !Object.hasOwn(setup.values, 'biteRank')) setup.values.biteRank = 5;
         if (setup?.values) for (const [key, value] of Object.entries(additions)) if (expectedFields.includes(key) && !Object.hasOwn(setup.values, key)) setup.values[key] = value;
       }
     }
@@ -126,13 +127,13 @@
   function chartRows(current, reference, mode, labels) {
     if (mode === 'damage') {
       const a = display.damageRows(current.damage, labels.damage), b = display.damageRows(reference.damage, labels.damage);
-      return a.map((row, index) => ({ id: row.id, label: row.label, unit: 'DPS', ...difference(row.dps, b[index].dps) }));
+      return [...new Set([...a, ...b].map(r => r.id))].map(id => ({ id, label: (a.find(r => r.id === id) || b.find(r => r.id === id)).label, unit: 'DPS', ...difference(a.find(r => r.id === id)?.dps ?? (current.damage ? 0 : null), b.find(r => r.id === id)?.dps ?? (reference.damage ? 0 : null)) }));
     }
     let ids, read, unit;
     if (mode === 'uptime') { ids = ['rake', 'rip', 'berserk', 'clearcasting']; unit = 'pp'; read = (r, id) => r.uptime[id].mean; }
-    else if (mode === 'mana') { ids = ['spirit', 'blessing', 'spring', 'jow', 'potion', 'tide', ...(current.manaGained.gear || reference.manaGained.gear ? ['gear'] : []), 'spent']; unit = 'mana/min'; read = (r, id) => (id === 'spent' ? -r.manaSpent.mean : r.manaGained[id]?.mean || 0) * 60 / r.durationStats.mean; }
+    else if (mode === 'mana') { ids = ['spirit', 'blessing', 'spring', 'jow', 'potion', 'tide', ...(current.manaGained.gear || reference.manaGained.gear ? ['gear'] : []), ...(current.manaGained.leyLine || reference.manaGained.leyLine ? ['leyLine'] : []), 'spent']; unit = 'mana/min'; read = (r, id) => (id === 'spent' ? -r.manaSpent.mean : r.manaGained[id]?.mean || 0) * 60 / r.durationStats.mean; }
     else { ids = Object.keys(labels.abilities); unit = mode === 'casts' ? 'casts/fight' : 'CPM'; read = (r, id) => r.abilityStats[id][mode === 'casts' ? 'mean' : 'cpm']; }
-    const names = mode === 'mana' ? { spirit: 'Spirit', blessing: 'Blessing of Wisdom', spring: 'Mana Spring', jow: 'Judgment of Wisdom', potion: 'Mana potion', tide: 'Mana Tide', gear: 'Gear MP5', spent: 'Mana spent' } : { ...labels.abilities, clearcasting: 'Clearcasting' };
+    const names = mode === 'mana' ? { spirit: 'Spirit', blessing: 'Blessing of Wisdom', spring: 'Mana Spring', jow: 'Judgment of Wisdom', potion: 'Mana potion', tide: 'Mana Tide', gear: 'Gear MP5', leyLine: 'Read Ley Line bonus', spent: 'Mana spent' } : { ...labels.abilities, clearcasting: 'Clearcasting' };
     return ids.map(id => ({ id, label: names[id], unit, ...difference(read(current, id), read(reference, id)) }));
   }
   function settingsDifferences(current, reference) {

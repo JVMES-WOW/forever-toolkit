@@ -30,7 +30,12 @@
   } catch (error) { initialMessage = `Starting a fresh build. ${error.message}`; }
 
   function save() {
-    try { localStorage.setItem(storageKey, calc.encode(points, rules)); } catch (_) { /* File/private storage may be unavailable. */ }
+    const code = calc.encode(points, rules);
+    try { localStorage.setItem(storageKey, code); } catch (_) { /* File/private storage may be unavailable. */ }
+    // A shared URL takes precedence on reload; keep it in step with subsequent edits.
+    if (/^#FF[234]\./.test(location.hash)) {
+      try { history.replaceState(null, '', location.pathname + location.search + '#' + code); } catch (_) { /* file: may restrict history */ }
+    }
   }
   function status(message) { $('#status').textContent = message; }
   function commit(next) {
@@ -43,10 +48,10 @@
 
   $('#root').innerHTML = `
     <header class="topbar toolkit-header"><a class="brand toolkit-brand" href="./" aria-label="Forever Toolkit home"><img src="toolkit-logo.png" width="38" height="38" alt=""><strong>Forever Toolkit</strong></a>${sectionNav}</header>
-    <main id="main"><div class="calculator-actions"><h1>${data.name} talents</h1><label class="class-picker">Class <select id="class-picker">${classOptions}</select></label><button class="ghost" id="share">Share build ↗</button></div>
+    <main id="main"><div class="calculator-actions"><h1>${data.name} talents</h1><label class="class-picker">Class <select id="class-picker">${classOptions}</select></label><div class="points"><span>Talent points</span><b id="total"></b><div class="meter"><i id="meter"></i></div><small id="remaining"></small></div><button class="ghost" id="share">Share build</button></div>
     <dialog id="saved-build-dialog" aria-labelledby="saved-build-title"><form id="saved-build-form"><div class="dialog-head"><h2 id="saved-build-title">Save build</h2><button type="button" class="ghost" data-close="saved-build-dialog" aria-label="Close saved build dialog">×</button></div><label id="saved-build-name-label">Build name<input id="saved-build-name" type="text" maxlength="80" autocomplete="off"></label><p id="saved-build-prompt"></p><label id="saved-build-replace-label" hidden><input id="saved-build-replace" type="checkbox"> Replace the existing build with this name</label><p id="saved-build-error" role="alert"></p><div class="actions"><button id="saved-build-confirm" type="submit">Save</button><button type="button" class="ghost" data-close="saved-build-dialog">Cancel</button></div></form></dialog>
 
-    <div class="calculator-bar"><div class="toolbar"><label class="search-label">Find a talent <input id="search" type="search" placeholder="Name or effect…" autocomplete="off"></label><span class="editing-hint">Click to add · Right-click to refund<br>Drag 1 point · Tap destination to repeat</span><button class="ghost" id="undo">Undo</button><button class="ghost" id="reset">Reset build</button></div><div class="points"><span>Talent points</span><b id="total"></b><div class="meter"><i id="meter"></i></div><small id="remaining"></small></div></div>
+    <div class="calculator-bar"><div class="toolbar"><label class="search-label">Find a talent <input id="search" type="search" placeholder="Name or effect…" autocomplete="off"></label><button class="ghost" id="undo">Undo</button><button class="ghost" id="reset">Reset build</button><span class="editing-hint">Click to add · Right-click to refund<br>Drag 1 point · Tap destination to repeat</span></div></div>
     <p id="status" role="status" aria-live="polite"></p>
     <section class="workspace"><div class="trees-scroll"><div class="trees" id="trees" aria-label="All ${data.name} talent trees"></div></div><aside><section class="tooltip" id="inspector" aria-label="Talent details"></section><section class="summary saved-builds" aria-labelledby="saved-builds-title"><div class="saved-builds-heading"><h2 id="saved-builds-title">Saved builds</h2><button type="button" class="ghost" id="save-build">Save as</button></div><ul id="saved-build-list"></ul><p id="saved-build-state" role="status" aria-live="polite"></p><div class="calculator-presets"><button type="button" class="ghost" id="update-build" disabled>Update</button><button type="button" class="ghost" id="rename-build" disabled>Rename</button><button type="button" class="ghost" id="delete-build" disabled>Delete</button></div><p id="saved-build-status" role="status" aria-live="polite"></p></section></aside></section>
     <footer class="page-foot">Forever ${data.name} · ${data.trees.map(tree => `${tree.talents.length} ${tree.name}`).join(' / ')} · Game artwork © Blizzard Entertainment</footer>
@@ -157,6 +162,7 @@
     $('#trees').querySelectorAll('.node').forEach(node => node.classList.toggle('inspected', node.dataset.id === selected));
   }
   function updateInspector() {
+    const focusedAction = ['add-rank', 'refund-rank'].includes(document.activeElement?.id) ? document.activeElement.id : null;
     const t = calc.byId[selected];
     const rank = points[t.id] || 0, lock = calc.requirements(points, t, rules);
     const details = value => value?.length ? `<div class="spell-details">${value.map(item => `<span>${escape(item)}</span>`).join('')}</div>` : '';
@@ -165,6 +171,10 @@
     $('#inspector').innerHTML = `<small class="eyebrow">${escape(data.trees.find(tree => tree.id === t.tree).name)} · ROW ${t.row}</small><div class="talent-heading"><img src="${t.icon}" alt=""><h3>${escape(t.name)}</h3></div><div class="rank-line"><b>Rank ${rank}/${t.max}</b><span>${t.type}</span></div><p class="effect-label">${rank ? 'Current effect' : 'Rank 1 preview'}</p>${details(t.details)}${t.requires ? `<p class="form-requirement">Requires ${escape(t.requires)}</p>` : ''}${description(calc.descriptionAtRank(t, rank))}${nextEffect}${t.alternate ? `<h4>${escape(t.alternate.name)}</h4>${details(t.alternate.details)}<p class="form-requirement">Requires ${escape(t.alternate.requires)}</p>${description(t.alternate.description)}` : ''}${t.prerequisite ? `<p class="prerequisite">Requires <strong>${escape(calc.byId[t.prerequisite].name)}</strong></p>` : ''}${lock ? `<p class="lock-reason">${escape(lock)}</p>` : ''}<div class="actions"><button id="add-rank" ${rank === t.max || lock || calc.total(points) >= rules.budget ? 'disabled' : ''}>+ Add point</button><button id="refund-rank" class="ghost" ${!rank ? 'disabled' : ''}>− Refund</button></div>`;
     $('#add-rank').onclick = () => learn(t.id, 1);
     $('#refund-rank').onclick = () => learn(t.id, -1);
+    if (focusedAction) {
+      const action = $('#' + focusedAction);
+      (action.disabled ? $('#trees').querySelector(`[data-id="${selected}"]`) : action)?.focus({ preventScroll: true });
+    }
   }
   function learn(id, delta) {
     clearTalentTransfer();

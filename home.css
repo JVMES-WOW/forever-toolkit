@@ -1,32 +1,18 @@
-:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e8edf4;background:#0c1017;--accent:#eea45e;--muted:#94a2b6;--line:#ffffff12}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh}
-a{color:inherit}
-a:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
-.skip-link{position:absolute;top:-100px;left:16px;z-index:10;background:var(--accent);color:#0c1017;padding:12px}
-.skip-link:focus{top:12px}
-main{max-width:1080px;margin:0 auto;padding:28px 24px 36px}
-h1{font-size:25px;font-weight:650;letter-spacing:-.5px;margin:0 0 20px}
-.tool-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-.tool-card,.sim-preview{display:grid;grid-template-columns:276px minmax(0,1fr);min-width:0;height:156px;margin:0;border:1px solid var(--tk-line);border-radius:8px;overflow:hidden;background:var(--tk-panel);text-decoration:none}
-.tool-card:hover{border-color:#eea45e80;box-shadow:0 8px 30px #0003}
-.tool-caption{grid-column:2;grid-row:1;display:flex;align-items:center;gap:14px;padding:20px 24px;min-width:0;position:relative}
-.tool-caption>img{object-fit:contain;flex-shrink:0}
-.tool-caption>div{min-width:0}
-.tool-caption h2{font-size:19px;font-weight:600;letter-spacing:-.2px;margin:0 0 5px}
-.tool-caption p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
-.open-label{display:flex;align-items:center;gap:13px;margin-left:auto;padding-left:20px;color:var(--tk-amber-light);font-size:12px;white-space:nowrap}
-.open-label>span{font-size:19px}
-.tool-snapshot{grid-column:1;grid-row:1;display:block;width:100%;height:100%;min-height:0;object-fit:cover;object-position:top left;background:var(--tk-bg);border-right:1px solid var(--tk-line)}
-.wip-badge{position:absolute;bottom:13px;left:78px;color:var(--tk-amber-light);font-size:10px;white-space:nowrap}
-.page-foot{max-width:1032px;margin:0 auto;padding:22px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;color:#8293a9;font-size:10px}
-@media(max-width:1100px){.page-foot{margin:0 24px}}
-@media(max-width:700px){
- main{padding:24px 16px 28px}h1{font-size:23px;margin-bottom:18px}
- .tool-card,.sim-preview{grid-template-columns:112px minmax(0,1fr);height:136px}
- .tool-caption{padding:14px;gap:8px}.tool-caption>img{width:24px;height:30px}
- .tool-caption h2{font-size:16px}.tool-caption p{font-size:11px;line-height:1.5}
- .tool-caption>div{flex:1;min-width:0}.open-label{position:absolute;top:7px;right:10px;padding:0;font-size:0}.open-label>span{font-size:15px}
- .tool-snapshot{object-fit:cover;object-position:top center}
- .wip-badge{left:46px;bottom:8px;font-size:9px}.page-foot{margin:0 16px;flex-wrap:wrap;gap:8px}
-}
+:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--tk-text);background:var(--tk-bg);--accent:var(--tk-gold);--muted:var(--tk-muted);--line:var(--tk-line)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh}a{color:inherit}a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.skip-link{position:absolute;top:-100px;left:16px;z-index:10;background:var(--accent);color:var(--tk-bg);padding:12px}.skip-link:focus{top:12px}
+main{max-width:1180px;margin:0 auto;padding:0 30px 24px}.home-heading{min-height:174px;display:flex;align-items:center;justify-content:space-between;gap:28px;padding:30px 0}
+body.toolkit-home .home-heading h1{font:400 clamp(32px,3.5vw,46px)/1.1 Georgia,serif;color:#f1e7d2;margin:0;max-width:12ch;text-wrap:balance;text-shadow:0 2px 15px #0008}
+.home-classes{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:420px}.home-classes a{display:grid;place-items:center;width:40px;height:44px;border-bottom:1px solid #d8ac5744}.home-classes img{border:1px solid #938269;border-radius:2px;box-shadow:0 2px 5px #0008}.home-classes a:hover{border-color:var(--tk-gold);background:#10182280}
+.tool-grid{display:grid;grid-template-columns:minmax(0,1fr);border-top:1px solid #b1a08066;background:#101822c9}
+.tool-card,.sim-preview{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:28px;min-height:112px;margin:0;padding:10px 16px 10px 22px;border:0;border-left:2px solid transparent;border-bottom:1px solid #8f9cac3d;text-decoration:none;background:transparent;align-items:center}
+.tool-card:hover{background:#23344999;border-left-color:var(--tk-gold)}.tool-card:hover h2{color:var(--tk-gold-light)}
+.tool-caption{grid-column:1;grid-row:1;display:flex;align-items:center;gap:20px;min-width:0}.tool-symbol{flex-shrink:0;width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;color:var(--tk-gold)}.tool-caption>div{min-width:0}
+body.toolkit-home .tool-caption h2{font:400 24px/1.15 Georgia,serif;color:#ece2cf;margin:0}.tool-caption p{font-size:12px;line-height:1.5;color:var(--muted);margin:8px 0 0}
+.tool-snapshot{grid-column:2;grid-row:1;display:block;width:100%;height:92px;object-fit:cover;object-position:left top;background:var(--tk-inset);border:0;border-radius:0;mask-image:linear-gradient(90deg,transparent,#000 13%);opacity:.8;filter:saturate(.65)}.tool-card:hover .tool-snapshot{opacity:1;filter:saturate(1)}
+.wip-badge{display:block;margin-top:7px;color:var(--tk-gold-light);font-size:10px}
+.page-foot{max-width:1120px;margin:0 auto;padding:0 0 28px;display:flex;justify-content:space-between;gap:16px;color:var(--tk-muted);font-size:10px}
+@media(max-width:1180px){.page-foot{margin:0 30px}.tool-card,.sim-preview{grid-template-columns:minmax(0,1fr) 32%;gap:18px}}
+@media(max-width:700px){main{padding:0 16px 20px}.home-heading{min-height:178px;align-items:flex-start;flex-direction:column;justify-content:center;gap:18px;padding:26px 0}.home-heading h1{font-size:34px;max-width:none}.home-classes{gap:0;width:100%;max-width:390px;justify-content:space-between}.home-classes a{width:32px;height:38px}.home-classes img{width:26px;height:26px}
+ .tool-card,.sim-preview{grid-template-columns:minmax(0,1fr) 80px;gap:10px;min-height:106px;padding:12px 8px 12px 10px}.tool-snapshot{height:80px;mask-image:linear-gradient(90deg,transparent,#000 18%);opacity:.6;object-position:left top}.tool-caption{gap:12px}.tool-symbol{width:30px;height:30px}body.toolkit-home .tool-caption h2{font-size:20px}.tool-caption p{font-size:11px}.wip-badge{font-size:10px;line-height:1.4}.page-foot{margin:0 16px;flex-wrap:wrap;gap:8px}}
+@media(max-width:360px){body.toolkit-home .tool-caption h2{font-size:18px}.tool-symbol{width:26px;height:26px}.tool-card,.sim-preview{grid-template-columns:minmax(0,1fr) 56px}.home-heading h1{font-size:30px}}

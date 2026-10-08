@@ -16,7 +16,7 @@
     WINDSHAPER_SKYBORNE: { name: 'Windshaper Skyborne', faction: 2, offset: [-1, 1, -1, 1, 0], hit: 0, health: 1, speed: 1.01 } };
   const AREAS = ['None / unspecified', 'Forest / grassland', 'Mountainous', 'Snowy', 'Desert', 'Swamp', 'Wasteland', 'Haunted', 'Cavernous', 'Volcanic', 'Strongholds / cities'];
   const STAT_NAMES = { 0: 'Strength', 1: 'Agility', 2: 'Stamina', 3: 'Intellect', 4: 'Healing power (not modeled)', 5: 'Spell damage (not modeled)',
-    12: 'Spell hit rating', 13: 'Spell crit rating', 14: 'Spell haste (not modeled)', 16: 'Spirit', 17: 'Attack power', 18: 'Ranged AP (not modeled)',
+    12: 'Spell hit rating', 13: 'Spell crit rating', 14: 'Spell haste rating (Read Ley Line)', 16: 'Spirit', 17: 'Attack power', 18: 'Ranged AP (not modeled)',
     20: 'Melee hit rating', 21: 'Melee crit rating', 22: 'Melee haste rating', 23: 'Armor penetration', 24: 'Expertise rating',
     30: 'Armor (reference)', 31: 'Bonus armor (reference)', 32: 'Health (reference)', 33: 'Mana', 34: 'MP5', 40: 'Physical damage (not modeled)' };
   const clone = v => JSON.parse(JSON.stringify(v));
@@ -143,11 +143,12 @@
     if (n(40)) warnings.push('Flat physical spell-damage stat is not modeled; no guessed coefficient is applied.');
     for (const [id, value] of Object.entries(pseudo)) if (value && ![0, 12, 13, 14, 17, 20, 27].includes(Number(id))) warnings.push(`Item pseudo-stat ${id} is reference only, not modeled.`);
     if (build.race === 'TAUREN') warnings.push('War Stomp active racial is not simulated. Passive +1% melee/spell hit is modeled; health is reference only.');
-    if (build.race === 'NIGHT_ELF') warnings.push("Elune’s Light active racial is not simulated. Dodge/movement racials have no DPS effect in this encounter.");
-    if (build.race.includes('SKYBORNE')) warnings.push('Skyborne active racial is not simulated. Passive 1% attack speed and +5% damage versus Elementals are modeled.');
+    if (build.race === 'NIGHT_ELF') warnings.push('Elune’s Light is available under Rotation → Active racials; disabled until selected. Dodge/movement racials have no DPS effect in this encounter.');
+    if (build.race.includes('SKYBORNE')) warnings.push(`${build.race === 'HIGH_ORDER_SKYBORNE' ? 'Read Ley Line is available under Rotation → Active racials; disabled until selected.' : 'Windshaper’s active movement racial is not simulated.'} Passive 1% attack/cast speed and +5% damage versus Elementals are modeled.`);
     warnings.push('Item armor data may be incomplete in the pinned catalog; armor/health are reference only. Unsupported effects are excluded, not estimated.');
     const probePrecision = n => options.weightPerturbation ? Number(n.toFixed(10)) : n;
     const patch = { statMode: 'unbuffed', talentStats: 'excluded', baseIncludesLeader: false,
+      racialRace: build.race, leyLineSpellHaste: n(14) / 10,
       baseStrength: str, baseAgility: agi, baseStamina: sta, baseIntellect: int, baseSpirit: spi,
       baseMana: 1244 + manaFromInt(int) + n(33), baseAttackPower: 100 + 2 * str + agi + n(17),
       baseSheetCrit: 0.9 + agi / 20 + crit + p(14), baseHit: probePrecision(hit + p(12) + race.hit), baseSpellHit: probePrecision(hit + p(13) + race.hit),

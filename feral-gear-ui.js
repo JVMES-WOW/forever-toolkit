@@ -131,6 +131,7 @@
         const score = el('span', null, 'gear-item-score');
         score.append(el('b', ranked ? signed(ranked.score) + ' DPS' : '—', 'dps-value ' + scoreClass(ranked?.score)),
           el('small', ranked ? (ranked.equipped ? 'Equipped · Δ DPS' : ranked.benchmark ? 'reference Δ DPS' : weights?.version === 2 ? 'estimated Δ DPS' : 'DPS value') : 'No estimate'));
+        if (ranked && !ranked.equipped && (ranked.benchmark || slot === 'HEAD' || callbacks.weightsStale?.())) score.append(badge('Stale mechanics estimate'));
         const currentEnchant = build.slots[slot]?.enchant;
         if (currentEnchant && !gear.enchantCompatible(gear.data.enchants[currentEnchant], item, slot)) {
           score.append(badge('Enchant incompatible'));

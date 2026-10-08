@@ -80,6 +80,9 @@
   function save() {
     normalizeGroupChoices();
     try { localStorage.setItem(storageKey, JSON.stringify({ raidSize, groups: groups.map(group => group.map(player => player && ({ specId: player.id, uid: player.uid, name: player.customName || '', campBuffs: player.campBuffs || [], blessingPriority: player.blessingPriority || data.blessingIds }))), groupChoices, bossChoices })); } catch (_) {}
+    if (location.hash.startsWith(`#${raidState.prefix}`)) {
+      try { history.replaceState(null, '', location.pathname + location.search + '#' + raidState.encode(shareSnapshot(), data)); } catch (_) {}
+    }
   }
   const shareSnapshot = () => ({ raidSize, groups: groups.map(group => group.map(player => player && ({ specId: player.id, name: player.customName || '', campBuffs: player.campBuffs || [], blessingPriority: player.blessingPriority || data.blessingIds }))), groupChoices, bossChoices });
   function setStatus(message) { $('#raid-status').textContent = message; }

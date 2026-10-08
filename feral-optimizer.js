@@ -16,7 +16,7 @@
     ripMinCP: { label: 'Rip minimum CP', min: 1, max: 5, integer: true, values: [1, 2, 3, 4, 5] },
     biteMinCP: { label: 'Bite minimum CP', min: 1, max: 5, integer: true, values: [1, 2, 3, 4, 5] },
     shiftingMode: { label: 'Shift policy', choices: ['automatic', 'manual'], labels: ['Energy-loss comparison', 'Manual threshold'], values: ['automatic', 'manual'], optional: true },
-    ...Object.fromEntries(Object.entries(policies.DEFINITIONS).map(([key, p]) => [key, { ...p, values: p.choices || p.values, optional: true }]))
+    ...Object.fromEntries(Object.entries(policies.DEFINITIONS).filter(([, p]) => p.searchable !== false).map(([key, p]) => [key, { ...p, values: p.choices || p.values, optional: true }]))
   });
   const PRESETS = Object.freeze({
     quick: { candidateLimit: 24, screeningIterations: 8, validationIterations: 80, finalists: 3 },
@@ -102,9 +102,12 @@
     const domains = Object.fromEntries(keys.map(key => [key, [...new Set([config[key], ...options.parameterValues[key]])]
       .sort((a, b) => PARAMETERS[key].choices ? 0 : a - b)]));
     const candidates = [], seen = new Map();
+    if (domains.bearStrategy?.some(v => v !== 'disabled')) sim.forms.validate({ ...config, bearStrategy: 'auto' });
     const base = rotation(config);
     const signature = params => JSON.stringify(Object.fromEntries(Object.entries(params).filter(([key]) => policies.active(key, { ...config, ...params }))));
     const add = (params, reference) => {
+      if (['primalBite', 'cyclePrimalBite'].includes(params.bearStrategy) && !sim.forms.rank(config, 'primal-bite')) return;
+      if (sim.forms.cycle({ ...config, ...params }) && config.talentEffects?.shiftingKnown === false) return;
       const key = signature(params);
       let item = seen.get(key);
       if (!item) { item = { id: candidates.length, params, references: [] }; seen.set(key, item); candidates.push(item); }
@@ -135,6 +138,14 @@
       add({ ...base, teaTiming: 'protectShift', teaMaxEnergy: 10 }, 'Strict Shift protection');
       if (options.candidateLimit < candidates.length) throw new Error('Allow at least three candidates for Tea policy references.');
     }
+    for (const [prefix, race] of [['elunesLight', 'NIGHT_ELF'], ['leyLine', 'HIGH_ORDER_SKYBORNE']]) {
+      if (policies.race(config) === race && keys.some(k => k.startsWith(prefix))) {
+        add({ ...base, [prefix + 'Timing']: 'disabled' }, 'Racial disabled');
+        add({ ...base, [prefix + 'Timing']: 'cooldown', [prefix + 'Delay']: 0,
+          ...(prefix === 'leyLine' ? { leyLinePrepull: false, leyLineAvoidBerserk: false } : {}) }, 'Racial on cooldown');
+      }
+    }
+    if (candidates.length > options.candidateLimit) throw new Error('Increase candidate limit to include current and racial/Tea references.');
     const referenceCount = candidates.length;
     const target = options.candidateLimit;
     let exhaustive = false;
@@ -172,7 +183,7 @@
       finisherCPM: samples.reduce((sum, sample) => sum + sample.casts.rip + sample.casts.bite, 0) * 60 / duration,
       score: samples.reduce((sum, sample) => sum + objectiveCount(sample, scoring), 0) * (scoring.objective === 'dps' ? 1 : 60) / duration,
       dps: samples.every(sample => Number.isFinite(sample.damageTotal)) ? samples.reduce((sum, sample) => sum + sample.damageTotal, 0) / duration : null,
-      resourceMetrics: Object.fromEntries(['shifts', 'teaUses', 'energyWaste', 'clips', 'overwrites', 'fulfilled', 'onCooldown', 'ticks', 'foregoneTickDamage'].map(key => [key,
+      resourceMetrics: Object.fromEntries(['shifts', 'teaUses', 'energyWaste', 'clips', 'overwrites', 'fulfilled', 'onCooldown', 'ticks', 'foregoneTickDamage', 'elunesLightUses', 'elunesLightOverlap', 'leyLineUses', 'leyLineMana'].map(key => [key,
         key === 'foregoneTickDamage' && samples.some(s => s[key] == null) ? null : samples.reduce((n, s) => n + (s[key] || 0), 0) / samples.length])),
       totalCPM: samples.reduce((sum, sample) => sum + sample.totalCasts, 0) * 60 / duration,
       rakeUptime: samples.reduce((sum, sample) => sum + sample.rakeUptime * sample.duration, 0) / duration,
@@ -217,6 +228,8 @@
         const clips = Object.values(fight.clipping || {});
         samples.push({ duration: fight.duration, attacks: attackCount(fight), casts: Object.fromEntries(ATTACKS.map(id => [id, fight.casts[id]])),
           shifts: fight.casts.shiftingPower, teaUses: fight.tea?.uses || 0, energyWaste: fight.energy?.waste || 0,
+          elunesLightUses: fight.racials?.elunesLight.uses || 0, elunesLightOverlap: fight.racials?.elunesLight.berserkOverlapSeconds || 0,
+          leyLineUses: fight.racials?.leyLine.uses || 0, leyLineMana: fight.racials?.leyLine.manaGained || 0,
           ...Object.fromEntries([['clips', 'attempts'], ['overwrites', 'overwrites'], ['fulfilled', 'fulfilled'], ['onCooldown', 'onCooldown'], ['ticks', 'ticks'], ['foregoneTickDamage', 'foregoneTickDamage']]
             .map(([key, field]) => [key, field === 'foregoneTickDamage' && !candidateConfig.damageEnabled ? null : clips.reduce((n, r) => n + r[field], 0)])),
           damageTotal: fight.damage?.total ?? null,
@@ -243,7 +256,7 @@
         dpsGain: dpsDelta?.gain ?? null, dpsSe: dpsDelta?.se ?? null,
         ...pairedGain(baseline.samples, item.samples), scoreGain: scoreDelta.gain, scoreSe: scoreDelta.se };
     }).sort((a, b) => compareScores(a, b) || a.id - b.id);
-    return { config, options, rotationRevision: policies.REVISION, screeningFirstIteration: 1, screeningLastIteration: options.screeningIterations,
+    return { config, options, mechanicsRevision: sim.MECHANICS_REVISION, rotationRevision: policies.REVISION, screeningFirstIteration: 1, screeningLastIteration: options.screeningIterations,
       candidatesTested: candidates.length, space, exhaustive, completedFights,
       validationFirstIteration: options.screeningIterations + 1, validationLastIteration: options.screeningIterations + options.validationIterations,
       baseline: ranked.find(item => item.id === 0), best: ranked[0], ranked };

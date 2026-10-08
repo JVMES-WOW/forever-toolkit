@@ -1,8 +1,8 @@
 (function (root, factory) {
-  const api = factory();
+  const api = factory(typeof module === 'object' && module.exports ? require('./feral-forms.js') : root.FOREVER_FERAL_FORMS);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.FOREVER_FERAL_DAMAGE = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (forms) {
   'use strict';
   const REVISION = '660176710eb13a85eb5b4c3dd8f7de984883c99b';
   // Adapted under MIT; see feral-damage-LICENSE.txt. Each formula is pinned,
@@ -13,24 +13,30 @@
     rakeInitial: 'rake.go: 61, zero AP; community override may bypass armor, still direct damage',
     rakeTick: 'rake.go: flat 34 retained; community override + coefficient * current AP; 3 ticks at 3s',
     rip: 'rip.go: 15 + 25.5 * CP + 0.01 * min(CP, 4) * current AP; 6 ticks at 2s (inherited assumption)',
-    bite: 'ferocious_bite.go: uniform(52,112) + 147 * CP + 0.03 * CP * AP + 2.7 * excess energy (inherited assumption)',
-    talents: 'talents_balance.go / talents_feral_combat.go: Genesis periodic; Savage Fury Rake/Shred; Predatory Instincts ability crits; Rend and Tear melee specials with own bleed',
+    bite: 'Rank 4: uniform(45,95) + 128 * CP + 0.03 * CP * AP + 2.5 * excess Energy. Rank 5: uniform(52,112) + 147 * CP + 0.03 * CP * AP + 2.7 * excess Energy.',
+    talents: 'talents_balance.go / talents_feral_combat.go: Genesis periodic; Savage Fury Rake/Shred/Maul; Predatory Instincts ability crits; Rend and Tear melee specials with own bleed',
     armor: 'core/spell_resistances.go: max(0.25, 5500/(5500+armor)); periodic bleeds bypass; Crystal Yield is a provisional independent -200 reduction based on Vanilla WoWSims',
     white: 'core/target.go: level 63, 40% glances, uniform 55–75% damage; one-table crit cap',
     windfury: 'User-confirmed Forever timing: immediate independent extra swing, no natural swing reset or batching delay. Retained core/buffs/drivers.go and generated WindfuryTotem damage values: +246 AP, 1s, 2 white-hit charges minus triggering white hit',
     giftOfArthas: 'df7a2cf: core/spelldata/spells_auto_gen.go spell 11374, +8 physical damage taken; core/spell_result.go adds after attacker/armor modifiers, before outcomes and Rend and Tear; includes periodic physical damage'
   });
-  const SOURCES = ['auto', 'windfury', 'shred', 'rakeInitial', 'rakeTick', 'rip', 'bite'];
-  const LABELS = { auto: 'Autoattacks', windfury: 'Windfury attacks', shred: 'Shred', rakeInitial: 'Rake initial', rakeTick: 'Rake ticks', rip: 'Rip', bite: 'Ferocious Bite' };
+  const SOURCES = ['auto', 'windfury', 'shred', 'rakeInitial', 'rakeTick', 'rip', 'bite', 'bearAuto', 'bearWindfury', 'casterAuto', 'casterWindfury', 'maul', 'lacerate', 'lacerateTick', 'primalBite'];
+  const LABELS = { auto: 'Autoattacks', windfury: 'Windfury attacks', shred: 'Shred', rakeInitial: 'Rake initial', rakeTick: 'Rake ticks', rip: 'Rip', bite: 'Ferocious Bite', bearAuto: 'Bear auto', bearWindfury: 'Bear Windfury', casterAuto: 'Caster auto', casterWindfury: 'Caster Windfury', maul: 'Maul', lacerate: 'Lacerate initial', lacerateTick: 'Lacerate ticks', primalBite: 'Primal Bite' };
+  const periodicSource = id => ['rakeTick', 'rip', 'lacerateTick'].includes(id);
+  const whiteSource = id => ['auto', 'windfury', 'bearAuto', 'bearWindfury', 'casterAuto', 'casterWindfury'].includes(id);
   const DEFAULTS = Object.freeze({ damageEnabled: false, attackPower: null, weaponMin: null, weaponMax: null,
-    damageWeaponId: 0, damageWeaponSource: 'Manual / not supplied', genesis: 0, savageFury: 0, predatoryInstincts: 0,
+    damageWeaponId: 0, damageWeaponSource: 'Manual / not supplied', biteRank: 5, genesis: 0, savageFury: 0, predatoryInstincts: 0,
     rendAndTear: 0, naturalist: 0, rakeTickAP: 5.5, rakeInitialIgnoreArmor: true, targetArmor: 3731,
     sunderStacks: 0, exposeArmor: false, curseRecklessness: false, externalFaerieFire: false, giftOfArthas: false, crystalYield: false, faerieFireMiss: 17 });
-  const provenance = c => ({ revision: REVISION, model: 'forever-damage-v4-independent-windfury',
+  const provenance = c => ({ revision: REVISION, mechanicsRevision: 'feral-forms-v1', model: 'forever-damage-v5-forms', biteRank: c.biteRank,
     source: `https://github.com/ElliotWood/Forever/tree/${REVISION}`, formulas: FORMULAS,
     talents: { source: 'https://github.com/ElliotWood/Forever/tree/df7a2cfd2f7de7325589a567212b39acdd8b0620/sim/druid',
       build: c.talentMode === 'build' ? c.talentBuild : 'legacy independent overrides', naturalistRank: c.naturalist || 0,
-      note: 'Naturalist adds 1% all damage per rank; active build controls Cat-relevant stat, resource, cost and unlock effects. Non-Cat abilities and defensive effects are not modeled.' },
+      note: 'Naturalist adds 1% all damage per rank; active builds control supported Cat/Bear stats, resources, costs and unlocks. Defensive effects and incoming damage are not modeled.' },
+    racials: { model: 'forever-active-racials-v1', race: c.racialRace,
+      source: 'https://github.com/ElliotWood/Forever/blob/df7a2cfd2f7de7325589a567212b39acdd8b0620/sim/core/racials.go',
+      elunesLightTiming: c.elunesLightTiming || 'disabled', leyLineTiming: c.leyLineTiming || 'disabled', nearbyLeyLine: Boolean(c.leyLineNearby),
+      note: 'Elune: +10 percentage points of crit for 15s / 180s CD, off GCD. Energized: double passive Spirit/MP5 for 15s; optional nearby-ley-line 900s tooltip override. No potion/JoW/Tide amplification. Ley Line is a hasted 2s cast, 120s CD from completion. Fork-model Cat form/autos continue; unverified on live server.' },
     rake: { tickAPPercent: c.rakeTickAP, initialIgnoresArmor: c.rakeInitialIgnoreArmor,
       evidence: 'User-supplied October 1, 2026 Discord measurements; provisional coefficient and initial armor bypass. Maximum-rank flats retained.' },
     giftOfArthas: { enabled: Boolean(c.giftOfArthas), bonusPhysicalDamageTaken: c.giftOfArthas ? 8 : 0,
@@ -42,16 +48,18 @@
       note: 'Provisional Vanilla WoWSims stacking: independent of Sunder/Expose and FF/CoR. Maintained external full uptime; no Cat item use. The pinned Forever fork lists the spell but does not implement it.' },
     pawEnchants: { model: 'flat-paw-v1', bonusDamage: c.gearPawDamage || 0,
       note: 'User-confirmed Forever rule: equipped main-hand flat enchant damage is added directly to Cat paws, after weapon-speed normalization, before ability/talent/armor/outcome modifiers. No AP or bleed/Bite bonus.' },
-    windfury: { model: 'forever-independent-extra-v1', enabled: Boolean(c.windfury), resetsSwingTimer: false,
+    windfury: { model: 'forever-independent-extra-v2', enabled: Boolean(c.windfury), resetsSwingTimer: false,
       timingEvidence: 'User confirmation, October 5, 2026: Forever Windfury adds an extra swing mid-swing without resetting the natural swing timer. Resolved immediately after its triggering attack; no batching delay.',
-      retainedAssumptions: '20% landed-melee proc chance and 1.5s ICD from Vanilla WoWSims; +246 AP, 1s and landed-white-hit charges from the pinned Forever fork. These were not newly confirmed by the timing report. Triggering damage is resolved before the proc buff.' },
+      retainedAssumptions: '20% proc chance on eligible damaging landed melee, 0.1s ICD; +246 AP, 1s and landed-white-hit charges. Rip applications cannot trigger it. Triggering damage is resolved before the proc buff.' },
     consumables: { revision: 'df7a2cfd2f7de7325589a567212b39acdd8b0620',
       source: 'https://github.com/ElliotWood/Forever/tree/df7a2cfd2f7de7325589a567212b39acdd8b0620',
       potionStrategy: c.potionStrategy || 'mana', naturalFlask: c.naturalFlask || 'none', flaskZone: Boolean(c.flaskZone),
       note: 'Mighty Rage adds 60 Strength for 20s on actual use, scaled by imported HotW/Kings; shared 120s potion CD, no Cat energy. Natural flask zone bonuses follow Forever item tooltips; fork static records contain Stamina only.' },
-    limitations: 'Rip/Bite AP coefficients are inherited assumptions. Vanilla-based Omen retained. Windfury uses user-confirmed independent extra swings with inherited proc/ICD and Forever AP-charge assumptions. No Crusader, trinket or other gear procs. No live-game accuracy guarantee.' });
+    limitations: 'Experimental mechanics. Omen uses unhasted form speed (Faerie Fire uses 1.5s) with a 10s ICD. No incoming tank damage, Crusader, trinket or other unsupported gear procs. No live-game accuracy guarantee.' });
   function normalize(input) {
     const c = { ...DEFAULTS, ...input };
+    c.biteRank = Number(c.biteRank);
+    if (![4, 5].includes(c.biteRank)) throw new Error('Bite rank must be 4 or 5.');
     for (const k of ['damageEnabled', 'rakeInitialIgnoreArmor', 'exposeArmor', 'curseRecklessness', 'externalFaerieFire', 'giftOfArthas', 'crystalYield']) c[k] = typeof c[k] === 'boolean' ? c[k] : DEFAULTS[k];
     const bounds = { attackPower: [0, 100000], weaponMin: [0, 100000], weaponMax: [0, 100000],
       genesis: [0, 5], savageFury: [0, 2], predatoryInstincts: [0, 2], rendAndTear: [0, 5], naturalist: [0, 5],
@@ -78,30 +86,38 @@
   const armorMultiplier = value => Math.max(0.25, 5500 / (5500 + Math.max(0, value)));
   const paw = (c, ap, roll) => (c.weaponMin + (c.weaponMax - c.weaponMin) * roll) / c.weaponSpeed + ap / 14 + (c.gearPawDamage || 0);
   function base(c, id, ap, cp = 0, excessEnergy = 0, roll = 0.5) {
+    const bearPaw = () => 2.5 * ((c.weaponMin + (c.weaponMax - c.weaponMin) * roll) / c.weaponSpeed + ap / 14) + (c.gearPawDamage || 0);
+    if (id === 'bearAuto' || id === 'bearWindfury') return bearPaw();
+    if (id === 'casterAuto' || id === 'casterWindfury') return c.weaponMin + (c.weaponMax - c.weaponMin) * roll + c.weaponSpeed * ap / 14 + (c.gearPawDamage || 0);
+    if (id === 'maul') return bearPaw() + 128;
+    if (id === 'primalBite') return bearPaw() + 77;
+    if (id === 'lacerate') return bearPaw() * .1 * cp;
+    if (id === 'lacerateTick') return 15 * cp;
     if (id === 'auto' || id === 'windfury') return paw(c, ap, roll);
     if (id === 'shred') return 1.55 * (80 + paw(c, ap, roll));
     if (id === 'rakeInitial') return 61;
     if (id === 'rakeTick') return 34 + c.rakeTickAP / 100 * ap;
     if (id === 'rip') return 15 + 25.5 * cp + 0.01 * Math.min(cp, 4) * ap;
-    if (id === 'bite') return 52 + 60 * roll + 147 * cp + 0.03 * cp * ap + 2.7 * excessEnergy;
+    if (id === 'bite') return c.biteRank === 4
+      ? 45 + 50 * roll + 128 * cp + 0.03 * cp * ap + 2.5 * excessEnergy
+      : 52 + 60 * roll + 147 * cp + 0.03 * cp * ap + 2.7 * excessEnergy;
     throw new Error('Unknown damage source.');
   }
   function multiplier(c, id, bleeding, crit, targetArmor) {
-    const periodic = id === 'rakeTick' || id === 'rip', white = id === 'auto' || id === 'windfury';
+    const periodic = periodicSource(id), white = whiteSource(id);
     let m = periodic || (id === 'rakeInitial' && c.rakeInitialIgnoreArmor) ? 1 : armorMultiplier(targetArmor);
-    if (id === 'shred' || id === 'rakeInitial' || id === 'rakeTick') m *= 1 + 0.05 * c.savageFury;
+    if (['shred', 'rakeInitial', 'rakeTick', 'maul'].includes(id)) m *= 1 + 0.05 * c.savageFury;
     if (periodic) m *= 1 + 0.01 * c.genesis;
     m *= 1 + 0.01 * (c.naturalist || 0);
     m *= c.gearDamageMultiplier || 1;
-    // The pinned fork checks melee-special ProcMask, including its bleed ticks,
-    // and its own active bleeds only. It does not include white attacks.
-    if (!white && bleeding) m *= 1 + 0.02 * c.rendAndTear;
+    // Rend and Tear applies to eligible direct specials, never periodic ticks.
+    if (!white && !periodic && bleeding) m *= 1 + 0.02 * c.rendAndTear;
     if (crit) m *= white ? 2 : 2 + 0.1 * c.predatoryInstincts;
     return m;
   }
-  function whiteOutcome(c, rng) {
+  function whiteOutcome(c, rng, critBonus = 0) {
     const landed = Math.max(0, 1 - (c.miss + c.dodge + c.parry) / 100);
-    const glance = Math.min(0.4, landed), crit = Math.min(c.crit / 100, Math.max(0, landed - glance));
+    const glance = Math.min(0.4, landed), crit = Math.min((c.crit + critBonus) / 100, Math.max(0, landed - glance));
     // Conditional on the existing combat roll having landed. This is the
     // level-63 one-table distribution without changing resource RNG/outcomes.
     const roll = rng() * landed;
@@ -113,8 +129,8 @@
     // but BEFORE hit/crit/glance outcomes and post-outcome Rend and Tear.
     // All modeled damage is physical, including both bleeds; Rip's application
     // and non-damaging actions never call this. Avoided attacks return zero.
-    const white = id === 'auto' || id === 'windfury';
-    return 8 * (!white && bleeding ? 1 + 0.02 * c.rendAndTear : 1)
+    const white = whiteSource(id);
+    return 8 * (!white && !periodicSource(id) && bleeding ? 1 + 0.02 * c.rendAndTear : 1)
       * (crit ? (white ? 2 : 2 + 0.1 * c.predatoryInstincts) : 1);
   }
   function create(c, rng, debug = false) {
@@ -122,12 +138,16 @@
     const d = { total: 0, bySource: Object.fromEntries(SOURCES.map(k => [k, { damage: 0, events: 0, hit: 0, crit: 0, glance: 0, avoided: 0 }])),
       events: [], faerieFire: { attempts: 0, landed: 0, uptimeSeconds: 0 }, armorSeconds: 0, mitigationSeconds: 0,
       provenance: provenance(c) };
-    const dots = { rakeTick: null, rip: null };
+    const dots = { rakeTick: null, rip: null, lacerateTick: null };
+    const racialCrit = (s, t) => t >= (s.elunesLightStarts ?? Infinity) - 1e-9 && t < (s.elunesLightExpires ?? -Infinity) - 1e-9 ? 10 : 0;
     let ffExpires = -Infinity, wfExpires = -Infinity, wfCharges = 0, lastTime = 0;
     let rageStarts = Infinity, rageExpires = -Infinity, rageAP = 0;
     const activeFF = t => c.externalFaerieFire || t < ffExpires - 1e-9;
-    const apAt = t => c.attackPower + (wfCharges > 0 && t < wfExpires - 1e-9 ? 246 : 0)
-      + (t >= rageStarts - 1e-9 && t < rageExpires - 1e-9 ? rageAP : 0);
+    const apAt = (t, s = {}) => {
+      const mighty = t >= rageStarts - 1e-9 && t < rageExpires - 1e-9;
+      return ((!s.form || s.form === 'cat') ? c.attackPower + (mighty ? rageAP : 0) : forms.stats(c, s.form, mighty).ap)
+        + (wfCharges > 0 && t < wfExpires - 1e-9 ? 246 : 0);
+    };
     const bleedingAt = (t, tick = false) => Object.values(dots).some(dot => dot && (tick ? t <= dot.expires + 1e-9 : t < dot.expires - 1e-9));
     function deal(id, time, outcome, amount, s, periodic = false) {
       const row = d.bySource[id]; row.events++; row[outcome]++; row.damage += amount; d.total += amount;
@@ -147,12 +167,12 @@
     function advance(to, s) {
       for (;;) {
         let id = null, next = Infinity;
-        for (const key of ['rakeTick', 'rip']) if (dots[key] && dots[key].next <= dots[key].expires + 1e-9 && dots[key].next < next) { id = key; next = dots[key].next; }
+        for (const key of Object.keys(dots)) if (dots[key] && dots[key].next <= dots[key].expires + 1e-9 && dots[key].next < next) { id = key; next = dots[key].next; }
         if (!id || next > to + 1e-9 || next > c.duration + 1e-9) break;
         const dot = dots[id], berserk = id === 'rakeTick' && next < s.berserkExpires - 1e-9;
-        const crit = rng() * 100 < Math.min(100, c.crit + (berserk ? 100 : 0));
+        const crit = rng() * 100 < Math.min(100, forms.stats(c, s.form || 'cat').crit + racialCrit(s, next) + (berserk ? 100 : 0));
         const bleeding = bleedingAt(next, true);
-        const amount = base(c, id, apAt(next), dot.cp) * multiplier(c, id, bleeding, crit, armor(c, activeFF(next)))
+        const amount = base(c, id, apAt(next, s), dot.cp) * multiplier(c, id, bleeding, crit, armor(c, activeFF(next)))
           + giftBonus(c, id, bleeding, crit);
         deal(id, next, crit ? 'crit' : 'hit', amount, s, true);
         dot.next = Math.round((dot.next + dot.interval) * 1e6) / 1e6;
@@ -161,12 +181,12 @@
     }
     function attack(s, ability, outcome) {
       const id = ability === 'rake' ? 'rakeInitial' : ability;
-      const white = ability === 'auto' || ability === 'windfury';
+      const white = whiteSource(ability);
       if (!outcome.success) return ability === 'rip' ? null : deal(id, s.time, 'avoided', 0, s);
       if (ability === 'rip') return null; // Application has no direct damage or crit.
-      const kind = white ? whiteOutcome(c, rng) : outcome.crit ? 'crit' : 'hit';
+      const kind = white ? outcome.kind || whiteOutcome(c, rng, racialCrit(s, s.time)) : outcome.crit ? 'crit' : 'hit';
       const bleeding = bleedingAt(s.time);
-      const amount = (base(c, id, apAt(s.time), s.combo, ability === 'bite' ? s.energy : 0, rng())
+      const amount = (base(c, id, apAt(s.time, s), id === 'lacerate' ? s.lacerateStacks : s.combo, ability === 'bite' ? s.energy : 0, rng())
         * multiplier(c, id, bleeding, kind === 'crit', armor(c, activeFF(s.time)))
         + giftBonus(c, id, bleeding, kind === 'crit'))
         * (kind === 'glance' ? 0.55 + 0.2 * rng() : 1);
@@ -175,23 +195,23 @@
       return event;
     }
     function applyBleed(id, time, cp) {
-      const key = id === 'rake' ? 'rakeTick' : 'rip', interval = id === 'rake' ? 3 : 2, duration = id === 'rake' ? 9 : 12;
+      const key = id === 'rake' ? 'rakeTick' : id === 'lacerate' ? 'lacerateTick' : 'rip', interval = id === 'rip' ? 2 : 3, duration = id === 'rake' ? 9 : id === 'rip' ? 12 : 15;
       dots[key] = { next: time + interval, expires: time + duration, interval, cp };
     }
     function foregoneTick(id, s) {
       const key = id === 'rake' ? 'rakeTick' : 'rip', dot = dots[key];
       if (!dot || dot.next > c.duration + 1e-9) return 0;
-      const at = dot.next, crit = Math.min(1, (c.crit + (key === 'rakeTick' && at < s.berserkExpires - 1e-9 ? 100 : 0)) / 100);
+      const at = dot.next, crit = Math.min(1, (c.crit + racialCrit(s, at) + (key === 'rakeTick' && at < s.berserkExpires - 1e-9 ? 100 : 0)) / 100);
       const amount = critical => base(c, key, apAt(at), dot.cp) * multiplier(c, key, true, critical, armor(c, activeFF(at))) + giftBonus(c, key, true, critical);
       // Conditional on known buffs surviving to the scheduled tick. No new
       // procs, random draws, or claim of the full counterfactual damage delta.
       return amount(false) * (1 - crit) + amount(true) * crit;
     }
-    function windfury(time, trigger) { wfExpires = time + 1; wfCharges = trigger === 'auto' || trigger === 'windfury' ? 1 : 2; }
+    function windfury(time, trigger) { wfExpires = time + 1; wfCharges = whiteSource(trigger) ? 1 : 2; }
     function mightyRage(time, bonusAP) { rageStarts = time; rageExpires = time + 20; rageAP = bonusAP; }
-    function faerieFire(time) {
+    function faerieFire(time, outcome) {
       d.faerieFire.attempts++;
-      const landed = rng() * 100 >= c.faerieFireMiss;
+      const landed = outcome ?? rng() * 100 >= c.faerieFireMiss;
       if (landed) { ffExpires = time + 40; d.faerieFire.landed++; }
       return landed;
     }

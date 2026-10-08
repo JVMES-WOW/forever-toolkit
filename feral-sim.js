@@ -2,10 +2,11 @@
   const api = factory(typeof module === 'object' && module.exports ? require('./feral-damage.js') : root.FOREVER_FERAL_DAMAGE,
     typeof module === 'object' && module.exports ? require('./feral-buffs.js') : root.FOREVER_FERAL_BUFFS,
     typeof module === 'object' && module.exports ? require('./feral-gear.js') : root.FOREVER_FERAL_GEAR,
-    typeof module === 'object' && module.exports ? require('./feral-rotation.js') : root.FOREVER_FERAL_ROTATION);
+    typeof module === 'object' && module.exports ? require('./feral-rotation.js') : root.FOREVER_FERAL_ROTATION,
+    typeof module === 'object' && module.exports ? require('./feral-forms.js') : root.FOREVER_FERAL_FORMS);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.FOREVER_FERAL_SIM = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (damage, buffs, gear, rotation) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (damage, buffs, gear, rotation, forms) {
   'use strict';
 
   const ABILITIES = ['rake', 'shred', 'rip', 'bite', 'shiftingPower', 'berserk', 'faerieFire'];
@@ -13,18 +14,18 @@
     rake: 'Rake', shred: 'Shred', rip: 'Rip', bite: 'Ferocious Bite',
     shiftingPower: 'Shifting Power', berserk: 'Berserk', faerieFire: 'Faerie Fire'
   };
-  const AUTO_ATTACKS = new Set(['auto', 'windfury']);
-  const MELEE_ATTACKS = new Set(['auto', 'windfury', 'rake', 'shred', 'rip', 'bite']);
-  const attackLabel = ability => ability === 'auto' ? 'Autoattack' : ability === 'windfury' ? 'Windfury attack' : LABELS[ability];
+  const AUTO_ATTACKS = new Set(['auto', 'windfury', 'bearAuto', 'bearWindfury', 'casterAuto', 'casterWindfury']);
+  const MELEE_ATTACKS = new Set([...AUTO_ATTACKS, 'rake', 'shred', 'rip', 'bite', 'maul', 'lacerate', 'primalBite']);
+  const attackLabel = ability => ability === 'auto' ? 'Autoattack' : ability === 'windfury' ? 'Windfury attack' : LABELS[ability] || forms.LABELS[ability] || damage.LABELS[ability];
   const OMEN_METRICS = ['attempts', 'procs', 'startingProcs', 'freeCasts', 'consumed', 'expired', 'refreshed', 'costWaived', 'energySaved'];
-  // Vanilla WoWSims Classic, not TBC/Wrath: talents.go and core/attack.go at
-  // 7779ebbf79dc7f1341e6ab939b28a3402c9a730a. Specials use equipped weapon speed.
+  const MECHANICS_REVISION = 'feral-forms-v1';
+  // Melee Omen rolls use the current form's unhasted weapon period.
   const OMEN_PPM = 2, OMEN_ICD = 10, CLEARCASTING_DURATION = 15;
   // Retain Vanilla Totem proc chance/ICD, with Cat eligibility and the user's
   // confirmed Forever timing: an immediate independent extra attack, no swing
   // reset and no legacy spell-batch delay. Not the two-attack Weapon imbue.
-  const WINDFURY_CHANCE = 0.2, WINDFURY_ICD = 1.5;
-  const WINDFURY_MODEL = 'forever-independent-extra-v1';
+  const WINDFURY_CHANCE = 0.2, WINDFURY_ICD = 0.1;
+  const WINDFURY_MODEL = 'forever-independent-extra-v2';
   const IDOL_MODEL = 'forever-cat-idols-v1';
   const WINDFURY_METRICS = ['attempts', 'procs', 'extraAttacks', 'landed'];
   const BERSERK_CRIT_METRICS = ['landed', 'natural', 'created', 'rake', 'shred'];
@@ -39,6 +40,7 @@
     ...damage.DEFAULTS,
     ...buffs.DEFAULTS,
     characterMode: 'totals', gearBuild: '', gearAreaTypes: '', targetCreature: 'other',
+    racialRace: 'TAUREN', leyLineNearby: false, leyLineSpellHaste: 0,
     duration: 300, durationVariance: 0, iterations: 1000, seed: 8675309, replayIteration: 1,
     startingMana: 4000, spirit: 200, spiritMode: 'base', crit: 35, miss: 1, dodge: 6.5, parry: 0,
     swingTimer: 1, weaponSpeed: 3, shiftingMode: 'automatic', shiftingThreshold: 50, jowChance: 50, bloodFrenzy: 100,
@@ -59,7 +61,14 @@
     const supplied = { ...DEFAULTS, ...input };
     const c = damage.normalize(buffs.apply(gear ? gear.apply(supplied) : supplied));
     Object.assign(c, rotation.normalize(c));
+    if (forms.cycle(c)) c.cycleRevision = forms.CYCLE_REVISION;
+    else delete c.cycleRevision;
     c.rotationRevision = rotation.REVISION;
+    c.mechanicsRevision = MECHANICS_REVISION;
+    if (!Object.hasOwn(rotation.RACES, c.racialRace)) throw new Error('Invalid racial identity.');
+    c.leyLineNearby = c.leyLineNearby === true;
+    c.leyLineSpellHaste = Number(c.leyLineSpellHaste);
+    if (!Number.isFinite(c.leyLineSpellHaste) || c.leyLineSpellHaste < 0 || c.leyLineSpellHaste > 100) throw new Error('Spell haste must be between 0 and 100%.');
     if (!['other', 'elemental'].includes(c.targetCreature)) throw new Error('Invalid target creature type.');
     // The opener is now determined solely by whether Berserk uses the GCD.
     delete c.preBerserk;
@@ -92,6 +101,8 @@
     c.naturalShapeshifter = talentPercent(c.naturalShapeshifter, [0, 10, 20, 30], DEFAULTS.naturalShapeshifter);
     c.reflection = talentPercent(c.reflection, [0, 17, 33, 50], DEFAULTS.reflection);
     if (c.miss + c.dodge + c.parry > 100) throw new Error('Miss, dodge, and parry cannot total more than 100%.');
+    forms.validate(c);
+    c.mightyRageCatAP = c.statMode === 'unbuffed' ? buffs.mightyRageAP(c) : 0;
     return c;
   }
 
@@ -118,6 +129,39 @@
   function eventTime(value) { return Math.round(value * 1000000) / 1000000; }
   function fmt(value) { return Number.isInteger(value) ? String(value) : value.toFixed(1); }
 
+  // WoWSims Feral latency inspiration: wait/energy reactions, not a blanket
+  // extension of every GCD (TBC-new feralcat/rotation.go; Wrath feral/rotation.go).
+  // Independent implementation for Forever's continuous energy and cooldown
+  // Shift: a fixed delayed wake-up, followed by a fresh priority check. Known
+  // GCD boundaries / the scripted opener are queueable. This is not network RTT,
+  // randomized human error, or a full client spell-queue simulation.
+  function inputTime(s, at, lane = 'gcd') {
+    const delay = (s.config.inputDelayMs || 0) / 1000;
+    const pending = s.inputReadyAt?.[lane];
+    if (!delay) return at;
+    // An existing wake-up pays for this reaction, not an unrelated cooldown
+    // farther in the future after that wake-up has been consumed.
+    if (Number.isFinite(pending) && at <= Math.max(s.time, pending) + 1e-9) return eventTime(Math.max(at, pending));
+    return at === 0 || lane === 'gcd' && (Math.abs(at - s.gcdUntil) < 1e-9 || forms.cycleBoundary(s) && Math.abs(at - s.time) < 1e-9)
+      ? at : eventTime(at + delay);
+  }
+  function timedInput(s, lane, select) {
+    if (!s.config.inputDelayMs) return select(s);
+    if (s.time >= s.config.duration - 1e-9) return null;
+    s.inputReadyAt ||= {};
+    const pending = s.inputReadyAt[lane];
+    if (Number.isFinite(pending) && pending > s.time + 1e-9) return null;
+    const action = select(s);
+    // Consume a due wake-up even if the priority is no longer eligible. Do not
+    // cast stale choices (e.g. a Bite above its ceiling or Tea after Berserk).
+    if (Number.isFinite(pending)) { delete s.inputReadyAt[lane]; return action; }
+    if (!action) return action;
+    const at = inputTime(s, s.time, lane);
+    if (at <= s.time + 1e-9) return action;
+    s.inputReadyAt[lane] = at;
+    return null;
+  }
+
   function sampleFightDuration(config, seed) {
     if (!config.durationVariance) return config.duration;
     // Sample uniformly on the engine's 0.1s grid, within the allowed range.
@@ -129,15 +173,22 @@
   }
 
   function createState(config, rng, debug) {
-    return {
+    const state = {
       time: 0, energy: 100, mana: config.startingMana, combo: 0, gcdUntil: 0,
+      inputReadyAt: {},
+      elunesLightStarts: Infinity, elunesLightExpires: -Infinity,
+      leyLineStarts: Infinity, leyLineExpires: -Infinity, leyLineCastingUntil: -Infinity,
+      racials: { elunesLight: { uses: 0, timestamps: [], uptimeSeconds: 0, berserkOverlapSeconds: 0 },
+        leyLine: { uses: 0, timestamps: [], completions: [], uptimeSeconds: 0, castSeconds: 0, manaRaw: 0, manaGained: 0, manaWaste: 0 } },
       rakeExpires: 0, ripExpires: 0, berserkExpires: -Infinity, lastManaSpend: -Infinity,
-      clearcastingExpires: -Infinity, clearcastingId: 0, omenReadyAt: 0,
+      clearcastingExpires: -Infinity, clearcastingId: 0, omenReadyAt: -Infinity,
       omen: Object.fromEntries(OMEN_METRICS.map(key => [key, 0])),
       windfury: Object.fromEntries(WINDFURY_METRICS.map(key => [key, 0])),
       berserkCrits: Object.fromEntries(BERSERK_CRIT_METRICS.map(key => [key, 0])),
       windfuryReadyAt: 0, windfuryPending: false,
-      cooldowns: { shiftingPower: 0, berserk: 0, faerieFire: 0, potion: 0, tea: 0 },
+      cooldowns: { shiftingPower: 0, berserk: 0, faerieFire: 0, potion: 0, tea: 0,
+        elunesLight: rotation.race(config) === 'NIGHT_ELF' && config.elunesLightTiming !== 'disabled' ? config.elunesLightDelay : Infinity,
+        leyLine: rotation.race(config) === 'HIGH_ORDER_SKYBORNE' && config.leyLineTiming !== 'disabled' ? config.leyLineDelay : Infinity },
       nextEnergyTick: 0.1, nextManaTick: 2, nextWisdomTick: 5, nextSpringTick: MANA_SPRING_INTERVAL,
       nextTideTick: config.manaTide ? Math.min(40, config.duration / 2) + 3 : Infinity, tideTick: 0,
       // Gear haste produces fractional intervals. Start on the same precision
@@ -157,9 +208,11 @@
       tea: { uses: 0, gained: 0, waste: 0, timestamps: [] },
       uptime: { rake: 0, rip: 0, berserk: 0, clearcasting: 0 }, oomTime: null, autoattacks: 0
     };
+    forms.init(state, config);
+    return state;
   }
 
-  function snapshot(s) { return { energy: s.energy, mana: s.mana, cp: s.combo }; }
+  function snapshot(s) { return { energy: s.energy, mana: s.mana, cp: s.combo, form: s.form || 'cat', rage: s.rage || 0 }; }
   function addLog(s, action, before = snapshot(s), detail = '') {
     if (!s.debug) return;
     const after = snapshot(s);
@@ -191,9 +244,8 @@
   function clearcastingActive(s) { return s.time < s.clearcastingExpires - 1e-9; }
   function energyCost(s, baseCost) { return clearcastingActive(s) ? 0 : baseCost; }
   function tryOmen(s, ability) {
-    if (!s.config.omenOfClarity || !MELEE_ATTACKS.has(ability) || s.time + 1e-9 < s.omenReadyAt) return;
-    // Cat autos always use the un-hasted 1s paw speed, independently of swingTimer.
-    const chance = OMEN_PPM * (AUTO_ATTACKS.has(ability) ? 1 : s.config.weaponSpeed) / 60;
+    if (!s.config.omenOfClarity || (!MELEE_ATTACKS.has(ability) && ability !== 'faerieFire') || s.time + 1e-9 < s.omenReadyAt) return;
+    const chance = OMEN_PPM * (ability === 'faerieFire' ? 1.5 : s.form === 'bear' ? 2.5 : s.form === 'caster' ? s.config.weaponSpeed : 1) / 60;
     s.omen.attempts++;
     if (s.rng() >= chance) return;
     const refreshed = clearcastingActive(s);
@@ -207,6 +259,7 @@
     if (!s.config.omenOfClarity || !s.config.startingClearcasting || s.omen.startingProcs) return false;
     // Model a fresh proc at pull, without an extra attack or RNG draw. Keep
     // this assumed buff separate from procs earned by attacks in combat.
+    if (clearcastingActive(s)) s.omen.refreshed++;
     s.omen.startingProcs = 1; s.clearcastingId++;
     s.clearcastingExpires = s.time + CLEARCASTING_DURATION;
     s.omenReadyAt = s.time + OMEN_ICD;
@@ -214,7 +267,7 @@
     return true;
   }
   function tryWindfury(s, ability) {
-    if (!s.config.windfury || !MELEE_ATTACKS.has(ability) || s.time + 1e-9 < s.windfuryReadyAt) return;
+    if (!s.config.windfury || !MELEE_ATTACKS.has(ability) || ability === 'rip' || s.time + 1e-9 < s.windfuryReadyAt) return;
     s.windfury.attempts++;
     if (s.rng() >= WINDFURY_CHANCE) return;
     s.windfury.procs++;
@@ -223,7 +276,7 @@
     s.windfuryPending = true;
     // Flush after the triggering attack has finished CP/Clearcasting handling.
     // This extra attack must never readjust the scheduled natural swing.
-    addLog(s, 'Windfury', snapshot(s), `PROC from ${attackLabel(ability)} · 1 immediate extra attack · normal swing unchanged · ICD 1.5s`);
+    addLog(s, 'Windfury', snapshot(s), `PROC from ${attackLabel(ability)} · 1 immediate extra attack · normal swing unchanged · ICD 0.1s`);
   }
   function finishClearcast(s, procId, baseCost, saved, ability) {
     if (!procId) return;
@@ -232,7 +285,9 @@
     // but do consume a pre-existing proc, including one from a same-time auto.
     if (s.clearcastingId === procId) {
       s.clearcastingExpires = -Infinity; s.omen.consumed++;
-      addLog(s, 'Clearcasting consumed', snapshot(s), `Used by ${LABELS[ability]} · Base cost waived ${fmt(baseCost)}`);
+      const resource = ['maul', 'lacerate', 'primalBite'].includes(ability)
+        ? `Base Rage cost waived ${fmt(forms.abilityCost(s.config, ability))}` : `Base Energy cost waived ${fmt(baseCost)}`;
+      addLog(s, 'Clearcasting consumed', snapshot(s), `Used by ${attackLabel(ability)} · ${resource}`);
     }
   }
 
@@ -262,8 +317,10 @@
     const berserkActive = eligibleCrit && s.time < s.berserkExpires - 1e-9;
     // Reuse the crit roll we already made under Berserk. Do not draw a second
     // roll: this attributes direct conversions without changing combat RNG.
-    const critRoll = s.rng() * 100, naturalCrit = critRoll < c.crit;
-    const crit = critRoll < Math.min(100, c.crit + (berserkActive ? 100 : 0));
+    const critChance = forms.stats(c, s.form).crit + rotation.critBonus(s);
+    const critRoll = s.rng() * 100, naturalCrit = critRoll < critChance;
+    const kind = AUTO_ATTACKS.has(ability) ? damage.whiteOutcome(c, () => critRoll / 100, critChance - c.crit) : null;
+    const crit = kind ? kind === 'crit' : critRoll < Math.min(100, critChance + (berserkActive ? 100 : 0));
     const berserkCreatedCrit = berserkActive && crit && !naturalCrit;
     if (berserkActive) {
       s.berserkCrits.landed++;
@@ -276,10 +333,11 @@
     s.results[crit ? 'crit' : 'hit']++;
     // Damage observes pre-proc AP and pre-application bleed state. It never
     // draws from combat RNG or changes the existing attack result.
-    s.damage?.attack(s, ability, { success: true, crit });
+    s.damage?.attack(s, ability, { success: true, crit, kind });
     tryJudgmentOfWisdom(s, ability, true);
     tryOmen(s, ability);
-    tryWindfury(s, ability);
+    if (ability !== 'lacerate' || s.lacerateStacks > 0 || c.giftOfArthas) tryWindfury(s, ability);
+    if (s.form === 'bear' && crit && c.bloodFrenzy && s.rng() * 100 < c.bloodFrenzy) forms.rage(s, 5);
     return { success: true, result: crit ? 'crit' : 'hit', crit, naturalCrit, berserkActive, berserkCreatedCrit };
   }
 
@@ -338,19 +396,18 @@
         s.ripApplications.push({ time: s.time, expires: s.ripExpires });
       }
       else {
-        // Bite's bonus-energy drain is separate from its base cost and only
-        // occurs on a landed attack, even with Clearcasting.
-        actualCost += s.energy; spendEnergy(s, s.energy);
         s.cp.biteConsumed += s.combo;
       }
       s.combo = 0;
     }
+    if (id === 'bite') { actualCost += s.energy; spendEnergy(s, s.energy); }
+    else if (!attack.success) { s.energy += actualCost * 0.8; actualCost *= 0.2; }
     if (id === 'bite') s.biteEvents.push({ time: s.time, landed: attack.success,
       terminal: s.config.duration - s.time < RIP_DURATION - 1e-9,
       energySpent: actualCost, clearcasting: Boolean(procId), berserk: s.time < s.berserkExpires - 1e-9,
       ripExpires: s.ripExpires });
     addLog(s, LABELS[id], before, `${attack.result.toUpperCase()} · ${fmt(actualCost)} energy${procId ? ` · Clearcasting: ${fmt(cost)} base energy waived` : ''}${attack.success ? ` · ${before.cp} CP consumed${id === 'rip' ? ' · Rip applied for 12.0s' : ''}` : ' · CP retained'}`);
-    finishClearcast(s, procId, cost, id === 'bite' && attack.success ? 0 : cost, id);
+    finishClearcast(s, procId, cost, id === 'bite' ? 0 : attack.success ? cost : cost * 0.2, id);
     processWindfury(s);
     return true;
   }
@@ -379,6 +436,7 @@
     if (!spendMana(s, cost)) return false;
     const cooldown = shiftingPowerCooldown(s.config);
     recordCast(s, 'shiftingPower'); s.cooldowns.shiftingPower = eventTime(s.time + cooldown);
+    forms.anchorCycle(s);
     fulfillClip(s, 'shift');
     const energy = gainEnergy(s, shiftingPowerEnergy(s.config), 'shifting');
     addLog(s, 'Shifting Power', before, `Mana -${fmt(cost)} · Energy +${fmt(energy.gained)}${energy.wasted ? ` · ${fmt(energy.wasted)} wasted` : ''} · Cooldown ${cooldown.toFixed(1)}s`);
@@ -388,7 +446,7 @@
     s.berserkExpires = s.time + 15; s.cooldowns.berserk = s.time + 180;
   }
   function offGcdBerserkReady(s) {
-    return knowsBerserk(s.config) && !s.config.berserkGCD && s.cooldowns.berserk <= s.time + 1e-9 && s.time < s.config.duration - 1e-9;
+    return (!s.form || s.form === 'cat') && !racialCasting(s) && knowsBerserk(s.config) && !s.config.berserkGCD && s.cooldowns.berserk <= s.time + 1e-9 && s.time < s.config.duration - 1e-9;
   }
   function castBerserk(s) {
     if (!knowsBerserk(s.config)) return false;
@@ -396,10 +454,58 @@
     activateBerserk(s);
     addLog(s, 'Berserk', before, `${s.time < 0 ? 'Pre-pull · ' : ''}Applied for 15.0s${s.config.berserkGCD ? '' : ' · off GCD'}`); return true;
   }
+
+  // Forever racials.go + cast.go at df7a2cf (also checked against master).
+  // Elune is off-GCD. Ley Line is a hasted 2s hardcast / 1.5s spell GCD;
+  // cooldown starts at completion. The fork imposes no form requirement or
+  // StopMeleeUntil on this racial: Cat form and independent autos continue.
+  // Keep that source-model assumption explicit; it is not live-server proof.
+  const racialCasting = s => s.time < (s.leyLineCastingUntil ?? -Infinity) - 1e-9;
+  function elunesLightReady(s) {
+    if (rotation.race(s.config) !== 'NIGHT_ELF' || s.config.elunesLightTiming === 'disabled'
+      || s.time >= s.config.duration - 1e-9 || s.cooldowns.elunesLight > s.time + 1e-9 || racialCasting(s)) return false;
+    return s.config.elunesLightTiming !== 'outsideBerserk' || !knowsBerserk(s.config)
+      || s.berserkExpires <= s.time + 1e-9 && s.cooldowns.berserk >= s.time + 15 - 1e-9;
+  }
+  function activateElunesLight(s) {
+    s.elunesLightStarts = s.time; s.elunesLightExpires = eventTime(s.time + 15);
+    s.cooldowns.elunesLight = eventTime(s.time + 180);
+  }
+  function useElunesLight(s) {
+    activateElunesLight(s); s.racials.elunesLight.uses++; s.racials.elunesLight.timestamps.push(eventTime(s.time));
+    addLog(s, 'Elune’s Light', snapshot(s), '+10 percentage points of crit for 15s · off GCD · cooldown 180s');
+  }
+  function leyLineReady(s) {
+    const c = s.config, castTime = rotation.leyCastTime(c), lockTime = Math.max(1, castTime);
+    if (rotation.race(c) !== 'HIGH_ORDER_SKYBORNE' || c.leyLineTiming === 'disabled'
+      || racialCasting(s) || s.cooldowns.leyLine > s.time + 1e-9 || s.leyLineExpires > s.time + 1e-9
+      || s.time + castTime >= c.duration - 1e-9) return false;
+    if (c.leyLineAvoidBerserk && knowsBerserk(c) && (s.berserkExpires > s.time + 1e-9 || s.cooldowns.berserk < s.time + lockTime - 1e-9)) return false;
+    // A human-readable guard, not a new recursive resource forecast: do not
+    // occupy the cast window if a funded Shift is ready or will become ready.
+    if (canAffordShiftingPower(s) && s.cooldowns.shiftingPower < s.time + lockTime - 1e-9) return false;
+    return c.leyLineTiming !== 'mana' || s.mana <= c.startingMana * c.leyLineMana / 100 + 1e-9 && s.energy <= c.leyLineEnergy + 1e-9;
+  }
+  function projectLeyLine(s) {
+    const end = eventTime(s.time + rotation.leyCastTime(s.config));
+    s.leyLineCastingUntil = end; s.gcdUntil = eventTime(s.time + Math.max(1, rotation.leyCastTime(s.config)));
+    s.leyLineStarts = end; s.leyLineExpires = eventTime(end + (s.config.leyLineNearby ? 900 : 15));
+    s.cooldowns.leyLine = eventTime(end + 120);
+    delete s.inputReadyAt?.gcd;
+  }
+  function castLeyLine(s) {
+    projectLeyLine(s);
+    const m = s.racials.leyLine;
+    m.uses++; m.timestamps.push(eventTime(s.time)); m.completions.push(s.leyLineStarts);
+    m.castSeconds += Math.max(0, s.leyLineStarts - Math.max(0, s.time));
+    addLog(s, 'Read Ley Line', snapshot(s), `${s.time < 0 ? 'Pre-pull · ' : ''}${rotation.leyCastTime(s.config)}s cast · Energized at ${fmt(s.leyLineStarts)}s · 120s cooldown from completion`);
+  }
   function castFaerieFire(s) {
     const before = snapshot(s); recordCast(s, 'faerieFire'); s.cooldowns.faerieFire = s.time + 6;
-    const damageHit = s.damage ? s.damage.faerieFire(s.time) : null;
-    addLog(s, 'Faerie Fire', before, `${s.time < 0 ? 'Pre-pull' : 'Free GCD filler'} · Cooldown 6.0s${damageHit === null ? '' : damageHit ? ' · Damage model: landed, −505 armor for 40s' : ' · Damage model: missed'}`); return true;
+    const damageHit = (s.spellRng || s.rng)() * 100 >= s.config.faerieFireMiss;
+    s.damage?.faerieFire(s.time, damageHit);
+    if (damageHit) tryOmen(s, 'faerieFire');
+    addLog(s, 'Faerie Fire', before, `${s.time < 0 ? 'Pre-pull' : 'Free GCD filler'} · Cooldown 6.0s · ${damageHit ? 'LANDED · −505 armor for 40s' : 'MISSED'}`); return true;
   }
 
   function canShredWithoutBreakingRefresh(s) {
@@ -412,7 +518,7 @@
   function projectShredRefresh(s) {
     if (s.energy + 1e-9 < energyCost(s, abilityCost(s.config, 'shred'))) return false;
     const mandatory = [];
-    const guaranteedBonusCP = s.config.bloodFrenzy === 100 && (s.config.crit === 100 || s.time < s.berserkExpires - 1e-9) ? 1 : 0;
+    const guaranteedBonusCP = s.config.bloodFrenzy === 100 && (s.config.crit + rotation.critBonus(s) >= 100 || s.time < s.berserkExpires - 1e-9) ? 1 : 0;
     const ripNeeded = s.combo + 1 + guaranteedBonusCP >= s.config.ripMinCP;
     const upcoming = at => at > s.time + 1e-9 && at <= s.time + 4 + 1e-9 && at < s.config.duration - 1e-9;
     const fallbackRake = s.config.rakeMode === 'ripDown';
@@ -442,8 +548,10 @@
   function policyProjection(s) {
     // Deliberately omit RNG, counters, and logs from the projection.
     const projected = { config: s.config, time: s.time, energy: s.energy, mana: s.mana, combo: s.combo,
-      gcdUntil: s.gcdUntil, rakeExpires: s.rakeExpires, ripExpires: s.ripExpires, ripCP: s.ripCP,
+      gcdUntil: s.gcdUntil, inputReadyAt: { ...s.inputReadyAt }, rakeExpires: s.rakeExpires, ripExpires: s.ripExpires, ripCP: s.ripCP,
       berserkExpires: s.berserkExpires, clearcastingExpires: s.clearcastingExpires,
+      elunesLightStarts: s.elunesLightStarts, elunesLightExpires: s.elunesLightExpires,
+      leyLineStarts: s.leyLineStarts, leyLineExpires: s.leyLineExpires, leyLineCastingUntil: s.leyLineCastingUntil,
       lastManaSpend: s.lastManaSpend, cooldowns: { ...s.cooldowns }, potionsUsed: s.potionsUsed,
       nextEnergyTick: s.nextEnergyTick, nextManaTick: s.nextManaTick,
       nextWisdomTick: s.nextWisdomTick, nextSpringTick: s.nextSpringTick, nextTideTick: s.nextTideTick, tideTick: s.tideTick, projectedEnergyWaste: 0 };
@@ -454,14 +562,15 @@
   function projectedOffGcd(s) {
     // Forecast guaranteed resources only. Never roll RNG or mutate combat
     // counters/logs. A potion is credited only its guaranteed minimum roll.
-    if (offGcdBerserkReady(s)) activateBerserk(s);
-    const potion = potionChoice(s);
+    if (timedInput(s, 'berserk', offGcdBerserkReady)) activateBerserk(s);
+    if (timedInput(s, 'elunesLight', elunesLightReady)) activateElunesLight(s);
+    const potion = timedInput(s, 'potion', potionChoice);
     if (potion) {
       if (potion === 'mana') s.mana = Math.min(s.config.startingMana, s.mana + 1350);
       s.cooldowns.potion = s.time + 120;
       s.potionsUsed++;
     }
-    if (shouldTea(s)) projectTea(s);
+    if (timedInput(s, 'tea', shouldTea)) projectTea(s);
   }
   function advanceProjection(s, end) {
     const future = time => time > s.time + 1e-9 ? time : Infinity;
@@ -474,16 +583,19 @@
       s.config.manaSpring ? future(s.nextSpringTick) : Infinity,
       s.config.manaTide ? future(s.nextTideTick) : Infinity,
       future(s.gcdUntil), future(s.cooldowns.shiftingPower), future(s.cooldowns.berserk), future(s.cooldowns.potion),
+      ...Object.entries(s.inputReadyAt || {}).filter(([lane]) => lane !== 'tea' || !teaSuppressedProjections.has(s)).map(([, at]) => future(at)),
       teaSuppressedProjections.has(s) ? Infinity : future(s.cooldowns.tea),
-      future(s.rakeExpires), future(s.ripExpires), future(s.berserkExpires), future(s.clearcastingExpires));
+      future(s.rakeExpires), future(s.ripExpires), future(s.berserkExpires), future(s.clearcastingExpires),
+      ...[s.elunesLightStarts, s.elunesLightExpires, s.leyLineStarts, s.leyLineExpires, s.cooldowns.elunesLight, s.cooldowns.leyLine].map(t => future(t ?? Infinity)));
     const nextTime = eventTime(next);
     if (nextTime <= s.time + 1e-9) return false;
     s.time = nextTime;
     const energyTicks = Math.max(0, Math.floor((s.time - s.nextEnergyTick) * 10 + 1e-9) + 1);
     if (energyTicks) { s.projectedEnergyWaste += Math.max(0, s.energy + energyTicks - 100); s.energy = Math.min(100, s.energy + energyTicks); s.nextEnergyTick = roundTime(s.nextEnergyTick + energyTicks / 10); }
-    if (Math.abs(s.time - s.nextManaTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + spiritManaPerTick(s) + (s.config.gearMP5 || 0) * 2 / 5); s.nextManaTick += 2; }
-    if (s.config.blessingWisdom && Math.abs(s.time - s.nextWisdomTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + 40); s.nextWisdomTick += 5; }
-    if (s.config.manaSpring && Math.abs(s.time - s.nextSpringTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + springAmount(s.config)); s.nextSpringTick += MANA_SPRING_INTERVAL; }
+    const regen = rotation.regenMultiplier(s);
+    if (Math.abs(s.time - s.nextManaTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + (spiritManaPerTick(s) + (s.config.gearMP5 || 0) * 2 / 5) * regen); s.nextManaTick += 2; }
+    if (s.config.blessingWisdom && Math.abs(s.time - s.nextWisdomTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + 40 * regen); s.nextWisdomTick += 5; }
+    if (s.config.manaSpring && Math.abs(s.time - s.nextSpringTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + springAmount(s.config) * regen); s.nextSpringTick += MANA_SPRING_INTERVAL; }
     if (s.config.manaTide && Math.abs(s.time - s.nextTideTick) < 1e-9) { s.mana = Math.min(s.config.startingMana, s.mana + 290); advanceTide(s); }
     return true;
   }
@@ -499,21 +611,27 @@
     // extra builders. Give automatic shift timing the same alternative plan.
     const refreshAction = p => {
       if (knowsBerserk(p.config) && p.config.berserkGCD && p.cooldowns.berserk <= p.time + 1e-9) return 'berserk';
+      if (leyLineReady(p)) return 'leyLine';
       return needs.find(item => completed[item.id] === Infinity && item.at <= p.time + 1e-9
         && p[`${item.id}Expires`] <= item.at + 1e-9 && p.energy + 1e-9 >= energyCost(p, item.cost))?.id || null;
     };
     while (s.time < s.config.duration - 1e-9) {
       projectedOffGcd(s);
       if (s.gcdUntil <= s.time + 1e-9) {
-        if (s.cooldowns.shiftingPower <= s.time + 1e-9 && canAffordShiftingPower(s) && shiftEnergyEligible(s, false, refreshAction)) {
+        const action = timedInput(s, 'gcd', p => {
+          if (p.cooldowns.shiftingPower <= p.time + 1e-9 && canAffordShiftingPower(p) && shiftEnergyEligible(p, false, refreshAction)) return 'shiftingPower';
+          return shouldWaitForShiftingPower(p, false, refreshAction) ? null : refreshAction(p);
+        });
+        if (action === 'shiftingPower') {
           s.mana -= shiftingPowerCost(s.config); s.lastManaSpend = s.time;
           s.energy = Math.min(100, s.energy + shiftingPowerEnergy(s.config));
           s.gcdUntil = s.time + 1; s.cooldowns.shiftingPower = eventTime(s.time + shiftingPowerCooldown(s.config));
-        } else if (!shouldWaitForShiftingPower(s, false, refreshAction)) {
-          if (knowsBerserk(s.config) && s.config.berserkGCD && s.cooldowns.berserk <= s.time + 1e-9) {
+        } else if (action) {
+          if (action === 'leyLine') projectLeyLine(s);
+          else if (action === 'berserk') {
             activateBerserk(s); s.gcdUntil = s.time + 1;
           } else {
-            const need = needs.find(item => completed[item.id] === Infinity && item.at <= s.time + 1e-9 && s.energy + 1e-9 >= energyCost(s, item.cost));
+            const need = needs.find(item => item.id === action);
             if (need) {
               s.energy -= energyCost(s, need.cost); s.clearcastingExpires = -Infinity;
               s.gcdUntil = s.time + 1; completed[need.id] = s.time; remaining--;
@@ -536,13 +654,15 @@
       // Treat any affordable Shred as a potential priority action, even if
       // refresh pooling might still block it. This keeps filler conservative
       // and avoids recursively running the refresh planner for every tick.
-      if (choosePriorityAction(s, false, false)) return false;
+      if (timedInput(s, 'gcd', p => choosePriorityAction(p, false, false))) return false;
       if (!advanceProjection(s, end)) break;
     }
     return true;
   }
 
   function projectedNonShiftCast(s, action) {
+    if (action === 'leyLine') { projectLeyLine(s); return; }
+    delete s.inputReadyAt?.gcd;
     s.gcdUntil = eventTime(s.time + 1);
     if (action === 'berserk') { activateBerserk(s); return; }
     if (action === 'faerieFire') { s.cooldowns.faerieFire = s.time + 6; return; }
@@ -551,7 +671,7 @@
     // Deterministic lookahead: assume attacks land, credit only guaranteed
     // bonus CP, and never roll or predict new Omen/JoW/Windfury procs.
     if (action === 'rake' || action === 'shred') {
-      const bonus = s.config.bloodFrenzy === 100 && (s.config.crit === 100 || s.time < s.berserkExpires - 1e-9) ? 1 : 0;
+      const bonus = s.config.bloodFrenzy === 100 && (s.config.crit + rotation.critBonus(s) >= 100 || s.time < s.berserkExpires - 1e-9) ? 1 : 0;
       s.combo = Math.min(5, s.combo + 1 + bonus);
       if (action === 'rake') s.rakeExpires = s.time + 9;
     } else {
@@ -561,6 +681,7 @@
     }
   }
   function projectedShift(s) {
+    delete s.inputReadyAt?.gcd;
     s.mana -= shiftingPowerCost(s.config); s.lastManaSpend = s.time;
     const gain = shiftingPowerEnergy(s.config);
     s.projectedEnergyWaste += Math.max(0, s.energy + gain - 100);
@@ -588,7 +709,8 @@
     // Shift unless a reachable non-shift plan loses less total energy:
     //   waiting cap loss + later Shift/GCD overflow + delay * gain / cooldown.
     // Re-evaluate after every real event instead of committing to the forecast.
-    const readyAt = Math.max(state.time, state.cooldowns.shiftingPower), end = state.config.duration;
+    const readyAt = inputTime(state, Math.max(state.time, state.cooldowns.shiftingPower,
+      state.config.inputDelayMs ? state.gcdUntil : state.time)), end = state.config.duration;
     if (readyAt >= end - 1e-9) return { useNow: false, reason: 'fight-end' };
     const now = policyProjection(state);
     projectedOffGcd(now);
@@ -608,14 +730,16 @@
     while (later.time < end - 1e-9) {
       projectedOffGcd(later);
       if (later.gcdUntil <= later.time + 1e-9) {
-        const delay = later.time - readyAt;
-        if (delay > 1e-9 && later.energy < 100 - 1e-9) {
-          const overflowLater = later.projectedEnergyWaste + shiftGcdOverflow(later);
-          const delayLoss = delay * gainRate + overflowLater;
-          if (delayLoss < nowLoss - 1e-9) return { useNow: false, nowLoss, delay, delayLoss, overflowLater };
-        }
-        const action = alternative ? alternative(later)
-          : chooseNonShiftAction(later, checkShredRefresh && later.time === state.time);
+        const action = timedInput(later, 'gcd', p => {
+          const delay = p.time - readyAt;
+          if (delay > 1e-9 && p.energy < 100 - 1e-9) {
+            const overflowLater = p.projectedEnergyWaste + shiftGcdOverflow(p);
+            const delayLoss = delay * gainRate + overflowLater;
+            if (delayLoss < nowLoss - 1e-9) return { useNow: false, nowLoss, delay, delayLoss, overflowLater };
+          }
+          return alternative ? alternative(p) : chooseNonShiftAction(p, checkShredRefresh && p.time === state.time);
+        });
+        if (action && typeof action === 'object') return action;
         if (action) { projectedNonShiftCast(later, action); projectedOffGcd(later); }
       }
       if (later.projectedEnergyWaste + Math.max(0, later.time - readyAt) * gainRate >= nowLoss - 1e-9
@@ -629,7 +753,8 @@
       : compareShiftTiming(s, checkShredRefresh, alternative).useNow;
   }
   function shouldWaitForShiftingPower(s, checkShredRefresh = true, alternative) {
-    const readyAt = s.cooldowns.shiftingPower, wait = readyAt - s.time;
+    if (s.cooldowns.shiftingPower <= s.time + 1e-9) return false;
+    const readyAt = inputTime(s, s.cooldowns.shiftingPower), wait = readyAt - s.time;
     // Other abilities use a 1s GCD. Reserve it only if it would overlap an
     // affordable shift before combat ends, and the selected timing rule
     // favors taking that upcoming shift instead of starting another GCD.
@@ -653,6 +778,7 @@
   function chooseNonShiftAction(s, checkShredRefresh = true) {
     const c = s.config;
     if (knowsBerserk(c) && c.berserkGCD && s.cooldowns.berserk <= s.time + 1e-9) return 'berserk';
+    if (leyLineReady(s)) return 'leyLine';
     const biteReady = s.combo >= c.biteMinCP && s.energy >= energyCost(s, 35) && s.energy <= c.biteMaxEnergy;
     // A new Rip cannot run its full duration in this window. Prefer an
     // eligible Bite even with no active Rip, in either Berserk state. Keep
@@ -670,12 +796,31 @@
   }
   function chooseAction(s, recordOom = true) {
     clipSelections.delete(s);
+    if (forms.cycle(s.config) && !rotationProjections.has(s)) return chooseCycleAction(s, recordOom);
     const action = choosePriorityAction(s, recordOom);
+    if (forms.enabled(s.config) && !rotationProjections.has(s) && !shouldWaitForShiftingPower(s)
+      && forms.canEnter(s, action, recordOom)) return 'bearForm';
     if (action) return action;
     const clip = selectClip(s);
     if (clip) { clipSelections.set(s, clip); return clip.bleed; }
     if (s.config.faerieFire && s.cooldowns.faerieFire <= s.time + 1e-9 && hasFreeFaerieFireGlobal(s)) return 'faerieFire';
     return null;
+  }
+  function chooseCycleAction(s, recordOom = true) {
+    // Keep the selected opener until the first Shift establishes the clock.
+    if (!s.shiftCycle) return choosePriorityAction(s, recordOom);
+    const end = forms.cycleWindow(s, formHooks);
+    if (end === 'bearForm') return end;
+    if (s.cooldowns.shiftingPower <= s.time + 1e-9) {
+      if (canAffordShiftingPower(s)) return 'shiftingPower';
+      if (recordOom && s.oomTime === null) s.oomTime = s.time;
+      // No borrowed mana or locked-up rotation: play Cat while unfunded,
+      // then the actual next Shift establishes a fresh cycle.
+    } else if (s.time + 1 > end + 1e-9) return null;
+    const action = chooseNonShiftAction(s, false);
+    const length = action === 'leyLine' ? Math.max(1, rotation.leyCastTime(s.config)) : 1;
+    if (s.cooldowns.shiftingPower > s.time + 1e-9 && s.time + length > end + 1e-9) return null;
+    return action; // No filler or predictive clipping in the clocked Cat window.
   }
 
   function selectClip(s) {
@@ -693,7 +838,9 @@
       if (rule.bleed === 'rake' && s.config.rakeMode === 'ripDown' && s.ripExpires > s.time + 1e-9) continue;
       const cost = energyCost(s, abilityCost(s.config, rule.bleed));
       if (cost <= 0 || s.energy + 1e-9 < cost) continue;
-      const at = eventTime(s.time + (rule.resource === 'shift' ? 1 : 0));
+      // Shift can be queued for the refreshed bleed's new GCD boundary;
+      // Tea is a separate reactive input after the energy spend.
+      const at = rule.resource === 'shift' ? eventTime(s.time + 1) : inputTime(s, s.time, 'tea');
       if (at >= s.config.duration - 1e-9) continue;
       if (rule.resource === 'shift' && (!canAffordShiftingPower(s) || s.cooldowns.shiftingPower > at + 1e-9)) continue;
       const after = policyProjection(s), waiting = policyProjection(s);
@@ -703,7 +850,11 @@
         while (after.time < at - 1e-9) { if (!advanceProjection(after, at)) break; projectedOffGcd(after); }
         while (waiting.time < at - 1e-9) if (!advanceProjection(waiting, at)) break;
         if (!canAffordShiftingPower(after) || !shiftEnergyEligible(after)) continue;
-      } else if (!teaEligible(after) || !shouldTea(after)) continue;
+      } else {
+        while (after.time < at - 1e-9) if (!advanceProjection(after, at)) break;
+        while (waiting.time < at - 1e-9) if (!advanceProjection(waiting, at)) break;
+        if (!teaEligible(after) || !shouldTea(after)) continue;
+      }
       if (after.energy > s.config[rule.prefix + 'Energy'] + 1e-9) continue;
       const waste = p => p.projectedEnergyWaste + (rule.resource === 'shift' ? shiftGcdOverflow(p) : p.energy);
       const relief = waste(waiting) - waste(after);
@@ -741,7 +892,7 @@
     return s.config.startingMana - s.mana >= 2250 || !canAffordShiftingPower(s) || (canGainExtraUse && s.mana + 1e-9 < 2 * shiftingPowerCost(s.config));
   }
   function potionChoice(s) {
-    if (!s.config.usePotions || s.cooldowns.potion > s.time + 1e-9) return null;
+    if (racialCasting(s) || !s.config.usePotions || s.cooldowns.potion > s.time + 1e-9) return null;
     const strategy = s.config.potionStrategy;
     if (s.time < s.config.duration - 1e-9 && (strategy === 'rage' || (strategy === 'openerRage' && !s.potionsUsed)
       || (strategy === 'adaptive' && s.config.startingMana > 0 && s.mana / s.config.startingMana * 100 >= s.config.potionManaReserve - 1e-9))) return 'rage';
@@ -753,6 +904,7 @@
     const before = snapshot(s);
     s.cooldowns.potion = s.time + 120; s.potionsUsed++;
     if (kind === 'rage') {
+      if (s.form === 'bear') forms.rage(s, 45 + s.rng() * 30);
       s.mightyRageExpires = s.time + 20; s.mightyRage.uses++; s.mightyRage.timestamps.push(eventTime(s.time));
       s.damage?.mightyRage(s.time, s.mightyRage.bonusAP);
       const reason = s.config.potionStrategy === 'openerRage' ? 'opener; mana thereafter'
@@ -777,9 +929,11 @@
     // input used by these forecasts, so even in-place test edits invalidate it.
     const signature = JSON.stringify([c.duration, c.startingMana, c.spirit, c.spiritMode, c.divineSpirit,
       c.reflection, c.gearMP5, c.blessingWisdom, c.manaSpring, c.manaSpringImproved, c.manaTide,
-      c.usePotions, c.potionPolicy, c.potionStrategy, c.potionManaReserve, c.teaPolicy, c.teaTiming, c.teaMaxEnergy, c.teaDelayPenalty, c.shiftDelayPenalty, c.berserkGCD, c.faerieFire,
+      c.inputDelayMs, c.usePotions, c.potionPolicy, c.potionStrategy, c.potionManaReserve, c.teaPolicy, c.teaTiming, c.teaMaxEnergy, c.teaDelayPenalty, c.shiftDelayPenalty, c.berserkGCD, c.faerieFire,
       c.rakeMode, c.ripMinCP, c.biteMinCP, c.biteMaxEnergy, c.biteRipOutside, c.biteRipBerserk,
       c.bloodFrenzy, c.crit, c.shiftingMode, c.shiftingThreshold, knowsShift(c), knowsBerserk(c),
+      rotation.race(c), c.elunesLightTiming, c.elunesLightDelay, c.leyLineTiming, c.leyLineDelay,
+      c.leyLineMana, c.leyLineEnergy, c.leyLineAvoidBerserk, c.leyLineNearby, c.leyLineSpellHaste,
       shiftingPowerCost(c), shiftingPowerCooldown(c), shiftingPowerEnergy(c), abilityCost(c, 'rake'), abilityCost(c, 'shred')]);
     let cache = teaForecastCaches.get(c);
     if (!cache || cache.signature !== signature) {
@@ -794,6 +948,9 @@
     // Tea is suppressed, so its cooldown cannot affect a branch. Omitting it
     // lets repeated probes share the same deterministic suffix after refilling.
     return [stop, Number(untilSpend), s.time, s.energy, s.mana, s.combo, s.gcdUntil,
+      s.inputReadyAt?.gcd, s.inputReadyAt?.potion, s.inputReadyAt?.berserk, s.inputReadyAt?.elunesLight,
+      s.elunesLightStarts, s.elunesLightExpires, s.leyLineStarts, s.leyLineExpires, s.leyLineCastingUntil,
+      s.cooldowns.elunesLight, s.cooldowns.leyLine,
       s.rakeExpires, s.ripExpires, s.berserkExpires, s.clearcastingExpires, s.lastManaSpend,
       s.cooldowns.shiftingPower, s.cooldowns.berserk, s.cooldowns.faerieFire, s.cooldowns.potion,
       s.potionsUsed, s.nextEnergyTick, s.nextManaTick, s.nextWisdomTick, s.nextSpringTick, s.nextTideTick, s.tideTick].join('|');
@@ -815,7 +972,7 @@
       visited.push([key, s.projectedEnergyWaste]);
       projectedOffGcd(s);
       if (s.gcdUntil <= s.time + 1e-9) {
-        const action = chooseAction(s, false);
+        const action = timedInput(s, 'gcd', p => chooseAction(p, false));
         if (action === 'shiftingPower') return finish({ at: s.time, overflow: s.projectedEnergyWaste + shiftGcdOverflow(s) });
         const energy = s.energy;
         if (action) projectedNonShiftCast(s, action);
@@ -872,7 +1029,7 @@
       };
       const beforeCast = check(); if (beforeCast) return beforeCast;
       if (later.gcdUntil <= later.time + 1e-9) {
-        const action = chooseAction(later, false);
+        const action = timedInput(later, 'gcd', p => chooseAction(p, false));
         if (action === 'shiftingPower') { projectedShift(later); referenceAt = -Infinity; }
         else if (action) projectedNonShiftCast(later, action);
         projectedOffGcd(later);
@@ -895,7 +1052,11 @@
     return result; // Ties use Tea now; do not indefinitely bank its cooldown.
   }
   function shouldTea(s) {
-    if (teaSuppressedProjections.has(s) || !teaEligible(s)) return false;
+    if (s.form && s.form !== 'cat' || racialCasting(s) || teaSuppressedProjections.has(s) || !teaEligible(s)) return false;
+    if (forms.cycle(s.config)) {
+      const p = s.shiftCycle, end = !p ? Infinity : p.skipped || p.entered ? p.target : p.bearAt;
+      return s.energy <= s.config.teaMaxEnergy + 1e-9 && s.time + 1 <= end + 1e-9;
+    }
     if (s.config.teaTiming !== 'loss') {
       if (s.energy > s.config.teaMaxEnergy + 1e-9) return false;
       if (s.config.teaTiming === 'threshold') return true;
@@ -931,29 +1092,65 @@
     const amount = spiritManaPerTick(s);
     const before = snapshot(s), mana = gainMana(s, amount, 'spirit');
     addLog(s, 'Spirit mana tick', before, `${inside ? 'Inside' : 'Outside'} FSR · Mana +${fmt(mana.gained)}${mana.wasted ? ` · ${fmt(mana.wasted)} wasted` : ''}`);
+    gainLeyLineMana(s, amount);
     if (s.config.gearMP5) processPassiveMana(s, 'gear', s.config.gearMP5 * 2 / 5, 'Gear MP5');
   }
   function processPassiveMana(s, source, amount, label) {
     const before = snapshot(s), mana = gainMana(s, amount, source);
     addLog(s, label, before, `Mana +${fmt(mana.gained)}${mana.wasted ? ` · ${fmt(mana.wasted)} wasted` : ''}`);
+    if (['gear', 'blessing', 'spring'].includes(source)) gainLeyLineMana(s, amount);
+  }
+  function gainLeyLineMana(s, amount) {
+    if (rotation.regenMultiplier(s) !== 2 || !amount) return;
+    // Report only the additional mana here, never count it again in the base
+    // Spirit/MP5 rows. Direct gains (JoW, potions, Mana Tide) are not multiplied.
+    s.manaRaw.leyLine ??= 0; s.manaGained.leyLine ??= 0;
+    const before = snapshot(s), mana = gainMana(s, amount, 'leyLine'), m = s.racials.leyLine;
+    m.manaRaw += amount; m.manaGained += mana.gained; m.manaWaste += mana.wasted;
+    addLog(s, 'Energized mana', before, `Bonus mana +${fmt(mana.gained)}${mana.wasted ? ` · ${fmt(mana.wasted)} wasted` : ''}`);
   }
   function springAmount(c) { return MANA_SPRING_AMOUNT * (c.manaSpringImproved ? 1.25 : 1); }
   // One external top-rank totem: drop at min(40s, fight/2), four 3s ticks,
   // then the next drop 300s later. It never occupies the Cat's GCD.
   function advanceTide(s) { s.tideTick++; s.nextTideTick = eventTime(s.nextTideTick + (s.tideTick % 4 === 0 ? 291 : 3)); }
   function processAuto(s) {
-    s.nextSwing = eventTime(s.time + s.config.swingTimer);
-    const before = snapshot(s), attack = resolveAttack(s, false, 'auto'); s.autoattacks++;
-    addLog(s, attackLabel('auto'), before, attack.result.toUpperCase());
+    s.nextSwing = eventTime(s.time + forms.period(s.config, s.form));
+    const id = forms.swing(s), before = snapshot(s);
+    const attack = id === 'maul' ? castBearAttack(s, id) : resolveAttack(s, false, id);
+    forms.swingDone(s, id, attack);
+    if (id !== 'maul') { s.autoattacks++; addLog(s, attackLabel(id), before, attack.result.toUpperCase()); }
     processWindfury(s);
   }
   function processWindfury(s) {
     if (!s.windfuryPending) return;
     s.windfuryPending = false;
-    const before = snapshot(s), attack = resolveAttack(s, false, 'windfury'); s.autoattacks++;
+    const id = forms.swing(s, true), before = snapshot(s);
+    const attack = id === 'maul' ? castBearAttack(s, id) : resolveAttack(s, false, id);
+    if (id !== 'maul') s.autoattacks++;
+    forms.swingDone(s, id, attack);
     s.windfury.extraAttacks++; s.windfury.landed += Number(attack.success);
-    addLog(s, attackLabel('windfury'), before, attack.result.toUpperCase());
+    addLog(s, attackLabel(id), before, `Windfury extra · ${attack.result.toUpperCase()}`);
   }
+
+  function castBearAttack(s, id) {
+    const before = snapshot(s), paid = forms.actualCost(s, id), procId = clearcastingActive(s) ? s.clearcastingId : 0;
+    if (s.form !== 'bear' || s.rage + 1e-9 < paid) return { success: false, crit: false, result: 'unavailable' };
+    if (id === 'primalBite' && (!forms.rank(s.config, 'primal-bite') || s.primalBiteReady > s.time + 1e-9 && s.time >= s.berserkExpires)) return { success: false, crit: false, result: 'unavailable' };
+    if (id !== 'maul' && s.gcdUntil > s.time + 1e-9) return { success: false, crit: false, result: 'unavailable' };
+    s.rage -= paid; s.forms.rageSpent += paid; s.forms.casts[id]++; if (id !== 'maul') { s.gcdUntil = eventTime(s.time + 1.5); s.forms.inputs++; }
+    const attack = resolveAttack(s, false, id);
+    if (!attack.success) { s.rage = Math.min(100, s.rage + paid * .8); s.forms.rageRefunded += paid * .8; }
+    if (id === 'primalBite') s.primalBiteReady = s.time < s.berserkExpires ? s.time : s.time + 6;
+    if (id === 'lacerate' && attack.success) {
+      s.lacerateStacks = Math.min(5, (s.lacerateExpires > s.time + 1e-9 ? s.lacerateStacks : 0) + 1);
+      s.lacerateExpires = s.time + 15; s.damage?.applyBleed('lacerate', s.time, s.lacerateStacks);
+    }
+    finishClearcast(s, procId, 0, 0, id);
+    if (procId) s.forms.clearcastRageSaved += forms.abilityCost(s.config, id) * (attack.success ? 1 : .2);
+    addLog(s, forms.LABELS[id], before, `${attack.result.toUpperCase()} · ${paid.toFixed(1)} Rage${!attack.success ? ' · 80% refunded' : ''}${id === 'maul' ? ' · replaces swing; no auto Rage' : ''}`);
+    return attack;
+  }
+  const formHooks = { snapshot, spendMana, log: addLog, timed: timedInput, bearAttack: castBearAttack };
 
   function expireAuras(s, previousTime) {
     if (s.clearcastingExpires !== -Infinity && s.clearcastingExpires <= s.time + 1e-9) {
@@ -967,11 +1164,16 @@
   }
 
   function executeDecision(s) {
-    if (offGcdBerserkReady(s)) castBerserk(s);
-    const action = chooseAction(s);
-    const clip = clipSelections.get(s), oldExpires = clip ? s[clip.bleed + 'Expires'] : null;
-    if (action === 'shiftingPower') castShiftingPower(s);
+    if (racialCasting(s)) return;
+    if (s.form !== 'cat') { forms.act(s, formHooks); processWindfury(s); return; }
+    if (timedInput(s, 'berserk', offGcdBerserkReady)) castBerserk(s);
+    if (timedInput(s, 'elunesLight', elunesLightReady)) useElunesLight(s);
+    const action = timedInput(s, 'gcd', p => chooseAction(p));
+    const clip = action ? clipSelections.get(s) : null, oldExpires = clip ? s[clip.bleed + 'Expires'] : null;
+    if (action === 'bearForm') { forms.change(s, 'bear', formHooks); forms.act(s, formHooks); }
+    else if (action === 'shiftingPower') castShiftingPower(s);
     else if (action === 'berserk') castBerserk(s);
+    else if (action === 'leyLine') castLeyLine(s);
     else if (action === 'rip') castFinisher(s, 'rip', 30, RIP_DURATION);
     else if (action === 'rake') castBuilder(s, 'rake', abilityCost(s.config, 'rake'), 9);
     else if (action === 'bite') castFinisher(s, 'bite', 35, 0);
@@ -986,7 +1188,7 @@
       }
     }
     // Off-GCD Tea rechecks the loss comparison immediately after a spend.
-    if (shouldTea(s)) useTea(s);
+    if (timedInput(s, 'tea', shouldTea)) useTea(s);
   }
 
   // Observations only: no decisions, RNG draws, or forecast-state mutation.
@@ -1031,7 +1233,7 @@
   }
 
   function simulateFight(input = {}, options = {}) {
-    const config = normalize(input), iteration = options.iteration || 1;
+    const config = options.normalized === true ? { ...input } : normalize(input), iteration = options.iteration || 1;
     // Offline effect-isolation benchmark only: retain the equipped helm and
     // every static stat, but suppress its energy effect. Never persisted as a
     // player setting or inferred from an imported character.
@@ -1040,8 +1242,16 @@
     config.duration = sampleFightDuration(config, seed);
     const s = createState(config, createRng(seed), Boolean(options.debug ?? config.debug));
     s.config = config;
+    s.spellRng = createRng(deriveSeed(seed, 0x46464849));
     if (config.damageEnabled) s.damage = damage.create(config, createRng(deriveSeed(seed, 0x444d4745)), s.debug);
-    // Pre-pull casts do not advance combat ticks, swings, resources, or RNG.
+    if (rotation.race(config) === 'HIGH_ORDER_SKYBORNE' && config.leyLineTiming !== 'disabled' && config.leyLinePrepull) {
+      const firstOpener = config.faerieFire ? (config.berserkGCD && knowsBerserk(config) ? -2 : -1)
+        : config.berserkGCD && knowsBerserk(config) ? -1 : 0;
+      s.time = eventTime(firstOpener - Math.max(1, rotation.leyCastTime(config))); castLeyLine(s);
+      s.time = s.leyLineStarts;
+      addLog(s, 'Energized', snapshot(s), `Read Ley Line completed · double passive mana regeneration for ${config.leyLineNearby ? 900 : 15}s`);
+    }
+    // Pre-pull casts resolve their actual hit/proc rolls, but no passive ticks or swings.
     // Faerie Fire's GCD ends before prezerk, or at pull for off-GCD Berserk.
     if (config.faerieFire) {
       s.time = config.berserkGCD && knowsBerserk(config) ? -2 : -1;
@@ -1057,47 +1267,64 @@
       const previous = s.time;
       const future = time => time > s.time + 1e-9 ? time : Infinity;
       const next = Math.min(config.duration, s.nextEnergyTick, s.nextManaTick, s.nextSwing,
+        forms.nextCycleEvent(s),
+        future(s.enrageNext), future(s.enrageExpires), future(s.maulQueuedAt), future(s.lacerateExpires),
         config.blessingWisdom ? s.nextWisdomTick : Infinity,
         config.manaSpring ? s.nextSpringTick : Infinity,
         config.manaTide ? s.nextTideTick : Infinity,
         future(s.gcdUntil), ...Object.values(s.cooldowns).map(future),
-        ...[s.rakeExpires, s.ripExpires, s.berserkExpires, s.clearcastingExpires].map(future));
+        ...Object.values(s.inputReadyAt).map(future),
+        ...[s.rakeExpires, s.ripExpires, s.berserkExpires, s.clearcastingExpires,
+          s.elunesLightStarts, s.elunesLightExpires, s.leyLineStarts, s.leyLineExpires].map(future));
       const dt = next - s.time;
       // Flush passive damage on the existing timeline, without adding events
       // to the decision queue or changing the resource RNG stream.
       s.damage?.advance(next, s);
+      forms.advance(s, next);
       s.uptime.rake += Math.max(0, Math.min(next, s.rakeExpires) - s.time);
       s.uptime.rip += Math.max(0, Math.min(next, s.ripExpires) - s.time);
       s.uptime.berserk += Math.max(0, Math.min(next, s.berserkExpires) - s.time);
       s.uptime.clearcasting += Math.max(0, Math.min(next, s.clearcastingExpires) - s.time);
       s.mightyRage.uptimeSeconds += Math.max(0, Math.min(next, s.mightyRageExpires) - s.time);
+      const eluneTime = Math.max(0, Math.min(next, s.elunesLightExpires) - Math.max(s.time, s.elunesLightStarts));
+      s.racials.elunesLight.uptimeSeconds += eluneTime;
+      s.racials.elunesLight.berserkOverlapSeconds += Math.max(0, Math.min(next, s.elunesLightExpires, s.berserkExpires) - Math.max(s.time, s.elunesLightStarts));
+      s.racials.leyLine.uptimeSeconds += Math.max(0, Math.min(next, s.leyLineExpires) - Math.max(s.time, s.leyLineStarts));
       // Energy ticks on its 0.1s grid; hasted natural swings retain precision.
       s.time = eventTime(next);
+      if (s.leyLineStarts > previous + 1e-9 && s.leyLineStarts <= s.time + 1e-9) addLog(s, 'Energized', snapshot(s), `Read Ley Line completed · double passive mana regeneration for ${config.leyLineNearby ? 900 : 15}s`);
       expireAuras(s, previous);
-      if (s.time >= s.nextEnergyTick - 1e-9) { gainEnergy(s, 1, 'natural'); s.nextEnergyTick = roundTime(s.nextEnergyTick + 0.1); }
+      if (s.time >= s.nextEnergyTick - 1e-9) { if (s.form === 'cat') gainEnergy(s, Math.min(1, eventTime((s.time - s.catEnergyStarted) * 10)), 'natural'); s.nextEnergyTick = roundTime(s.nextEnergyTick + 0.1); }
+      if (s.lacerateExpires <= s.time + 1e-9) s.lacerateStacks = 0;
+      if (s.enrageNext <= s.time + 1e-9) { if (s.form === 'bear' && s.time <= s.enrageExpires + 1e-9) forms.rage(s, 2); s.enrageNext = s.time < s.enrageExpires - 1e-9 ? s.enrageNext + 1 : Infinity; }
       if (s.time >= s.nextManaTick - 1e-9) { processManaTick(s); s.nextManaTick += 2; }
       if (config.blessingWisdom && s.time >= s.nextWisdomTick - 1e-9) { processPassiveMana(s, 'blessing', 40, 'Blessing of Wisdom'); s.nextWisdomTick += 5; }
       if (config.manaSpring && s.time >= s.nextSpringTick - 1e-9) { processPassiveMana(s, 'spring', springAmount(config), 'Mana Spring Totem'); s.nextSpringTick += MANA_SPRING_INTERVAL; }
       if (config.manaTide && s.time >= s.nextTideTick - 1e-9) { processPassiveMana(s, 'tide', 290, 'Mana Tide Totem'); advanceTide(s); }
-      if (offGcdBerserkReady(s)) castBerserk(s);
+      if (timedInput(s, 'berserk', offGcdBerserkReady)) castBerserk(s);
+      if (timedInput(s, 'elunesLight', elunesLightReady)) useElunesLight(s);
       if (s.time >= s.nextSwing - 1e-9) processAuto(s);
-      const potion = potionChoice(s);
+      if (s.form !== 'cat' && s.time < config.duration - 1e-9) { forms.act(s, formHooks); processWindfury(s); }
+      const potion = timedInput(s, 'potion', potionChoice);
       if (potion) usePotion(s, potion);
-      if (shouldTea(s)) useTea(s);
+      if (timedInput(s, 'tea', shouldTea)) useTea(s);
       if (s.time >= s.gcdUntil - 1e-9 && s.time < config.duration - 1e-9) {
         executeDecision(s);
       }
       if (dt < -1e-9) throw new Error('Simulation time moved backwards.');
     }
     s.time = config.duration;
+    forms.finish(s);
     const damageResult = s.damage ? s.damage.finish(s) : null;
     return {
+      mechanicsRevision: MECHANICS_REVISION, forms: s.forms, formRevision: forms.REVISION,
       damage: damageResult, rotationRevision: rotation.REVISION, clipping: clipDiagnostics(s), clipEvents: s.debug ? s.clipEvents : [], windfuryModel: WINDFURY_MODEL, ...(config.gearIdol ? { idolModel: IDOL_MODEL } : {}),
       iteration, seed, duration: config.duration, casts: s.casts, berserkCasts: s.berserkCasts, berserkCrits: s.berserkCrits,
       energy: s.energyStats, endingEnergy: s.energy, manaGained: s.manaGained, manaRaw: s.manaRaw,
       manaSpent: s.manaSpent, manaWaste: s.manaWaste, endingMana: s.mana, cp: s.cp,
       bloodFrenzy: s.bloodFrenzy, jow: s.jow, potion: s.potion, tea: s.tea,
       mightyRage: s.mightyRage, potionSequence: s.potionSequence,
+      racials: s.racials, racialRevision: rotation.RACIAL_REVISION,
       omen: { ...s.omen, remaining: Number(clearcastingActive(s)) },
       windfury: { ...s.windfury, pending: Number(s.windfuryPending) },
       uptime: Object.fromEntries(Object.entries(s.uptime).map(([k, v]) => [k, v / config.duration * 100])),
@@ -1118,6 +1345,23 @@
       median: percentile(sorted, 0.5), p5: percentile(sorted, 0.05), p95: percentile(sorted, 0.95) };
   }
   function metric(fights, getter) { return stats(fights.map(getter)); }
+  function aggregateForms(fights, time) {
+    const sum = read => fights.reduce((n, f) => n + read(f.forms), 0), entries = sum(m => m.entries), returns = sum(m => m.returns);
+    const first = sum(m => m.firstSwings);
+    const cycles = fights.filter(f => f.forms.cycle).map(f => f.forms.cycle);
+    const cycle = cycles.length ? { revision: forms.CYCLE_REVISION,
+      ...Object.fromEntries(['scheduled', 'entered', 'attempted', 'landed', 'missed', 'unfunded', 'unavailable', 'late', 'onTimeShifts', 'delayedShifts', 'shiftDelay'].map(k => [k, cycles.reduce((v, m) => v + m[k], 0) / fights.length])),
+      skipped: Object.fromEntries([...new Set(cycles.flatMap(m => Object.keys(m.skipped)))].map(k => [k, cycles.reduce((v, m) => v + (m.skipped[k] || 0), 0) / fights.length])) } : null;
+    return { ...(cycle ? { cycle } : {}), uptime: Object.fromEntries(['cat', 'bear', 'caster'].map(id => [id, sum(m => m.time[id]) / time * 100])),
+      cpm: Object.fromEntries([...forms.CASTS, 'bearAutos', 'bearWindfury', 'casterAutos'].map(id => [id, sum(m => m.casts[id] ?? m[id]) * 60 / time])),
+      entries: entries / fights.length, weavesPerMinute: entries * 60 / time,
+      averageReentryEnergy: returns ? sum(m => m.reentryEnergy) / returns : null,
+      averageExcursion: entries ? sum(m => m.excursionSeconds) / entries : null,
+      firstSwingDelay: first ? sum(m => m.firstSwingDelay) / first : null,
+      blocked: Object.fromEntries([...new Set(fights.flatMap(f => Object.keys(f.forms.blocked)))].map(k => [k, sum(m => m.blocked[k] || 0) / fights.length])),
+      returnReasons: Object.fromEntries([...new Set(fights.flatMap(f => Object.keys(f.forms.returnReasons)))].map(k => [k, sum(m => m.returnReasons[k] || 0) / fights.length])),
+      ...Object.fromEntries(['completed', 'aborted', 'inputs', 'manaSpent', 'rageGenerated', 'rageOverflow', 'rageDiscarded', 'energyDiscarded', 'rageSpent', 'rageRefunded', 'clearcastRageSaved', 'windfuryBeforeFloor'].map(id => [id, sum(m => m[id]) / fights.length])) };
+  }
   function aggregate(fights, config) {
     const durations = fights.map(fight => fight.duration);
     const durationStats = { ...stats(durations), min: Math.min(...durations), max: Math.max(...durations),
@@ -1140,13 +1384,21 @@
         ? fights.reduce((sum, fight) => sum + fight.berserkCrits[key], 0) / berserkUses : null])) };
     return {
       config, fights: fights.length, durationStats, abilityStats, berserkCrits, damage: damage.aggregate(fights), windfuryModel: WINDFURY_MODEL, ...(config.gearIdol ? { idolModel: IDOL_MODEL } : {}),
+      mechanicsRevision: MECHANICS_REVISION, forms: aggregateForms(fights, durationStats.total), formRevision: forms.REVISION,
       rotationRevision: rotation.REVISION,
+      racialRevision: rotation.RACIAL_REVISION,
+      racials: Object.fromEntries(['elunesLight', 'leyLine'].map(id => [id, Object.fromEntries(
+        (id === 'elunesLight' ? ['uses', 'uptimeSeconds', 'berserkOverlapSeconds'] : ['uses', 'uptimeSeconds', 'castSeconds', 'manaRaw', 'manaGained', 'manaWaste'])
+          .map(key => [key, metric(fights, f => f.racials?.[id]?.[key] || 0)]))])),
       clipping: Object.fromEntries(rotation.RULES.map(r => [r.id, Object.fromEntries(['attempts', 'overwrites', 'fulfilled', 'onCooldown', 'ticks', 'foregoneTickDamage']
         .map(key => [key, key === 'foregoneTickDamage' && !config.damageEnabled ? null : metric(fights, f => f.clipping[r.id][key])]))])),
       totalCasts: { ...totalCasts, cpm: totalCasts.mean * 60 / durationStats.mean },
+      allFormCasts: { mean: totalCasts.mean + forms.CASTS.reduce((n, k) => n + metric(fights, f => f.forms.casts[k]).mean, 0),
+        cpm: (totalCasts.mean + forms.CASTS.reduce((n, k) => n + metric(fights, f => f.forms.casts[k]).mean, 0)) * 60 / durationStats.mean },
       finisherCasts: { ...finisherCasts, cpm: finisherCasts.mean * 60 / durationStats.mean },
       energy: aggregateObject('energy', ['natural', 'shifting', 'tea', 'waste', 'shiftingWaste', 'teaWaste']),
-      manaGained: aggregateObject('manaGained', ['spirit', 'blessing', 'spring', 'jow', 'potion', 'tide', ...(config.gearMP5 ? ['gear'] : [])]),
+      manaGained: { ...aggregateObject('manaGained', ['spirit', 'blessing', 'spring', 'jow', 'potion', 'tide', ...(config.gearMP5 ? ['gear'] : [])]),
+        ...(fights.some(f => f.racials?.leyLine.uses) ? { leyLine: metric(fights, f => f.manaGained.leyLine || 0) } : {}) },
       cp: aggregateObject('cp', CP_METRICS),
       biteDiagnostics: {
         energySpent: metric(fights, fight => fight.biteDiagnostics.energySpent),
@@ -1173,7 +1425,7 @@
   }
   function runSimulation(input = {}) {
     const config = normalize(input), fights = [];
-    for (let iteration = 1; iteration <= config.iterations; iteration++) fights.push(simulateFight(config, { iteration }));
+    for (let iteration = 1; iteration <= config.iterations; iteration++) fights.push(simulateFight(config, { iteration, normalized: true }));
     return aggregate(fights, config);
   }
   function replay(input = {}, iteration) {
@@ -1182,8 +1434,10 @@
   }
 
   return {
+    MECHANICS_REVISION, forms,
+    formTesting: { formHooks, castBearAttack, aggregateForms, tryOmen },
     ABILITIES, LABELS, DEFAULTS, WINDFURY_MODEL, IDOL_MODEL, rotation, normalize, deriveSeed, createRng, shiftingPowerCost, shiftingPowerCooldown, shiftingPowerEnergy, simulateFight, runSimulation, replay, stats,
-    testing: { selectClip, clipDiagnostics, biteDiagnostics, sampleFightDuration, createState, gainEnergy, gainMana, gainCombo, resolveAttack, bloodFrenzy, castBuilder, castFinisher,
+    testing: { elunesLightReady, useElunesLight, leyLineReady, castLeyLine, processPassiveMana, timedInput, inputTime, advanceProjection, selectClip, clipDiagnostics, biteDiagnostics, sampleFightDuration, createState, gainEnergy, gainMana, gainCombo, resolveAttack, bloodFrenzy, castBuilder, castFinisher,
       castShiftingPower, castBerserk, castFaerieFire, shouldPotion, potionChoice, usePotion, shouldTea, useTea, compareTeaTiming, teaTimingLoss, nextShiftWithoutFurtherTea, processManaTick, policyProjection, projectedOffGcd,
       clearcastingActive, energyCost, abilityCost, applyStartingClearcasting, compareShiftTiming, shiftGcdOverflow, shouldWaitForShiftingPower, chooseAction, choosePriorityAction, hasFreeFaerieFireGlobal, canShredWithoutBreakingRefresh, executeDecision, expireAuras, processAuto, processWindfury }
   };

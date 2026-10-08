@@ -7,6 +7,7 @@
   'use strict';
 
   const LABELS = Object.freeze({
+    racialRace: 'Race for active racials', leyLineSpellHaste: 'Spell haste excluding racial (%)', leyLineNearby: 'Nearby ley line',
     characterMode: 'Character input mode', gearBuild: 'Equipment build', gearAreaTypes: 'Encounter terrain', targetCreature: 'Target creature type',
     talentMode: 'Talent integration', talentBuild: 'Selected talent build', talentBaselineBuild: 'Talents included in baseline', talentStats: 'Talent stat contributions', naturalist: 'Naturalist rank',
     startingMana: 'Starting mana', spirit: 'Spirit', spiritMode: 'Spirit input',
@@ -141,6 +142,10 @@
       attackPower: data.stats.attackPower ?? null, faerieFireMiss: rounded(Math.max(1, 17 - (data.stats.spellHit ?? 0))),
       ...bossRates(data.stats)
     };
+    const racialRace = String(data.character?.race || '').toUpperCase().replace(/[ -]/g, '_');
+    if (['TAUREN', 'NIGHT_ELF', 'HIGH_ORDER_SKYBORNE', 'WINDSHAPER_SKYBORNE'].includes(racialRace)) patch.racialRace = racialRace;
+    else warnings.push('Race missing or unsupported: active-racial identity is unchanged; check Rotation before enabling a racial.');
+    if (racialRace === 'HIGH_ORDER_SKYBORNE') warnings.push('Read Ley Line uses the current extra spell-haste setting. Exported haste is not automatically converted; check it under Rotation.');
     if (unbuffed) {
       for (const [key, stat] of Object.entries({ baseStrength: 'strength', baseAgility: 'agility', baseStamina: 'stamina',
         baseIntellect: 'intellect', baseSpirit: 'spirit', baseMana: 'mana', baseAttackPower: 'attackPower', baseSheetCrit: 'crit', baseHealth: 'health', baseArmor: 'armor' })) patch[key] = data.stats[stat] ?? null;

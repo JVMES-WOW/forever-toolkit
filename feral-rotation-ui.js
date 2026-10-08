@@ -14,14 +14,16 @@
       const input = make(p.choices && typeof p.default !== 'boolean' ? 'select' : 'input', '', { id: key, name: key });
       if (p.choices && typeof p.default !== 'boolean') for (let i = 0; i < p.choices.length; i++) input.append(make('option', p.labels[i], { value: p.choices[i] }));
       else if (typeof p.default === 'boolean') { input.type = 'checkbox'; input.checked = p.default; }
-      else { input.type = 'number'; input.min = p.min; input.max = p.max; input.step = key.endsWith('Remaining') ? .5 : key.endsWith('Penalty') ? .25 : 1; }
+      else { input.type = 'number'; input.min = p.min; input.max = p.max; input.step = p.group === 'bear' && key !== 'bearEnergy' ? .05 : key.endsWith('Remaining') ? .5 : key.endsWith('Penalty') ? .25 : 1; }
       input.value = String(p.default);
+      if (key === 'inputDelayMs') input.setAttribute('aria-describedby', 'input-delay-note');
       const label = make('label', p.label); label.append(input);
       if (typeof p.default === 'boolean') label.className = 'rotation-clip-toggle';
-      (rule ? clipGroups[rule.prefix] : fields).append(label); controls[key] = input;
+      (rule ? clipGroups[rule.prefix] : p.group === 'racial' ? $('rotation-racial-fields') : p.group === 'bear' ? $('rotation-bear-fields') : fields).append(label); controls[key] = input;
     }
     for (const [key, p] of Object.entries(optimizer.PARAMETERS).filter(([, p]) => p.optional)) {
       const row = make('div'), label = make('label');
+      if (key.startsWith('clip') || policies.DEFINITIONS[key]?.group === 'bear') row.setAttribute('data-access', 'experimental');
       label.append(make('input', '', { id: `opt-${key}-on`, type: 'checkbox' }), doc.createTextNode(' ' + p.label));
       const input = make('input', '', { id: `opt-${key}-values`, type: 'text', value: (p.labels || p.values).join(', ') });
       input.setAttribute('aria-label', p.label + ' search values'); row.append(label, input); search.append(row);
@@ -37,6 +39,24 @@
       busy = isBusy;
       $('rotation-builtin').disabled = busy;
       for (const [key, input] of Object.entries(controls)) input.disabled = busy || !policies.active(key, c);
+      if ($('bear-cycle-timeline')) {
+        $('bear-cycle-timeline').hidden = !['cycleCat', 'cycleLacerate', 'cyclePrimalBite'].includes(c.bearStrategy);
+        $('bear-cycle-timeline').textContent = c.bearStrategy === 'cycleCat' ? 'Cat-only control: same clocked Shift and Cat action rules, with no Bear window.' : 'Shift → Cat attacks → Bear at −4.5s → one Bear ability + cancel at −3s → Cat at −1.5s → Shift on cooldown.';
+      }
+      const race = policies.race(c), skyborne = race === 'HIGH_ORDER_SKYBORNE';
+      if ($('racial-race')) {
+        $('racial-race').value = race || c.racialRace;
+        $('racial-race').disabled = busy || c.characterMode === 'gear';
+        $('racial-spell-haste').disabled = busy || !skyborne || c.characterMode === 'gear';
+        $('racial-ley-nearby').disabled = busy || !skyborne;
+        $('racial-spell-haste-field').hidden = !skyborne; $('racial-ley-nearby-field').hidden = !skyborne;
+        $('racial-status').textContent = race === 'NIGHT_ELF' ? 'Elune’s Light · +10% crit · 15s · 3-minute cooldown · off GCD'
+          : skyborne ? `Read Ley Line · ${policies.leyCastTime(c)}s cast · 2-minute cooldown · +100% passive mana regeneration`
+          : 'No active racial modeled for this race.';
+      }
+      for (const [key, input] of Object.entries(controls)) if (policies.DEFINITIONS[key].group === 'racial') {
+        input.parentElement.hidden = key.startsWith('elunesLight') ? race !== 'NIGHT_ELF' : !skyborne;
+      }
       $('rotation-recipe').replaceChildren(...policies.recipe(c, costs).map(line => make('li', line)));
     }
     function results(result) {
@@ -54,6 +74,7 @@
         if (m) {
           details.append(make('p', `Per fight: ${m.shifts.toFixed(2)} Shifts · ${m.teaUses.toFixed(2)} Teas · ${m.energyWaste.toFixed(2)} wasted energy · ${m.clips.toFixed(2)} clip attempts · ${m.overwrites.toFixed(2)} overwrites · ${m.fulfilled.toFixed(2)} resource follow-ups (${m.onCooldown.toFixed(2)} on cooldown) · ${m.ticks.toFixed(2)} ticks sacrificed.`));
           const note = make('p', `Foregone-tick damage / fight: ${m.foregoneTickDamage == null ? '—' : m.foregoneTickDamage.toFixed(2)}. Not net clipping cost; compare full-fight DPS.`); note.setAttribute('data-detail', ''); details.append(note);
+          if (m.elunesLightUses || m.leyLineUses) details.append(make('p', `Racials / fight: ${(m.elunesLightUses || 0).toFixed(2)} Elune’s Light · ${(m.elunesLightOverlap || 0).toFixed(2)}s Berserk overlap · ${(m.leyLineUses || 0).toFixed(2)} Read Ley Line · +${(m.leyLineMana || 0).toFixed(1)} effective mana.`));
         }
         host.append(details);
       }

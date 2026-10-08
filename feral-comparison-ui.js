@@ -89,7 +89,8 @@
       $('comparison-current-meta').textContent = describe(current);
       $('comparison-reference-meta').textContent = describe(reference);
       $('comparison-draft-note').textContent = options.dirty ? 'Settings changed; completed results are unchanged. Your unrun settings are kept when you swap.' : 'Swap restores settings and results without rerunning.';
-      $('comparison-persistence').textContent = options.storageMessage || '';
+      const mechanicsDiffer = current && reference && current.result.mechanicsRevision !== reference.result.mechanicsRevision;
+      $('comparison-persistence').textContent = [options.storageMessage, mechanicsDiffer ? 'Different mechanics revisions · historical results preserved. Rerun the older setup for a like-for-like comparison.' : ''].filter(Boolean).join(' ');
       $('comparison-empty').hidden = Boolean(current && reference);
       $('comparison-content').hidden = !current || !reference;
       $('comparison-headline').hidden = !current || !reference;
@@ -101,6 +102,7 @@
       $('comparison-reference-legend').textContent = reference.label + ' · reference';
       $('comparison-metrics').replaceChildren(...rows.map(row => tableRow([row.label, absolute(row, row.reference), absolute(row, row.current), delta(row)])));
       $('comparison-warning').textContent = 'Differences are current − reference, not proof of an improvement. Sampling intervals above describe each run, not a paired test or uncertainty in the damage model.' +
+        (mechanicsDiffer ? ' These runs use different mechanics revisions.' : '') +
         ((current.result.config.windfury || reference.result.config.windfury) && current.result.windfuryModel !== reference.result.windfuryModel ? ' Windfury mechanics differ between these runs; rerun the older setup before evaluating gear or rotation changes.' : '') +
         (current.result.config.duration !== reference.result.config.duration || current.result.config.durationVariance !== reference.result.config.durationVariance ? ' Fight lengths differ: compare DPS/CPM rather than raw totals.' : '') +
         (current.result.config.seed === reference.result.config.seed ? ' These runs reuse a seed; do not treat their sampling errors as independent.' : ' These runs use different seeds.');

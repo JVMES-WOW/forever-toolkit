@@ -24,11 +24,28 @@
     const talents = win.FOREVER_FERAL_TALENTS;
     let talentCallbacks = null, talentConfig = null, draft = null, appliedCode = '', talentBusy = false;
     let talentDrag = null, talentRepeat = null;
+    // Keep the mobile run summary compact without changing any encounter input.
+    // Once the user operates the disclosure, resizing must not override their choice.
+    const mobileControls = win.matchMedia?.('(max-width: 700px)');
+    if (mobileControls) {
+      const settings = $('.run-settings');
+      let userExpanded = false;
+      const syncDisclosure = () => { if (!userExpanded) settings.open = !mobileControls.matches; };
+      syncDisclosure();
+      const isDisclosure = event => event.target?.closest?.('summary')?.parentElement === settings;
+      settings.addEventListener('click', event => { if (isDisclosure(event)) userExpanded = true; });
+      settings.addEventListener('keydown', event => { if (isDisclosure(event) && (event.key === 'Enter' || event.key === ' ')) userExpanded = true; });
+      mobileControls.addEventListener?.('change', syncDisclosure);
+    }
     function show(view, sub, focus = false, updateUrl = true) {
-      if (view === 'results' && sub === 'model' && win.feralDisplay && !win.feralDisplay.enabled()) {
-        win.feralDisplay.open(true); sub = 'damage';
-      }
       if (!mainTabs.some(tab => tab.dataset.view === view)) return false;
+      const mainTab = mainTabs.find(tab => tab.dataset.view === view);
+      const requestedSub = subTabs.find(tab => tab.dataset.subgroup === view && tab.dataset.subview === sub);
+      const restriction = win.feralDisplay?.restriction(requestedSub) || win.feralDisplay?.restriction(mainTab);
+      if (restriction) {
+        win.feralDisplay.open(restriction, () => show(view, sub, focus, updateUrl));
+        return true; // Valid deep link, awaiting its display toggle; keep the current page visible.
+      }
       active = view;
       for (const tab of mainTabs) {
         const selected = tab.dataset.view === view;
@@ -37,6 +54,10 @@
         if (selected && focus) tab.focus();
       }
       if (subTabs.some(tab => tab.dataset.subgroup === view && tab.dataset.subview === sub)) activeSub[view] = sub;
+      for (const group of Object.keys(defaults)) {
+        const selected = subTabs.find(tab => tab.dataset.subgroup === group && tab.dataset.subview === activeSub[group]);
+        if (selected && win.feralDisplay?.allows && !win.feralDisplay.allows(selected)) activeSub[group] = defaults[group];
+      }
       for (const tab of subTabs) {
         const selected = activeSub[tab.dataset.subgroup] === tab.dataset.subview;
         tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
@@ -51,7 +72,8 @@
       for (const tab of tabs) {
         tab.addEventListener('click', () => activate(tab, false));
         tab.addEventListener('keydown', event => {
-          const visible = tabs.filter(t => !(t.dataset.subview === 'model' && win.feralDisplay && !win.feralDisplay.enabled()));
+          const visible = tabs.filter(t => !win.feralDisplay?.allows || win.feralDisplay.allows(t));
+          if (!visible.length) return;
           const i = visible.indexOf(tab);
           const next = event.key === 'ArrowRight' ? (i + 1) % visible.length : event.key === 'ArrowLeft' ? (i + visible.length - 1) % visible.length : event.key === 'Home' ? 0 : event.key === 'End' ? visible.length - 1 : -1;
           if (next < 0) return;
@@ -72,6 +94,16 @@
       if (target?.closest('#pane-model')) { show('results', 'model', false, false); if (!win.feralDisplay || win.feralDisplay.enabled()) target.scrollIntoView({ block: 'center' }); }
     }
     win.addEventListener('hashchange', fromHash);
+    win.addEventListener('feral-display-change', () => {
+      const mainTab = mainTabs.find(tab => tab.dataset.view === active);
+      if (win.feralDisplay?.allows && !win.feralDisplay.allows(mainTab)) show('results', 'damage', true);
+      else {
+        const selected = subTabs.find(tab => tab.dataset.subgroup === active && tab.dataset.subview === activeSub[active]);
+        const hiddenSelection = selected && win.feralDisplay?.allows && !win.feralDisplay.allows(selected);
+        show(active, hiddenSelection ? defaults[active] : activeSub[active], false, Boolean(hiddenSelection));
+        if (hiddenSelection && !$('#display-settings')?.open) subTabs.find(tab => tab.dataset.subgroup === active && tab.dataset.subview === activeSub[active])?.focus();
+      }
+    });
     show('results', 'damage', false, false); fromHash();
     // Enter in a numeric field must not navigate/reload the page and discard the setup.
     $('#config').addEventListener('submit', event => event.preventDefault());

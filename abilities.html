@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>Spellbook · Forever Toolkit</title>
-  <link rel="stylesheet" href="spellbook.css">
   <link rel="stylesheet" href="site-brand.css">
+  <link rel="stylesheet" href="spellbook.css">
   <link rel="icon" type="image/png" href="toolkit-logo.png">
   <link rel="canonical" href="https://jvmes-wow.github.io/forever-toolkit/abilities.html">
   <meta name="description" content="Browse WoW Forever spells for all nine classes by spec and level. Search spells, switch ranks, and compare costs and effects.">
@@ -15,17 +15,17 @@
   <meta property="og:title" content="Spellbook · Forever Toolkit">
   <meta property="og:description" content="Browse WoW Forever spells for all nine classes by spec and level. Search spells, switch ranks, and compare costs and effects.">
   <meta property="og:url" content="https://jvmes-wow.github.io/forever-toolkit/abilities.html">
-  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261006-green-gem">
-  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261006-green-gem">
+  <meta property="og:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261007-hyjal-tools">
+  <meta property="og:image:secure_url" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261007-hyjal-tools">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Forever Toolkit spellbook with all nine class icons and level-sorted spell lists for Druid, Mage, and Warrior.">
+  <meta property="og:image:alt" content="Forever Toolkit spellbook with all nine class icons and a Druid spell grid, specialization tabs, and rank details.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Spellbook · Forever Toolkit">
   <meta name="twitter:description" content="Browse WoW Forever spells for all nine classes by spec and level. Search spells, switch ranks, and compare costs and effects.">
-  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261006-green-gem">
-  <meta name="twitter:image:alt" content="Forever Toolkit spellbook with all nine class icons and level-sorted spell lists for Druid, Mage, and Warrior.">
+  <meta name="twitter:image" content="https://jvmes-wow.github.io/forever-toolkit/abilities-og.png?v=20261007-hyjal-tools">
+  <meta name="twitter:image:alt" content="Forever Toolkit spellbook with all nine class icons and a Druid spell grid, specialization tabs, and rank details.">
 </head>
 <body class="toolkit-page toolkit-spellbook">
   <header class="topbar toolkit-header">
@@ -39,20 +39,26 @@
       <a href="raid.html">Raid</a><a href="analysis/">Analysis</a>
     </nav>
   </header>
-  <main class="spellbook-page">
+  <main class="spellbook-page" id="main">
     <div class="spellbook-title"><h1>Spellbook</h1><span>WoW Forever</span></div>
     <div id="spell-classes" class="spell-classes" role="group" aria-label="Class"></div>
     <div class="spellbook-layout">
-      <section class="spell-browser" aria-label="Browse spells">
+      <section id="spell-browser" class="spell-browser" aria-label="Browse spells" tabindex="-1">
         <div class="spell-toolbar">
           <div class="spell-search"><label class="sr-only" for="spell-search">Search spells</label><input id="spell-search" type="search" maxlength="120" placeholder="Search spells or IDs…" autocomplete="off"><button id="clear-search" type="button" aria-label="Clear search">×</button></div>
           <span id="spell-count" role="status"></span>
           <label class="spell-sort">Sort <select id="spell-sort" aria-label="Sort spells"><option value="level">Level</option><option value="name">Name</option></select></label>
         </div>
-        <div id="spell-specs" class="spell-specs" role="group" aria-label="Specialization"></div>
-        <div id="spell-list" class="spell-list" aria-label="Spells" tabindex="0"></div>
+        <a class="spell-jump" href="#spell-detail">Selected spell &amp; ranks ↓</a>
+        <div class="book-volume">
+          <h2 id="book-title">Spells</h2>
+          <div id="spell-specs" class="spell-specs" role="group" aria-label="Specialization"></div>
+          <div id="spell-list" class="spell-list" aria-label="Spells" tabindex="0"></div>
+          <nav class="book-pagination" aria-label="Spellbook pages"><button id="spells-previous" type="button" aria-label="Previous spellbook page">‹</button><span id="spell-page" role="status"></span><button id="spells-next" type="button" aria-label="Next spellbook page">›</button></nav>
+        </div>
       </section>
-      <aside class="spell-detail" aria-label="Selected spell">
+      <aside id="spell-detail" class="spell-detail" aria-label="Selected spell" tabindex="-1">
+        <a class="spell-jump" href="#spell-browser">Back to spells ↑</a>
         <p id="spell-detail-empty" hidden>Select a spell to see its ranks.</p>
         <div id="spell-detail-content">
           <div class="spell-detail-head"><img id="spell-icon" width="52" height="52" alt=""><div><h2 id="spell-name"></h2><p id="spell-category"></p></div></div>
@@ -67,6 +73,7 @@
     </div>
     <noscript><p>Enable JavaScript to browse the local spell catalog.</p></noscript>
   </main>
+  <footer class="spellbook-footer">Game artwork © Blizzard Entertainment.</footer>
   <script src="spellbook-data.js?v=1"></script>
   <script src="spellbook.js?v=1"></script>
   <script src="spellbook-ui.js?v=1"></script>

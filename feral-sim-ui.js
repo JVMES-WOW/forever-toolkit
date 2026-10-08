@@ -3,6 +3,8 @@
   const sim = window.FOREVER_FERAL_SIM;
   const optimizer = window.FOREVER_FERAL_OPTIMIZER;
   const policies = sim.rotation;
+  window.FOREVER_FERAL_BEARWEAVE_UI?.install(document);
+  let bearView = null;
   const rotationView = window.FOREVER_FERAL_ROTATION_UI?.mount(document, policies, optimizer);
   const tradeoffs = window.FOREVER_FERAL_TRADEOFFS;
   const importer = window.FOREVER_FERAL_IMPORT;
@@ -22,9 +24,9 @@
   const $ = selector => document.querySelector(selector);
   const number = value => Number(value).toLocaleString(undefined, { maximumFractionDigits: 1 });
   const fixed = value => value == null ? '—' : Number(value).toFixed(2);
-  const castNames = new Set(Object.values(sim.LABELS));
-  const ownActionNames = new Set([...castNames, 'Major Mana Potion', 'Mighty Rage Potion', 'Thistle Tea']);
-  const autoNames = new Set(['Autoattack', 'Windfury attack']);
+  const castNames = new Set([...Object.values(sim.LABELS), ...Object.values(sim.forms.LABELS), 'Queue Maul']);
+  const ownActionNames = new Set([...castNames, 'Major Mana Potion', 'Mighty Rage Potion', 'Thistle Tea', 'Elune’s Light', 'Read Ley Line']);
+  const autoNames = new Set(['Autoattack', 'Windfury attack', 'Bear auto', 'Bear Windfury', 'Caster auto', 'Caster Windfury']);
   let logFight = null;
   let lastResult = null;
   let running = false, optimizing = false, optimizationJob = null, optimizationTicket = 0;
@@ -55,6 +57,7 @@
       const current = config();
       return Boolean(lastResult && (JSON.stringify(current) !== JSON.stringify(sim.normalize(lastResult.config))
         || lastResult.rotationRevision !== policies.REVISION
+        || lastResult.mechanicsRevision !== sim.MECHANICS_REVISION
         || (lastResult.config.windfury && lastResult.windfuryModel !== sim.WINDFURY_MODEL)
         || (current.gearIdol && lastResult.idolModel !== sim.IDOL_MODEL)
         || (current.characterMode === 'gear' && lastResult.config.gearStatModel !== gear.STAT_MODEL)
@@ -77,6 +80,7 @@
     $('#log-count').textContent = 'Settings restored. Replay an iteration to inspect this setup.';
   }
   function invalidateSearches() {
+    bearView?.invalidate();
     $('#rotation-export').disabled = true;
     optimizationResult = null; optimizationSnapshot = null; optimizationObjectiveSnapshot = null; optimizationApplied = false;
     tradeResult = null; tradeSnapshot = null; tradeValidation = null; tradeSelected = null; tradeApplied = false;
@@ -238,6 +242,7 @@
       $('#buff-armor-preview').textContent = `Target armor with external debuffs: ${number(damage.armor(c))} (${fixed((1 - damage.armorMultiplier(damage.armor(c))) * 100)}% physical mitigation). Own Faerie Fire is evaluated during combat.`;
       workbench?.characterStats(c);
       workbench?.syncTalents(c);
+      window.feralDisplay?.syncSetup(c);
     } catch (error) { $('#buff-status').textContent = error.message; $('#buff-stat-table').replaceChildren(); gearView?.sync(rawConfig(), null, characterReference); }
     updateSpiritControls();
   }
@@ -433,7 +438,7 @@
         const keep = new Set(['characterMode', 'gearBuild', 'statMode', 'talentStats', 'talentBaselineBuild',
           ...Object.keys(buffs.BASE), 'baseIncludesLeader', ...buffs.DERIVED_KEYS,
           'weaponSpeed', 'weaponMin', 'weaponMax', 'damageWeaponId', 'damageWeaponSource',
-          'howlingIdol', 'wolfsheadHelm', 'tier1Feral5pc']);
+          'howlingIdol', 'wolfsheadHelm', 'tier1Feral5pc', 'racialRace', 'leyLineSpellHaste']);
         const lockedTalents = current.values.characterMode !== 'gear' && current.values.talentStats !== 'excluded';
         if (lockedTalents) for (const key of ['talentMode', 'talentBuild', 'bloodFrenzy', 'naturalShapeshifter', 'reflection', 'naturalist', 'genesis', 'savageFury', 'predatoryInstincts', 'rendAndTear', 'buffHeartOfWild', 'buffLivingSpirit']) keep.add(key);
         for (const key of keep) if (Object.hasOwn(current.values, key)) values[key] = current.values[key];
@@ -577,6 +582,13 @@
   function render(result) {
     rotationView?.diagnostics(result);
     lastResult = result;
+    if ($('#form-results')) {
+      $('#form-results').hidden = !result.forms?.entries && !result.forms?.cycle;
+      $('#form-results-values').textContent = result.forms ? JSON.stringify(result.forms, null, 2) : '';
+      const cycle = result.forms?.cycle;
+      $('#form-cycle-results').hidden = !cycle;
+      $('#form-cycle-results').textContent = cycle ? `Per fight: ${cycle.entered.toFixed(2)} cycle entries · ${cycle.landed.toFixed(2)} landed Bear abilities · ${cycle.missed.toFixed(2)} avoided · ${cycle.unfunded.toFixed(2)} unfunded · ${cycle.delayedShifts.toFixed(2)} delayed Shifts. Skips: ${Object.entries(cycle.skipped).map(([why, n]) => `${why} ${n.toFixed(2)}`).join(' · ') || 'none'}.` : '';
+    }
     if (gear) {
       $('#gear-result-coverage').hidden = result.config.characterMode !== 'gear';
       $('#result-coverage-badge').hidden = result.config.characterMode !== 'gear' || !result.config.gearWarnings?.length;
@@ -608,12 +620,16 @@
       ['Windfury procs', number(result.windfury.procs.mean), `${number(result.windfury.extraAttacks.mean)} attacks · ${number(result.windfury.landed.mean)} landed / fight`],
       ['Crits created / Berserk', fixed(result.berserkCrits.perUse.created), `Rake ${fixed(result.berserkCrits.perUse.rake)} · Shred ${fixed(result.berserkCrits.perUse.shred)} per use`]
     ];
+    const racials = result.racials;
+    if (racials?.elunesLight.uses.mean) cards.push(['Elune’s Light', `${fixed(racials.elunesLight.uses.mean)} uses`, `${fixed(racials.elunesLight.uptimeSeconds.mean)}s active · ${fixed(racials.elunesLight.berserkOverlapSeconds.mean)}s Berserk overlap / fight`]);
+    if (racials?.leyLine.uses.mean) cards.push(['Read Ley Line', `${fixed(racials.leyLine.uses.mean)} uses`, `+${number(racials.leyLine.manaGained.mean)} effective mana · ${fixed(racials.leyLine.castSeconds.mean)}s casting in combat / fight`]);
     $('#summary').innerHTML = cards.map(card => `<article class="summary-card"><span>${card[0]}</span><b>${card[1]}</b><small>${card[2]}</small></article>`).join('');
     $('#total-cpm').textContent = `Total CPM: ${fixed(result.totalCasts.cpm)}`;
     bars('#casts-chart', sim.ABILITIES.map(id => ({ label: sim.LABELS[id], value: result.abilityStats[id].cpm })));
     const manaRows = [['Spirit', 'spirit'], ['Blessing', 'blessing'], ['Mana Spring', 'spring'], ['Judgment', 'jow'], ['Potion', 'potion']];
     if (result.config.manaTide) manaRows.push(['Mana Tide', 'tide']);
     if (result.manaGained.gear) manaRows.push(['Gear MP5', 'gear']);
+    if (result.manaGained.leyLine) manaRows.push(['Read Ley Line bonus', 'leyLine']);
     manaBars([...manaRows.map(([label, id]) => ({ label, value: manaRate(result.manaGained[id].mean) })), { label: 'Spent', value: -manaRate(result.manaSpent.mean) }]);
     $('#mana-net-flow').textContent = `Net flow: ${signedNumber(manaRate(manaTotal - result.manaSpent.mean))} mana / ${perFive ? '5 seconds' : 'minute'}`;
     $('#ability-table').innerHTML = sim.ABILITIES.map(id => { const a = result.abilityStats[id]; return `<tr><td>${sim.LABELS[id]}</td><td>${fixed(a.mean)}</td><td>${fixed(a.cpm)}</td><td>${fixed(a.sd)}</td><td>${fixed(a.median)}</td><td>${fixed(a.p5)}</td><td>${fixed(a.p95)}</td><td>${fixed(result.berserkCasts[id].mean)}</td></tr>`; }).join('');
@@ -665,7 +681,7 @@
     if (!logFight) return;
     const showAutos = $('#log-autoattacks').checked, showProcs = $('#log-procs').checked;
     const direct = [...(logFight.damage?.events || [])].filter(event => !event.periodic);
-    const sourceActions = { auto: 'Autoattack', windfury: 'Windfury attack', shred: sim.LABELS.shred, rakeInitial: sim.LABELS.rake, bite: sim.LABELS.bite };
+    const sourceActions = { auto: 'Autoattack', windfury: 'Windfury attack', shred: sim.LABELS.shred, rakeInitial: sim.LABELS.rake, bite: sim.LABELS.bite, bearAuto: 'Bear auto', bearWindfury: 'Bear Windfury', casterAuto: 'Caster auto', casterWindfury: 'Caster Windfury', maul: 'Maul', lacerate: 'Lacerate', primalBite: 'Primal Bite' };
     const replayEvents = logFight.log.map(event => {
       const index = direct.findIndex(hit => hit.time === event.time && sourceActions[hit.source] === event.action);
       if (index < 0) return event;
@@ -680,10 +696,10 @@
       // Windfury attacks belong to both filters. Passive ticks and aura
       // lifecycle events are also hidden to leave a clean own-actions view.
       return (showAutos || !autoNames.has(event.action)) &&
-        (showProcs || ownActionNames.has(event.action) || event.action === 'Autoattack');
+        (showProcs || ownActionNames.has(event.action) || ['Autoattack', 'Bear auto', 'Caster auto'].includes(event.action));
     });
     $('#log-count').textContent = `${events.length.toLocaleString()} of ${replayEvents.length.toLocaleString()} events shown · Filters only change this view.`;
-    $('#combat-log').innerHTML = events.map(event => `<tr><td>${event.time.toFixed(2)}</td><td>${event.action}</td><td>${event.detail || '—'}</td>${event.periodic ? '<td>—</td><td>—</td><td>—</td>' : `<td>${fixed(event.before.energy)} → ${fixed(event.after.energy)}</td><td>${fixed(event.before.mana)} → ${fixed(event.after.mana)}</td><td>${event.before.cp} → ${event.after.cp}</td>`}</tr>`).join('') || '<tr><td colspan="6">No events match these filters.</td></tr>';
+    $('#combat-log').innerHTML = events.map(event => `<tr><td>${event.time.toFixed(3)}</td><td>${event.action}</td><td>${event.detail || '—'}</td>${event.periodic ? '<td>—</td><td>—</td><td>—</td><td>—</td>' : `<td>${fixed(event.before.energy)} → ${fixed(event.after.energy)}</td><td>${fixed(event.before.mana)} → ${fixed(event.after.mana)}</td><td>${event.before.cp} → ${event.after.cp}</td><td>${event.before.form || 'cat'} → ${event.after.form || 'cat'} · ${fixed(event.before.rage || 0)} → ${fixed(event.after.rage || 0)}</td>`}</tr>`).join('') || '<tr><td colspan="7">No events match these filters.</td></tr>';
   }
   function renderDamage(result) {
     const d = result.damage;
@@ -693,7 +709,7 @@
     $('#damage-summary').textContent = `Pooled damage / combat seconds. Mean total damage ${number(d.meanTotal)} per fight · ${number(d.total)} across ${result.fights} fights. Sampling SE ${fixed(d.se)} DPS${d.se == null ? ' (needs at least two fights)' : `; approximate 95% interval ${fixed(Math.max(0, d.dps - 1.96 * d.se))}–${fixed(d.dps + 1.96 * d.se)} DPS`}.`;
     $('#damage-target-summary').textContent = `Armor ${number(d.meanArmor)} · mitigation ${fixed(d.mitigation)}% · Faerie Fire ${fixed(d.faerieFireUptime)}%`;
     $('#damage-target').textContent = `Time-weighted effective armor ${number(d.meanArmor)} · physical mitigation ${fixed(d.mitigation)}% · Faerie Fire coverage ${fixed(d.faerieFireUptime)}%. Own/external coverage combined without stacking.${result.config.giftOfArthas ? ' Gift of Arthas: +8 physical damage per landed hit/tick before outcome modifiers; full uptime.' : ''}${result.config.crystalYield ? ' Crystal Yield: −200 armor, full uptime (provisional Vanilla stacking).' : ''}`;
-    $('#damage-table').innerHTML = damage.SOURCES.map(id => { const row = d.bySource[id]; return `<tr><td>${damage.LABELS[id]}</td><td>${number(row.meanDamage)}</td><td>${fixed(row.dps)}</td><td>${fixed(row.share)}%</td><td>${row.hit}</td><td>${row.crit}</td><td>${row.glance}</td><td>${row.avoided}</td></tr>`; }).join('');
+    $('#damage-table').innerHTML = damage.SOURCES.filter(id => d.bySource[id] && (d.bySource[id].events || ['auto', 'windfury', 'shred', 'rakeInitial', 'rakeTick', 'rip', 'bite'].includes(id))).map(id => { const row = d.bySource[id]; return `<tr><td>${damage.LABELS[id]}</td><td>${number(row.meanDamage)}</td><td>${fixed(row.dps)}</td><td>${fixed(row.share)}%</td><td>${row.hit}</td><td>${row.crit}</td><td>${row.glance}</td><td>${row.avoided}</td></tr>`; }).join('');
     $('#damage-provenance').textContent = JSON.stringify({ ...d.provenance, weapon: { source: result.config.damageWeaponSource, itemId: result.config.damageWeaponId, min: result.config.weaponMin, max: result.config.weaponMax, speed: result.config.weaponSpeed } }, null, 2);
   }
   function run(seedOverride, preserveView = false) {
@@ -876,6 +892,7 @@
     updateBuffControls();
     updatePotionButtons();
     const busy = running || optimizing || exploring || comparing || weighing;
+    window.feralDisplay?.setBusy(busy);
     updateShiftingControls();
     try {
       const c = config();
@@ -891,6 +908,7 @@
     $('#trade-apply').disabled = busy || !available || tradeValidation?.selectedId !== tradeSelected;
     updateImportButtons();
     weightsView?.sync();
+    bearView?.sync();
   }
   function tradeBusy(busy) {
     exploring = busy;
@@ -1127,6 +1145,19 @@
   $('#log-bleeds').addEventListener('change', updateLog);
   $('#mana-per-five').addEventListener('change', () => { if (lastResult) render(lastResult); });
   $('#optimize').addEventListener('click', optimizeRotation);
+  $('#opt-racials-only')?.addEventListener('click', () => {
+    if (running || optimizing || exploring || comparing || weighing) return;
+    try {
+      const c = config(), race = policies.race(c);
+      if (!['NIGHT_ELF', 'HIGH_ORDER_SKYBORNE'].includes(race)) { $('#optimizer-status').textContent = 'Select Night Elf or High Order Skyborne on Gear (or the totals-mode racial selector) first.'; return; }
+      const keys = race === 'NIGHT_ELF' ? ['elunesLightTiming', 'elunesLightDelay']
+        : ['leyLineTiming', 'leyLineDelay', 'leyLineMana', 'leyLineEnergy', 'leyLineAvoidBerserk', 'leyLinePrepull'];
+      for (const key of Object.keys(optimizer.PARAMETERS)) $(`#opt-${key}-on`).checked = keys.includes(key);
+      $('#opt-objective').value = 'dps';
+      updateObjectiveControls();
+      $('#optimizer-status').textContent = 'Racial timing parameters selected. Current settings remain the reference; click Optimize rotation to test timing and disabled choices.';
+    } catch (error) { $('#optimizer-status').textContent = error.message; }
+  });
   $('#opt-stop').addEventListener('click', stopOptimization);
   $('#opt-apply').addEventListener('click', applyOptimization);
   $('#rotation-export').addEventListener('click', () => {
@@ -1204,6 +1235,21 @@
   window.addEventListener('feral-display-change', () => {
     gearView?.refreshDisplay(); weightsView?.refreshDisplay?.(); updateComparison(false);
     try { workbench?.syncTalents(config()); } catch (_) { /* Preserve actionable invalid-input errors. */ }
+  });
+  bearView = window.FOREVER_FERAL_BEARWEAVE_UI?.mount(document, window.FOREVER_FERAL_BEARWEAVE, {
+    config, busy: () => running || optimizing || exploring || comparing || weighing,
+    builds: () => (presetStore?.list('talents') || []).map(b => ({ name: b.name, code: b.value })),
+    setBusy(value) { weighing = value; for (const id of ['run', 'replay', 'optimize']) $('#' + id).disabled = value; updateTradeButtons(); updateObjectiveControls(); },
+    apply(candidate) {
+      const keys = ['talentBuild', 'biteRank', ...window.FOREVER_FERAL_PRESETS.ROTATION_KEYS];
+      const patch = Object.fromEntries(keys.map(k => [k, candidate[k]]));
+      sim.normalize({ ...rawConfig(), ...patch });
+      for (const input of namedInputs()) if (Object.hasOwn(patch, input.name)) {
+        if (input.type === 'checkbox') input.checked = patch[input.name]; else input.value = String(patch[input.name]);
+      }
+      invalidateSearches(); clearImportPreview(); clearReplayForRestore(); updateBuffControls();
+      $('#results-stale').hidden = !completedRunDirty(); updateTradeButtons(); updateObjectiveControls(); updateComparison();
+    }
   });
   optimizerBusy(false);
   defaultSetup = JSON.parse(JSON.stringify(captureSetup())); // Before saved comparison restoration or seed draws.

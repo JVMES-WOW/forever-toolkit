@@ -26,7 +26,7 @@ The [home page](https://jvmes-wow.github.io/forever-toolkit/) brings together th
 - All nine Forever classes, grouped by specialization with name and spell-ID search.
 - Compact spell families, direct rank buttons, previous/next controls, and shareable selection URLs.
 - Pinned Wowhead Forever spellbook and active-talent tooltips, with local icons and optional source notes.
-- Database references are separate from live-server verification; no simulator mechanics are changed by these tooltips.
+- Database references are separate from live-server verification.
 
 ### Raid composition planner
 
@@ -54,7 +54,7 @@ This repository contains the sanitized static site used by GitHub Pages. Private
 
 `site-brand.css` defines the shared design tokens, header, navigation, controls, and tool surfaces. Load it after the page's layout stylesheet. New tools use `toolkit-page`; report pages use the light `toolkit-research` variation. Keep the same Home / Talents / Spellbook / Raid / Analysis navigation, and put tool-specific actions below the header.
 
-Midnight blue surfaces, moonlit controls, and restrained amber highlights complement the emblem. Semantic class colors, item quality, damage charts, and success/error colors stay distinct. Homepage previews are local screenshots, not recreated interfaces. Research pages retain their separate, unchanged presentation.
+Midnight blue surfaces, moonlit controls, and restrained amber highlights complement the emblem. Semantic class colors and success/error colors stay distinct. Homepage previews are local screenshots, not recreated interfaces. Research pages retain their separate, unchanged presentation.
 
 ### Sources
 
@@ -64,9 +64,9 @@ The toolkit emblem is a generated amber-gem variation of the Hearthstone Legend 
 - Spell data and Druid tooltips: [Forever Warcraft Database](https://forever.warcraftdb.com/)
 - Blizzard game artwork and cross-references: [Wowhead](https://www.wowhead.com/)
 - Background: official [World of Warcraft: Forever](https://worldofwarcraft.blizzard.com/en-us/forever) masthead artwork, © Blizzard Entertainment. Bundled locally; used only on non-research tools.
-- Homepage symbols: a matching set of code-drawn gold outlines for talents, spells, groups, combat, and research. Other game-menu and spell icons remain in their tools.
-- Tool icons: original WoW menu textures from the [Classic interface-art mirror](https://github.com/Gethe/wow-ui-textures/tree/312a6e61bab69370c65ccc0a08f1075d62196294/Buttons). Spellbook, Talents, and Raid use their corresponding game buttons; Analysis uses Quest Log. The simulator uses the Cat Form spell icon. Artwork © Blizzard Entertainment, bundled locally with menu texture padding trimmed.
+- Homepage symbols: a matching set of code-drawn gold outlines for talents, spells, groups, and research. Other game-menu and spell icons remain in their tools.
+- Tool icons: original WoW menu textures from the [Classic interface-art mirror](https://github.com/Gethe/wow-ui-textures/tree/312a6e61bab69370c65ccc0a08f1075d62196294/Buttons). Spellbook, Talents, and Raid use their corresponding game buttons; Analysis uses Quest Log. Artwork © Blizzard Entertainment, bundled locally with menu texture padding trimmed.
 
-The social preview layouts use real site data. The toolkit emblem is AI-generated from the supplied game-art references; the simulator preview is a direct screenshot of a completed run.
+The social preview layouts use real site data. The toolkit emblem is AI-generated from the supplied game-art references.
 
 Warcraft, World of Warcraft, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. This repository is an unaffiliated fan project.

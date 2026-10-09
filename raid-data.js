@@ -42,6 +42,8 @@
     } },
     thunderClap: { name: 'Thunder Clap', scope: 'boss', helps: 'tank', status: 'confirmed', note: 'Baseline Warrior attack-speed reduction. Forever’s level-58 rank is usable in Battle or Defensive Stance.', evidence: 'https://www.wowhead.com/forever/spell=11581/thunder-clap' }
   };
+  for(const id of ['mark','sunder','expose','faerie','curseRecklessness']) buffs[id].note += ' Build 70291 changes the internal armor aura type without changing its listed amount; this does not by itself establish new stacking rules.';
+  buffs.attackPowerReduction.note += ' Build 70291 adds explicit threat to Demoralizing Roar and Shout; their attack-power reduction is unchanged.';
   for (const buff of Object.values(buffs)) buff.confidence = buff.status === 'confirmed' ? 'verified' : 'unresolved';
   for (const [id, buff] of Object.entries(buffs)) buff.icon = `effect-icons/${id}.jpg`;
 

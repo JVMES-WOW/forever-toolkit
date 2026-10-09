@@ -109,8 +109,8 @@
     }));
     $('spell-description').textContent = rank.description;
     $('spell-id').textContent = `#${rank.id}`;
-    $('source-build').textContent = `Wowhead Forever · ${book().build} · ${data.checked}`;
-    $('source-note').textContent = data.note;
+    $('source-build').textContent = rank.dataBuild ? `Build ${rank.dataBuild} · reviewed changes` : `Wowhead Forever · ${book().build} · ${data.checked}`;
+    $('source-note').textContent = [rank.buildNote, data.note].filter(Boolean).join('\n');
     $('talent-link').href = `talents.html?class=${state.classId}`;
   }
   function changeRank(id) {

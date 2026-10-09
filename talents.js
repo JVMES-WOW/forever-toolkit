@@ -929,14 +929,14 @@
           },
           {
             "id": "predatory-instincts",
-            "name": "Predatory Instincts",
+            "name": "Natural Instinct",
             "max": 2,
             "row": 5,
             "col": 4,
             "description": "Increases the critical strike damage bonus of your melee abilities by 10%.",
             "rankDescriptions": [
               "Increases the critical strike damage bonus of your melee abilities by 10%.",
-              "Increases the critical strike damage bonus of your melee abilities by 20%."
+              "Increases the critical strike damage bonus of your melee abilities by 20%. Build 70291 adds healing equal to 25% of Intellect at this rank."
             ],
             "type": "Passive",
             "icon": "icons/druid/predatory-instincts.jpg"
@@ -1590,7 +1590,7 @@
               "Increases the damage done by your pets and hawks by 6%.",
               "Increases the damage done by your pets and hawks by 9%.",
               "Increases the damage done by your pets and hawks by 12%.",
-              "Increases the damage done by your pets and hawks by 15%."
+              "Increases the damage done by your pets and hawks by 15%. Build 70291 changes an internal rank-5 effect from a percentage to a flat modifier. The affected spell-mask behavior is unresolved; this is not confirmation of a flat 20-damage pet bonus."
             ],
             "type": "Passive",
             "icon": "icons/hunter/unleashed-fury.jpg"

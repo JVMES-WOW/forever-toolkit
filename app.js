@@ -65,13 +65,16 @@
 
   function renderTrees() {
     $('#trees').innerHTML = data.trees.map(tree => {
-      const arrows = tree.talents.filter(t => t.prerequisite).map(t => {
-        const parent = calc.byId[t.prerequisite];
-        const x = (t.col - 0.5) * 100;
-        return `<path data-prerequisite="${t.id}" d="M ${x} ${(parent.row - 1) * 100 + 93} V ${(t.row - 1) * 100 + 2}" marker-end="url(#arrow-${tree.id})"/>`;
-      }).join('');
+      const arrows = tree.talents.filter(t => t.prerequisite).map(t =>
+        `<path data-prerequisite="${t.id}" marker-end="url(#arrow-${tree.id})"/>`
+      ).join('');
       return `<section class="tree-panel" style="--tree:${tree.color}" aria-labelledby="heading-${tree.id}"><div class="tree-head"><img class="tree-icon" src="${tree.icon}" alt=""><div><h2 id="heading-${tree.id}">${tree.name}</h2><small>${tree.talents.length} talents</small></div><b id="count-${tree.id}">0</b></div><div class="tree-grid"><svg class="connections" viewBox="0 0 400 700" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrow-${tree.id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z"/></marker></defs>${arrows}</svg>${tree.talents.map(t => `<button class="node" data-id="${t.id}" style="grid-column:${t.col};grid-row:${t.row}" aria-describedby="inspector" title="${escape(t.name + '\n' + t.description)}"><span class="orb"><img src="${t.icon}" alt="" draggable="false"><b class="rank"></b></span><span class="node-name">${escape(t.name)}</span></button>`).join('')}</div></section>`;
     }).join('');
+    drawConnections();
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(drawConnections);
+      $('#trees').querySelectorAll('.tree-grid').forEach(grid => observer.observe(grid));
+    } else window.addEventListener('resize', drawConnections);
     $('#trees').querySelectorAll('.node').forEach(node => {
       const id = node.dataset.id;
       node.addEventListener('mouseenter', () => inspect(id));
@@ -109,6 +112,36 @@
       node.addEventListener('dragend', () => {
         const cancelled = Boolean(talentDrag); clearTalentTransfer(false);
         if (cancelled) status('No points moved.');
+      });
+    });
+  }
+  function drawConnections() {
+    $('#trees').querySelectorAll('.tree-grid').forEach(grid => {
+      const bounds = grid.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      const svg = grid.querySelector('.connections');
+      svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      // Layout offsets ignore the small hover/focus transform on talent icons.
+      const iconBox = id => {
+        const node = grid.querySelector(`[data-id="${id}"]`), orb = node.querySelector('.orb');
+        const x = node.offsetLeft + orb.offsetLeft, y = node.offsetTop + orb.offsetTop;
+        return { left: x, right: x + orb.offsetWidth, top: y, bottom: y + orb.offsetHeight,
+          x: x + orb.offsetWidth / 2, y: y + orb.offsetHeight / 2 };
+      };
+      svg.querySelectorAll('[data-prerequisite]').forEach(path => {
+        const child = calc.byId[path.dataset.prerequisite], parent = calc.byId[child.prerequisite];
+        const from = iconBox(parent.id), to = iconBox(child.id);
+        let route;
+        if (parent.row === child.row) {
+          const right = child.col > parent.col;
+          route = `M ${right ? from.right + 2 : from.left - 2} ${from.y} H ${right ? to.left - 3 : to.right + 3}`;
+        } else {
+          const start = from.bottom + 2, end = to.top - 3;
+          route = parent.col === child.col
+            ? `M ${from.x} ${start} V ${end}`
+            : `M ${from.x} ${start} V ${(start + end) / 2} H ${to.x} V ${end}`;
+        }
+        path.setAttribute('d', route);
       });
     });
   }

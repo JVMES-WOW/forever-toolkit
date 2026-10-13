@@ -544,6 +544,7 @@
             "col": 3,
             "description": "Increases the duration of your Moonfire and Rejuvenation spells by 3 sec, your Regrowth spell by 6 sec, and your Insect Swarm spell by 2 sec.",
             "type": "Passive",
+            "prerequisite": "natures-majesty",
             "icon": "icons/druid/natures-splendor.jpg"
           },
           {
@@ -933,10 +934,10 @@
             "max": 2,
             "row": 5,
             "col": 4,
-            "description": "Increases the critical strike damage bonus of your melee abilities by 10%.",
+            "description": "Increases the critical strike damage bonus of your melee abilities by 10% and increases your spell healing by 12% of your Intellect.",
             "rankDescriptions": [
-              "Increases the critical strike damage bonus of your melee abilities by 10%.",
-              "Increases the critical strike damage bonus of your melee abilities by 20%. Build 70291 adds healing equal to 25% of Intellect at this rank."
+              "Increases the critical strike damage bonus of your melee abilities by 10% and increases your spell healing by 12% of your Intellect.",
+              "Increases the critical strike damage bonus of your melee abilities by 20% and increases your spell healing by 25% of your Intellect."
             ],
             "type": "Passive",
             "icon": "icons/druid/predatory-instincts.jpg"
@@ -1025,13 +1026,13 @@
             "max": 5,
             "row": 1,
             "col": 3,
-            "description": "Gives you a 20% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 20% of the Energy you had when you were last in Cat Form, plus 2 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 20 Energy.",
+            "description": "Gives you a 20% chance to gain 10 Rage when shapeshifting into Bear Form or Dire Bear Form. Shapeshifting into Cat Form restores 20% of the Energy you had when last in Cat Form, plus 2 Energy per sec spent outside Cat Form, up to 20 Energy.\n\nBear Form and Dire Bear Form forfeit this Energy and halt its restoration while active.",
             "rankDescriptions": [
-              "Gives you a 20% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 20% of the Energy you had when you were last in Cat Form, plus 2 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 20 Energy.",
-              "Gives you a 40% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 40% of the Energy you had when you were last in Cat Form, plus 4 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 40 Energy.",
-              "Gives you a 60% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 60% of the Energy you had when you were last in Cat Form, plus 6 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 60 Energy.",
-              "Gives you a 80% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 80% of the Energy you had when you were last in Cat Form, plus 8 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 80 Energy.",
-              "Gives you a 100% chance to gain 10 Rage when you shapeshift into Bear Form or Dire Bear Form. When you shift into Cat Form, you will regain 100% of the Energy you had when you were last in Cat Form, plus 10 Energy for each second you spent not in Bear Form, Cat Form, or Dire Bear Form, up to a maximum of 100 Energy."
+              "Gives you a 20% chance to gain 10 Rage when shapeshifting into Bear Form or Dire Bear Form. Shapeshifting into Cat Form restores 20% of the Energy you had when last in Cat Form, plus 2 Energy per sec spent outside Cat Form, up to 20 Energy.\n\nBear Form and Dire Bear Form forfeit this Energy and halt its restoration while active.",
+              "Gives you a 40% chance to gain 10 Rage when shapeshifting into Bear Form or Dire Bear Form. Shapeshifting into Cat Form restores 40% of the Energy you had when last in Cat Form, plus 4 Energy per sec spent outside Cat Form, up to 40 Energy.\n\nBear Form and Dire Bear Form forfeit this Energy and halt its restoration while active.",
+              "Gives you a 60% chance to gain 10 Rage when shapeshifting into Bear Form or Dire Bear Form. Shapeshifting into Cat Form restores 60% of the Energy you had when last in Cat Form, plus 6 Energy per sec spent outside Cat Form, up to 60 Energy.\n\nBear Form and Dire Bear Form forfeit this Energy and halt its restoration while active.",
+              "Gives you a 80% chance to gain 10 Rage when shapeshifting into Bear Form or Dire Bear Form. Shapeshifting into Cat Form restores 80% of the Energy you had when last in Cat Form, plus 8 Energy per sec spent outside Cat Form, up to 80 Energy.\n\nBear Form and Dire Bear Form forfeit this Energy and halt its restoration while active.",
+              "Gives you a 100% chance to gain 10 Rage when shapeshifting into Bear Form or Dire Bear Form. Shapeshifting into Cat Form restores 100% of the Energy you had when last in Cat Form, plus 10 Energy per sec spent outside Cat Form, up to 100 Energy.\n\nBear Form and Dire Bear Form forfeit this Energy and halt its restoration while active."
             ],
             "type": "Passive",
             "icon": "icons/druid/furor.jpg"
@@ -1590,7 +1591,7 @@
               "Increases the damage done by your pets and hawks by 6%.",
               "Increases the damage done by your pets and hawks by 9%.",
               "Increases the damage done by your pets and hawks by 12%.",
-              "Increases the damage done by your pets and hawks by 15%. Build 70291 changes an internal rank-5 effect from a percentage to a flat modifier. The affected spell-mask behavior is unresolved; this is not confirmation of a flat 20-damage pet bonus."
+              "Increases the damage done by your pets and hawks by 15%."
             ],
             "type": "Passive",
             "icon": "icons/hunter/unleashed-fury.jpg"
@@ -1632,7 +1633,7 @@
             "max": 1,
             "row": 4,
             "col": 4,
-            "description": "Command a hawk to dive-bomb your targeted enemy, dealing 32+($rap*(5/100)) Physical damage and continuing its assault for 18 sec. Only 2 hawks can be active at once. Summon Hawk shares its cooldown with Arcane Shot.",
+            "description": "Command a hawk to dive-bomb your targeted enemy, dealing Physical damage equal to 32 plus 5% of your ranged Attack Power and continuing its assault for 18 sec. Only 2 hawks can be active at once. Summon Hawk shares its cooldown with Arcane Shot.",
             "type": "Active",
             "details": [
               "80 Mana",
@@ -2216,10 +2217,10 @@
             "max": 2,
             "row": 5,
             "col": 2,
-            "description": "Your attacks against targets with Hunter’s Mark have a 5% chance to activate your Mongoose Bite for 5 sec.",
+            "description": "Your attacks against targets with Hunter’s Mark have a 5% chance to activate your Mongoose Bite for 10 sec.",
             "rankDescriptions": [
-              "Your attacks against targets with Hunter’s Mark have a 5% chance to activate your Mongoose Bite for 5 sec.",
-              "Your attacks against targets with Hunter’s Mark have a 10% chance to activate your Mongoose Bite for 5 sec."
+              "Your attacks against targets with Hunter’s Mark have a 5% chance to activate your Mongoose Bite for 10 sec.",
+              "Your attacks against targets with Hunter’s Mark have a 10% chance to activate your Mongoose Bite for 10 sec."
             ],
             "type": "Passive",
             "icon": "icons/hunter/expose-prey.jpg"
@@ -4040,13 +4041,13 @@
             "max": 5,
             "row": 5,
             "col": 3,
-            "description": "Gives you a 8% chance to gain an extra attack after Blocking a melee attack and a 20% chance to gain an extra attack after being the victim of a non-periodic critical strike.",
+            "description": "Gives you a 8% chance to gain an extra attack after Blocking a melee attack and a 20% chance to gain an extra attack after being the victim of a non-periodic critical strike. Cannot occur more often than once every 1.5 sec.",
             "rankDescriptions": [
-              "Gives you a 8% chance to gain an extra attack after Blocking a melee attack and a 20% chance to gain an extra attack after being the victim of a non-periodic critical strike.",
-              "Gives you a 16% chance to gain an extra attack after Blocking a melee attack and a 40% chance to gain an extra attack after being the victim of a non-periodic critical strike.",
-              "Gives you a 24% chance to gain an extra attack after Blocking a melee attack and a 60% chance to gain an extra attack after being the victim of a non-periodic critical strike.",
-              "Gives you a 32% chance to gain an extra attack after Blocking a melee attack and a 80% chance to gain an extra attack after being the victim of a non-periodic critical strike.",
-              "Gives you a 40% chance to gain an extra attack after Blocking a melee attack and a 100% chance to gain an extra attack after being the victim of a non-periodic critical strike."
+              "Gives you a 8% chance to gain an extra attack after Blocking a melee attack and a 20% chance to gain an extra attack after being the victim of a non-periodic critical strike. Cannot occur more often than once every 1.5 sec.",
+              "Gives you a 16% chance to gain an extra attack after Blocking a melee attack and a 40% chance to gain an extra attack after being the victim of a non-periodic critical strike. Cannot occur more often than once every 1.5 sec.",
+              "Gives you a 24% chance to gain an extra attack after Blocking a melee attack and a 60% chance to gain an extra attack after being the victim of a non-periodic critical strike. Cannot occur more often than once every 1.5 sec.",
+              "Gives you a 32% chance to gain an extra attack after Blocking a melee attack and a 80% chance to gain an extra attack after being the victim of a non-periodic critical strike. Cannot occur more often than once every 1.5 sec.",
+              "Gives you a 40% chance to gain an extra attack after Blocking a melee attack and a 100% chance to gain an extra attack after being the victim of a non-periodic critical strike. Cannot occur more often than once every 1.5 sec."
             ],
             "type": "Passive",
             "icon": "icons/paladin/reckoning.jpg"
@@ -4787,10 +4788,10 @@
             "max": 1,
             "row": 5,
             "col": 2,
-            "description": "Launches a volley of holy light at the target, causing 81 Holy damage to an enemy, or 184 healing to an ally, instantly and every 1 sec sec for 2 sec.",
+            "description": "Launches a volley of holy light at the target, causing 42 Holy damage to an enemy, or 126 healing to an ally, instantly and every 1 sec for 2 sec.",
             "type": "Active",
             "details": [
-              "100 Mana",
+              "150 Mana",
               "36 yd range",
               "Instant",
               "12 sec cooldown"
@@ -7320,8 +7321,7 @@
             "description": "The caster is surrounded by 3 globes of water. When a spell, melee, or ranged attack hits the caster or when one of the caster’s healing spells gets a critical result, 2% of maximum mana is restored to the caster, expending one water globe. Only one globe will activate every few seconds. Lasts 10 min.\n\nOnly one Elemental Shield can be active on the Shaman at any one time.",
             "type": "Active",
             "details": [
-              "Instant",
-              "15 sec cooldown"
+              "Instant"
             ],
             "icon": "icons/shaman/water-shield.jpg"
           },
@@ -7365,7 +7365,7 @@
             "max": 1,
             "row": 4,
             "col": 3,
-            "description": "Summons a Mana Tide Totem with 5 health at the feet of the caster for 13 sec-1 sec that restores 88 mana every 3 sec seconds to group members within 30 yards.",
+            "description": "Summons a Mana Tide Totem with 5 health at the feet of the caster for 12 sec that restores 88 mana every 3 seconds to group members within 30 yards.",
             "type": "Active",
             "details": [
               "10 Mana",
@@ -7871,7 +7871,7 @@
             "max": 1,
             "row": 5,
             "col": 2,
-            "description": "Transfers 11 health from the target to the caster every 3 sec sec. Lasts 30 sec.",
+            "description": "Transfers 11 health from the target to the caster every 3 sec. Lasts 30 sec.",
             "type": "Active",
             "details": [
               "150 Mana",
@@ -7918,7 +7918,7 @@
             "max": 1,
             "row": 7,
             "col": 2,
-            "description": "Tears the target apart from within, inflicting 36 Shadow damage every 1 sec sec and increasing the damage they take from your other Shadow damage over time effects by 10% for 6 sec.",
+            "description": "Tears the target apart from within, inflicting 36 Shadow damage every 1 sec and increasing the damage they take from your other Shadow damage over time effects by 10% for 6 sec.",
             "type": "Active",
             "details": [
               "200 Mana",
@@ -8079,7 +8079,7 @@
             "max": 1,
             "row": 3,
             "col": 2,
-            "description": "When activated, sacrifices your summoned Demon to enhance the opposing aspect of your power, granting you an effect that lasts 2 hrs. The effect is canceled if any Demon is summoned.\n\nImp: Increases your Shadow damage by 15%.\n\nVoidwalker: Restores 2% of your total Mana every 4 sec sec.\n\nSuccubus/Incubus: Increases your Fire damage by 15%.\n\nFelhunter: Restores 3% of your total Health every 4 sec sec.",
+            "description": "When activated, sacrifices your summoned Demon to enhance the opposing aspect of your power, granting you an effect that lasts 2 hrs. The effect is canceled if any Demon is summoned.\n\nImp: Increases your Shadow damage by 15%.\n\nVoidwalker: Restores 2% of your total Mana every 4 sec.\n\nSuccubus/Incubus: Increases your Fire damage by 15%.\n\nFelhunter: Restores 3% of your total Health every 4 sec.",
             "type": "Active",
             "details": [
               "100 yd range",
@@ -8136,11 +8136,11 @@
             "max": 3,
             "row": 4,
             "col": 4,
-            "description": "Your Searing Pain generates 17% less threat and brands the target for 10 sec. Your pet’s next 2 attacks against the target generate high threat and deal 65 to 68 Fire or Shadow damage based on the pet.",
+            "description": "Your Searing Pain generates 17% less threat and brands the target for 10 sec. Your pet’s next 2 attacks against the target deal 65 to 68 Fire or Shadow damage based on the pet. If Shadow damage is dealt, it has high threat.",
             "rankDescriptions": [
-              "Your Searing Pain generates 17% less threat and brands the target for 10 sec. Your pet’s next 2 attacks against the target generate high threat and deal 65 to 68 Fire or Shadow damage based on the pet.",
-              "Your Searing Pain generates 33% less threat and brands the target for 10 sec. Your pet’s next 4 attacks against the target generate high threat and deal 65 to 68 Fire or Shadow damage based on the pet.",
-              "Your Searing Pain generates 50% less threat and brands the target for 10 sec. Your pet’s next 6 attacks against the target generate high threat and deal 65 to 68 Fire or Shadow damage based on the pet."
+              "Your Searing Pain generates 17% less threat and brands the target for 10 sec. Your pet’s next 2 attacks against the target deal 65 to 68 Fire or Shadow damage based on the pet. If Shadow damage is dealt, it has high threat.",
+              "Your Searing Pain generates 33% less threat and brands the target for 10 sec. Your pet’s next 4 attacks against the target deal 65 to 68 Fire or Shadow damage based on the pet. If Shadow damage is dealt, it has high threat.",
+              "Your Searing Pain generates 50% less threat and brands the target for 10 sec. Your pet’s next 6 attacks against the target deal 65 to 68 Fire or Shadow damage based on the pet. If Shadow damage is dealt, it has high threat."
             ],
             "type": "Passive",
             "icon": "icons/warlock/demonic-brand.jpg"
@@ -8841,7 +8841,7 @@
             "max": 1,
             "row": 4,
             "col": 1,
-            "description": "A brutal attack that deals 40% weapon damage, plus an additional 80% weapon damage against Giants, Dragonkin, and mounted targets.",
+            "description": "A brutal attack that deals 40% weapon damage. Deals an additional 80% weapon damage against Giants, Dragonkin, and mounted targets. Mounted targets are dismounted.",
             "type": "Active",
             "details": [
               "15 Rage",
@@ -8878,6 +8878,7 @@
               "Increases the critical strike damage bonus of your abilities by 20%."
             ],
             "type": "Passive",
+            "prerequisite": "deep-wounds",
             "icon": "icons/warrior/impale.jpg"
           },
           {

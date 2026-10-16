@@ -108,8 +108,8 @@
       const div = node('div'); div.append(node('dt', '', label), node('dd', '', value)); return div;
     }));
     $('spell-description').textContent = rank.description;
-    $('spell-id').textContent = `#${rank.id}`;
-    $('source-build').textContent = rank.dataBuild ? `Build ${rank.dataBuild} · reviewed changes` : `Wowhead Forever · ${book().build} · ${data.checked}`;
+    $('spell-id').textContent = rank.patchNote ? 'Spell ID pending' : `#${rank.id}`;
+    $('source-build').textContent = rank.patchNote ? `October 15 development notes · ${data.checked}` : (rank.dataBuild ? `Build ${rank.dataBuild} · reviewed changes` : `Wowhead Forever · ${book().build} · ${data.checked}`);
     $('source-note').textContent = [rank.buildNote, data.note].filter(Boolean).join('\n');
     $('talent-link').href = `talents.html?class=${state.classId}`;
   }

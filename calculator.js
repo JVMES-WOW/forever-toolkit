@@ -84,9 +84,30 @@
         return [id, Number(rank)];
       });
       if (new Set(entries.map(([id]) => id)).size !== entries.length) throw invalid();
-      const points = Object.fromEntries(entries);
+      const points = {}, refunded = [];
+      for (const [id, rank] of entries) {
+        const talent = byId[id];
+        if (!talent) { refunded.push({ name: id.replaceAll('-', ' '), rank }); continue; }
+        points[id] = Math.min(rank, talent.max);
+        if (rank > talent.max) refunded.push({ name: talent.name, rank: rank - talent.max });
+      }
+      let changed;
+      do {
+        changed = false;
+        for (const talent of talents) {
+          if (points[talent.id] && requirements(points, talent, rules)) {
+            refunded.push({ name: talent.name, rank: points[talent.id] });
+            delete points[talent.id];
+            changed = true;
+          }
+        }
+      } while (changed);
       const error = validate(points, rules);
       if (error) throw new Error(error);
+      if (refunded.length) {
+        const count = refunded.reduce((sum, item) => sum + item.rank, 0);
+        return { points, rules, notice: `Talent trees changed: ${count} point${count === 1 ? '' : 's'} refunded from removed talents, reduced ranks, or unmet requirements (${refunded.map(item => item.name).join(', ')}).` };
+      }
       return { points, rules };
     }
     const match = /^FF([23])\.(\d{1,3})\.([01])\.([0-5]+)$/.exec(code.trim());

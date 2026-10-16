@@ -368,7 +368,7 @@
         if (!activeRecipients.length) continue;
         const conflict = analysis.conflicts[groupIndex].some(entry => entry.buffIds.includes(item.buffId));
         const button = document.createElement('button'); button.className = `buff-chip${selectedBuff === item.buffId ? ' selected' : ''}${conflict ? ' conflict' : ''}`;
-        button.title = `${buff.name}: ${activeRecipients.length} of ${occupied} players${conflict ? ' · choice needed' : ''}`;
+        button.title = `${buff.name}: ${activeRecipients.length} of ${occupied} players${conflict ? ' · choice needed' : ''}${buff.note ? ` · ${buff.note}` : ''}`;
         button.innerHTML = `<img class="effect-icon" src="${buff.icon}" alt=""><span>${activeRecipients.length}/${occupied}</span>`;
         button.onclick = () => { selectedBuff = selectedBuff === item.buffId ? null : item.buffId; detailMode = 'overview'; render(); };
         buffRoot.append(button);
@@ -491,7 +491,7 @@
       const heading = document.createElement('b'); heading.textContent = buff.name;
       const campText = camp.camps.length ? `Camp: ${camp.camps.map(item => item.name).join(', ')} covers ${camp.recipients.length}/${camp.eligibleRecipients.length} eligible players party-wide` : '';
       const sourceText = sources.length ? `${detailedProviders(buff, sources)}${campText ? ` · ${campText}` : ''}` : (campText || 'None');
-      note.append(heading, document.createElement('br'), document.createTextNode(`Providers: ${sourceText}`)); root.append(note);
+      note.append(heading, document.createElement('br'), document.createTextNode(buff.note || ''), document.createElement('br'), document.createTextNode(`Providers: ${sourceText}`)); root.append(note);
     }
     return root;
   }

@@ -9,7 +9,7 @@
   const exclusiveKeys = buff => Array.isArray(buff.exclusive) ? buff.exclusive : (buff.exclusive ? [buff.exclusive] : []);
   function analyze(groups, data, options = {}) {
     const players = groups.flat().filter(Boolean);
-    const blessingIds = data.blessingIds || ['kings','might','wisdom','salvation'];
+    const blessingIds = data.blessingIds || ['kings','might','wisdom'];
     const campById = Object.fromEntries((data.campBuffs || []).map(camp => [camp.id, camp]));
     const playerCampBuffs = new Map(players.map(player => {
       const ids = options.campAssignments?.[player.uid] || player.campBuffs || [];
@@ -209,7 +209,9 @@
       return [{ ...recommendation, effects, coveredBy, providers: providerList, iconEffect: defaultEffect, displayEffect, displayName: displayVariant?.name || displayBuff.name, displayIcon: displayVariant?.icon || displayBuff.icon, choiceOptions: effects.length > 1 ? effectChoices : providerChoices, selectedChoice: effects.length > 1 ? displayEffect : displayProviderClass, requestedChoice: requestedChoice || null }];
     });
     const missing = {
-      raid: data.recommended.raid.filter(id => active(data.buffs[id]) && !providers[id]?.length && !campCoverageSummary[id].complete),
+      raid: data.recommended.raid.filter(id => active(data.buffs[id])
+        && players.some(player => eligible(data.buffs[id], player))
+        && !providers[id]?.length && !campCoverageSummary[id].complete),
       boss: bossChecklist.filter(item => !item.coveredBy.length).map(item => item.id)
     };
     return { players, providers, groupCoverage, groupGaps, groupOptionalEffects, groupChoiceOptions, groupChoices: normalizedGroupChoices, selectedCampBuffs, playerCampBuffs, campCoverage, campCoverageSummary, playerCoverage, blessingPriorities, blessingAssignments, blessingCounts, paladinCount, conflicts, globalConflicts, assignmentConflicts, conflictIds, bossChecklist, missing };

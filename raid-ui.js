@@ -26,10 +26,10 @@
   const roleLabel = spec => spec.roleLabel || defaultRoleLabels[spec.role] || spec.role;
   const scopeLabel = scope => ({ party: 'Party buff', raid: 'Raid buff', boss: 'Boss debuff' })[scope] || 'Effect';
   const playerLabel = player => player.customName || player.name;
-  const defaultBlessingPriority = spec => spec.role === 'healer' ? ['kings','wisdom','salvation','might']
-    : (spec.role === 'tank' || spec.id === 'druid:feral') ? ['kings','might','wisdom','salvation']
-      : spec.tags.includes('melee') ? ['salvation','kings','might','wisdom']
-        : ['salvation','kings','wisdom','might'];
+  const defaultBlessingPriority = spec => spec.role === 'healer' ? ['kings','wisdom','might']
+    : (spec.role === 'tank' || spec.id === 'druid:feral') ? ['kings','might','wisdom']
+      : spec.tags.includes('melee') ? ['kings','might','wisdom']
+        : ['kings','wisdom','might'];
   const makePlayer = specId => ({ ...bySpec[specId], uid: `p${Date.now().toString(36)}-${nextUid++}`, campBuffs: [], blessingPriority: defaultBlessingPriority(bySpec[specId]) });
   const blankGroups = size => Array.from({ length: size / data.groupSize }, () => Array(data.groupSize).fill(null));
   const exclusiveKeys = buff => Array.isArray(buff?.exclusive) ? buff.exclusive : (buff?.exclusive ? [buff.exclusive] : []);
@@ -391,18 +391,19 @@
   }
   function coverageRow(buffId, analysis, options = {}) {
     const buff = data.buffs[buffId], providerList = analysis.providers[buffId] || [];
+    const relevant = analysis.players.some(player => engine.eligible(buff, player));
     const camp = analysis.campCoverageSummary[buffId];
     const blessingCount = Object.hasOwn(analysis.blessingCounts || {}, buffId) ? analysis.blessingCounts[buffId] : null;
     const blessingTotal = blessingCount == null ? 0 : analysis.players.filter(player => engine.eligible(buff, player)).length;
     const preferredCamp = camp.preferredComplete && camp.camps.find(item => item.preferCamp);
     const campFallback = !providerList.length && camp.complete ? camp.camps[0] : null;
-    const covered = blessingCount == null ? (providerList.length || camp.complete) : blessingCount > 0;
+    const covered = !relevant || (blessingCount == null ? (providerList.length || camp.complete) : blessingCount > 0);
     const variant = providerVariant(buff, options.provider);
     const button = document.createElement('button');
     const conflicted = analysis.conflictIds.has(buffId);
     const blessingPartial = blessingCount != null && blessingCount > 0 && blessingCount < blessingTotal;
     button.className = `coverage-row ${buff.status !== 'confirmed' ? 'provisional' : ''}${!covered ? ' missing' : ''}${blessingPartial ? ' partial' : ''}${preferredCamp || campFallback ? ' camp-covered' : ''}${conflicted ? ' conflict' : ''}${selectedBuff === buffId ? ' selected' : ''}`;
-    const defaultState = preferredCamp
+    const defaultState = !relevant ? 'No eligible players' : preferredCamp
       ? `Replaces ${buff.name} · party-wide`
       : (providerList.length
         ? `${providerList.length} provider${providerList.length === 1 ? '' : 's'}${conflicted ? ' · choice needed' : ''}`
@@ -410,7 +411,7 @@
           ? `Weaker ${buff.name} substitute · party-wide`
           : (camp.recipients.length ? `Camp assigned to ${camp.recipients.length}/${camp.eligibleRecipients.length} · still needed` : 'Missing')));
     const state = blessingCount != null && !options.state ? `${blessingCount} of ${blessingTotal} eligible players` : (preferredCamp || campFallback ? defaultState : (options.state || defaultState));
-    const marker = !covered ? (camp.recipients.length ? '⚠' : '×') : (blessingPartial ? '≈' : (preferredCamp || campFallback ? '≈' : (conflicted ? '⚠' : '✓')));
+    const marker = !relevant ? '–' : (!covered ? (camp.recipients.length ? '⚠' : '×') : (blessingPartial ? '≈' : (preferredCamp || campFallback ? '≈' : (conflicted ? '⚠' : '✓'))));
     const icon = document.createElement('span'); icon.className = 'coverage-icon';
     const image = document.createElement('img'); image.src = variant?.icon || buff.icon; image.alt = ''; icon.append(image);
     const copy = document.createElement('span'); copy.className = 'coverage-copy';
@@ -440,7 +441,9 @@
   function overview(analysis) {
     const root = document.createElement('div'); root.className = 'coverage-body'; root.innerHTML = `<h2>Buffs & debuffs</h2><p>${analysis.players.length} of ${raidSize} roster spots filled</p>`;
     const raid = document.createElement('section'); raid.className = 'coverage-section'; raid.innerHTML = '<h3>BUFFS</h3>';
-    for (const id of data.recommended.raid) raid.append(coverageRow(id, analysis));
+    for (const id of data.recommended.raid) {
+      if (analysis.players.some(player => engine.eligible(data.buffs[id], player))) raid.append(coverageRow(id, analysis));
+    }
     root.append(raid);
     const boss = document.createElement('section'); boss.className = 'coverage-section'; boss.innerHTML = '<h3>DEBUFFS</h3>';
     for (const item of analysis.bossChecklist) {

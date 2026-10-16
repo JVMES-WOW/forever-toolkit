@@ -25,6 +25,7 @@
     const specIds = new Set(data.specs.map(spec => spec.id));
     const campIds = new Set((data.campBuffs || []).map(camp => camp.id));
     const blessingIds = data.blessingIds || [];
+    const legacyBlessingIds = data.legacyBlessingIds || [];
     const groupChoiceLabels = data.groupChoiceLabels || {};
     const groups = input.groups.map(group => {
       if (!Array.isArray(group) || group.length !== data.groupSize) throw new Error('Invalid raid group.');
@@ -38,9 +39,11 @@
         if (player.campBuffs !== undefined && !Array.isArray(player.campBuffs)) throw new Error('Invalid camp buffs.');
         const campBuffs = input.raidSize === 5 ? [...new Set(player.campBuffs || [])].slice(0, 1) : [];
         if (campBuffs.some(id => !campIds.has(id))) throw new Error('Unknown camp buff.');
-        if (player.blessingPriority !== undefined && (!Array.isArray(player.blessingPriority) || player.blessingPriority.length !== blessingIds.length
-          || new Set(player.blessingPriority).size !== blessingIds.length || player.blessingPriority.some(id => !blessingIds.includes(id)))) throw new Error('Invalid blessing priority.');
-        const blessingPriority = player.blessingPriority ? [...player.blessingPriority] : null;
+        if (player.blessingPriority !== undefined && (!Array.isArray(player.blessingPriority)
+          || new Set(player.blessingPriority).size !== player.blessingPriority.length
+          || player.blessingPriority.some(id => !blessingIds.includes(id) && !legacyBlessingIds.includes(id)))) throw new Error('Invalid blessing priority.');
+        const blessingPriority = player.blessingPriority ? player.blessingPriority.filter(id => blessingIds.includes(id)) : null;
+        if (blessingPriority && blessingPriority.length !== blessingIds.length) throw new Error('Invalid blessing priority.');
         if (blessingPriority) return [specId, name, campBuffs, blessingPriority];
         if (campBuffs.length) return [specId, name, campBuffs];
         return name ? [specId, name] : [specId];

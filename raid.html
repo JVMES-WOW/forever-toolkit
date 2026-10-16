@@ -18,6 +18,26 @@
     .groups.single-group .group-buffs{padding-top:12px;gap:7px}
     .groups.single-group .buff-chip{padding:6px 8px;font-size:10px}
     .groups.single-group .effect-icon{width:20px;height:20px}
+    body.toolkit-raid .slot.class-color-bar{--class-bar:color-mix(in srgb,var(--class) 68%,#10151d);--class-control:color-mix(in srgb,var(--class) 28%,#0b1119);--class-control-top:color-mix(in srgb,var(--class) 42%,#18212d);--class-control-border:color-mix(in srgb,var(--class) 64%,#dce5ef);position:relative;isolation:isolate;overflow:hidden;border-color:color-mix(in srgb,var(--class) 78%,white 8%);background:linear-gradient(180deg,#ffffff1a 0,#ffffff06 18%,transparent 38%,#00000020 100%),repeating-linear-gradient(102deg,transparent 0 6px,#ffffff08 7px,transparent 9px),linear-gradient(90deg,var(--class-bar),color-mix(in srgb,var(--class) 48%,#10151d));box-shadow:inset 4px 0 var(--class),inset 0 1px #ffffff38,inset 0 -2px #00000055,0 1px 2px #0008;color:var(--class-ink)}
+    .slot.class-color-bar>*{position:relative;z-index:2}
+    .slot.class-color-bar::after{content:"";position:absolute;z-index:1;inset:3px;pointer-events:none;background:radial-gradient(circle at 2px 2px,#e9dcb8 0 1px,#171c22 1.5px 2.5px,transparent 3px),radial-gradient(circle at calc(100% - 2px) 2px,#e9dcb8 0 1px,#171c22 1.5px 2.5px,transparent 3px),radial-gradient(circle at 2px calc(100% - 2px),#8f8061 0 1px,#171c22 1.5px 2.5px,transparent 3px),radial-gradient(circle at calc(100% - 2px) calc(100% - 2px),#8f8061 0 1px,#171c22 1.5px 2.5px,transparent 3px);opacity:.62}
+    .slot.class-color-bar .player-info b{color:var(--class-ink);text-shadow:none}
+    .slot.class-color-bar .player-info small{color:color-mix(in srgb,var(--class-ink) 78%,transparent);text-shadow:none}
+    .slot.class-color-bar .player-mark{width:31px;height:31px;border:1px solid var(--class-control-border);outline:3px solid #111820;background:#10151d;box-shadow:inset 0 1px #ffffff45,0 2px 5px #000d;position:relative;z-index:3}
+    .slot.class-color-bar .camp-player{color:#f5f8fb;background:linear-gradient(180deg,var(--class-control-top),var(--class-control));border-color:var(--class-control-border);box-shadow:inset 0 1px #ffffff18,0 1px 2px #0007}
+    .slot.class-color-bar .camp-player :is(b,small){color:#f5f8fb}
+    .slot.class-color-bar .blessing-player{color:#f5f8fbd9;background:#0b111954;border-color:#ffffff30;box-shadow:none;opacity:.82}
+    .slot.class-color-bar .blessing-player :is(b,small){color:#f5f8fbd9}
+    .slot.class-color-bar :is(.rename-player,.remove-player){color:#f5f8fbc2;background:transparent;border:1px solid transparent;border-radius:4px;margin-left:2px;box-shadow:none;opacity:.62}
+    .slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player):hover,.slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player):focus-visible{filter:brightness(1.14);opacity:1}
+    .slot.class-color-bar :is(.rename-player,.remove-player):hover,.slot.class-color-bar :is(.rename-player,.remove-player):focus-visible{background:#0b111970;border-color:#ffffff38}
+    .slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player):active{filter:brightness(.92);box-shadow:inset 0 2px 4px #000a}
+    body.toolkit-raid .slot.class-color-bar.drag-over{outline:2px solid #e8c468;outline-offset:1px;background:linear-gradient(180deg,#ffffff26,transparent 45%,#00000018),linear-gradient(90deg,var(--class-bar),color-mix(in srgb,var(--class) 48%,#10151d))}
+    body.toolkit-raid .slot.class-color-bar.highlight-provider{outline:2px solid #e7b955;outline-offset:1px;box-shadow:inset 4px 0 var(--class),inset 0 1px #ffffff38,inset 0 -2px #00000055,0 0 14px #e7b95555}
+    body.toolkit-raid .slot.class-color-bar.highlight-recipient{border-right:4px solid #78aee8}
+    .slot.class-color-bar .player-card.selected .player-mark{outline-color:#f4d98d;box-shadow:inset 0 1px #ffffff45,0 0 0 1px #8f6b27,0 2px 7px #000d}
+    @media(prefers-reduced-motion:reduce){.slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player){transition:none}}
+    @media(prefers-contrast:more){body.toolkit-raid .slot.class-color-bar{border:2px solid var(--class);background:#10151d;color:#fff;box-shadow:none}.slot.class-color-bar::after{display:none}.slot.class-color-bar .player-info :is(b,small){color:#fff}.slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player){color:#fff;background:#10151d;border:2px solid var(--class);box-shadow:none;opacity:1}}
     .camp-panel{margin-top:14px;border-top:1px solid #ffffff12;padding-top:12px}
     .camp-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
     .camp-head h4{margin:0;color:#e7d5a0;font:600 13px Georgia,serif}

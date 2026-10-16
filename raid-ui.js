@@ -26,6 +26,12 @@
   const roleLabel = spec => spec.roleLabel || defaultRoleLabels[spec.role] || spec.role;
   const scopeLabel = scope => ({ party: 'Party buff', raid: 'Raid buff', boss: 'Boss debuff' })[scope] || 'Effect';
   const playerLabel = player => player.customName || player.name;
+  const classBarTheme = color => {
+    const channels = color.match(/[a-f\d]{2}/gi)?.map(value => parseInt(value, 16) / 255) || [0, 0, 0];
+    const linear = channels.map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+    const light = .2126 * linear[0] + .7152 * linear[1] + .0722 * linear[2] > .43;
+    return light ? { ink: '#111820' } : { ink: '#ffffff' };
+  };
   const defaultBlessingPriority = spec => spec.role === 'healer' ? ['kings','wisdom','might']
     : (spec.role === 'tank' || spec.id === 'druid:feral') ? ['kings','might','wisdom']
       : spec.tags.includes('melee') ? ['kings','might','wisdom']
@@ -286,6 +292,10 @@
         slot.ondrop = event => { event.preventDefault(); slot.classList.remove('drag-over'); if (dragPayload) place(dragPayload, groupIndex, slotIndex); dragPayload = null; };
         if (!player) slot.textContent = 'Empty';
         else {
+          slot.classList.add('class-color-bar');
+          slot.style.setProperty('--class', player.color);
+          const classTheme = classBarTheme(player.color);
+          slot.style.setProperty('--class-ink', classTheme.ink);
           const isProvider = selectedProviders.has(player.uid), isRecipient = recipients.has(player.uid);
           if (selectedBuff && !isProvider && !isRecipient) slot.classList.add('highlight-dim');
           if (isProvider) slot.classList.add('highlight-provider');
@@ -320,12 +330,14 @@
             campButton.onclick = event => { event.stopPropagation(); editingCampPlayer = player.uid; renderCampDialog(); $('#camp-buff-dialog').showModal(); };
             const blessingButton = document.createElement('button'); blessingButton.className = 'blessing-player';
             const assignedBlessings = analysis.blessingAssignments.get(player.uid) || [];
+            const desiredBlessings = (analysis.blessingPriorities.get(player.uid) || data.blessingIds).filter(id => engine.eligible(data.buffs[id], player));
+            const blessingsComplete = desiredBlessings.length > 0 && desiredBlessings.every(id => assignedBlessings.includes(id));
             blessingButton.title = `Blessing priority for ${playerLabel(player)}`; blessingButton.setAttribute('aria-label', blessingButton.title);
             blessingButton.innerHTML = `<span aria-hidden="true">✦</span><span><small>BLESSINGS</small><b>${assignedBlessings.length} assigned</b></span>`;
             blessingButton.onclick = event => { event.stopPropagation(); editingBlessingPlayer = player.uid; renderBlessingDialog(); $('#blessing-priority-dialog').showModal(); };
             const remove = document.createElement('button'); remove.className = 'remove-player'; remove.title = `Remove ${playerLabel(player)}`; remove.setAttribute('aria-label', remove.title); remove.textContent = '×';
             remove.onclick = event => { event.stopPropagation(); groups[groupIndex][slotIndex] = null; if (selectedPlayer === player.uid) { selectedPlayer = null; detailMode = 'overview'; } if (editingPlayer === player.uid) editingPlayer = null; save(); render(); };
-            slot.append(playerButton, ...(raidSize === 5 ? [campButton] : []), blessingButton, rename, remove);
+            slot.append(playerButton, ...(raidSize === 5 ? [campButton] : []), ...(blessingsComplete ? [] : [blessingButton]), rename, remove);
           }
         }
         card.append(slot);

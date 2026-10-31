@@ -79,15 +79,19 @@
     if (current) {
       if (current[1] !== data.gameClass) throw invalid();
       const rules = { budget: Number(current[2]), gates: Number(current[3]) === 1 };
+      const aliases = {
+        'improved-fireball': 'accelerant',
+        'elemental-precision': 'precision'
+      };
       const entries = current[4] === '-' ? [] : current[4].split(',').map(entry => {
         const [id, rank] = entry.split(':');
-        return [id, Number(rank)];
+        return [aliases[id] || id, Number(rank), id];
       });
-      if (new Set(entries.map(([id]) => id)).size !== entries.length) throw invalid();
+      if (new Set(entries.map(([id]) => id)).size !== entries.length || new Set(entries.map(([, , oldId]) => oldId)).size !== entries.length) throw invalid();
       const points = {}, refunded = [];
-      for (const [id, rank] of entries) {
+      for (const [id, rank, oldId] of entries) {
         const talent = byId[id];
-        if (!talent) { refunded.push({ name: id.replaceAll('-', ' '), rank }); continue; }
+        if (!talent) { refunded.push({ name: oldId.replaceAll('-', ' '), rank }); continue; }
         points[id] = Math.min(rank, talent.max);
         if (rank > talent.max) refunded.push({ name: talent.name, rank: rank - talent.max });
       }
@@ -136,7 +140,12 @@
       delete oldPoints['king-of-the-jungle'];
       notices.push('King of the Jungle points were moved into the Shifting Power branch.');
     }
-    const aliases = { 'hot-streak': 'heating-up', 'soul-harvesting': 'soul-harvest' };
+    const aliases = {
+      'hot-streak': 'heating-up',
+      'soul-harvesting': 'soul-harvest',
+      'improved-fireball': 'accelerant',
+      'elemental-precision': 'precision'
+    };
     const points = {};
     for (const [oldId, rank] of Object.entries(oldPoints)) {
       if (!rank) continue;

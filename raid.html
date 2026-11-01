@@ -26,10 +26,12 @@
     .slot.class-color-bar .player-mark{width:31px;height:31px;border:1px solid var(--class-control-border);outline:3px solid #111820;background:#10151d;box-shadow:inset 0 1px #ffffff45,0 2px 5px #000d;position:relative;z-index:3}
     .slot.class-color-bar .camp-player{color:#f5f8fb;background:linear-gradient(180deg,var(--class-control-top),var(--class-control));border-color:var(--class-control-border);box-shadow:inset 0 1px #ffffff18,0 1px 2px #0007}
     .slot.class-color-bar .camp-player :is(b,small){color:#f5f8fb}
-    .slot.class-color-bar .blessing-player{color:#f5f8fbd9;background:#0b111954;border-color:#ffffff30;box-shadow:none;opacity:.82}
-    .slot.class-color-bar .blessing-player :is(b,small){color:#f5f8fbd9}
+    .slot.class-color-bar .blessing-player{width:28px;height:28px;flex:0 0 28px;justify-content:center;color:#f5f8fbd9;background:transparent;border-color:transparent;box-shadow:none;opacity:.28;padding:0;overflow:hidden}
+    .slot.class-color-bar .blessing-player>span:first-child{font-size:14px}
+    .slot.class-color-bar .blessing-player>span:last-child{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
     .slot.class-color-bar :is(.rename-player,.remove-player){color:#f5f8fbc2;background:transparent;border:1px solid transparent;border-radius:4px;margin-left:2px;box-shadow:none;opacity:.62}
-    .slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player):hover,.slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player):focus-visible{filter:brightness(1.14);opacity:1}
+    .slot.class-color-bar:hover .blessing-player,.slot.class-color-bar:focus-within .blessing-player,.slot.class-color-bar .blessing-player:hover,.slot.class-color-bar .blessing-player:focus-visible{filter:brightness(1.14);opacity:1;background:#0b111954;border-color:#ffffff30}
+    .slot.class-color-bar :is(.rename-player,.remove-player,.camp-player):hover,.slot.class-color-bar :is(.rename-player,.remove-player,.camp-player):focus-visible{filter:brightness(1.14);opacity:1}
     .slot.class-color-bar :is(.rename-player,.remove-player):hover,.slot.class-color-bar :is(.rename-player,.remove-player):focus-visible{background:#0b111970;border-color:#ffffff38}
     .slot.class-color-bar :is(.rename-player,.remove-player,.blessing-player,.camp-player):active{filter:brightness(.92);box-shadow:inset 0 2px 4px #000a}
     body.toolkit-raid .slot.class-color-bar.drag-over{outline:2px solid #e8c468;outline-offset:1px;background:linear-gradient(180deg,#ffffff26,transparent 45%,#00000018),linear-gradient(90deg,var(--class-bar),color-mix(in srgb,var(--class) 48%,#10151d))}
@@ -182,6 +184,6 @@
   <dialog id="camp-buff-dialog"><div class="dialog-head"><h2 id="camp-buff-title">Camp buff</h2><button class="ghost" id="close-camp-buffs" aria-label="Close camp buff selector">×</button></div><p>Choose one profession camp buff for this character to provide to the entire party. Full-strength class buffs remain preferred unless a camp buff frees a Blessing or totem choice.</p><div id="camp-assignment-options" class="camp-assignment-options"></div></dialog>
   <dialog id="blessing-priority-dialog"><div class="dialog-head"><h2 id="blessing-priority-title">Blessing priority</h2><button class="ghost" id="close-blessing-priority" aria-label="Close Blessing priority">×</button></div><p id="blessing-priority-summary"></p><p class="sr-only">Drag the Blessings or use the arrow buttons to change their priority.</p><div id="blessing-priority-options" class="blessing-priority-options"></div></dialog>
   <dialog id="raid-share-dialog"><div class="dialog-head"><h2>Share Raid</h2><button class="ghost" id="close-raid-share" aria-label="Close raid sharing">×</button></div><p id="raid-share-note"></p><label for="raid-link">Raid Link</label><input id="raid-link" type="url" readonly spellcheck="false"><div class="dialog-actions"><button id="copy-raid-link">Copy Link</button></div><p id="raid-share-status" role="status" aria-live="polite"></p></dialog>
-  <script src="raid-data.js?v=20261016"></script><script src="raid-engine.js"></script><script src="raid-state.js"></script><script src="raid-ui.js?v=20261016"></script>
+  <script src="raid-data.js?v=20261101"></script><script src="raid-engine.js"></script><script src="raid-state.js"></script><script src="raid-ui.js?v=20261101"></script>
 </body>
 </html>

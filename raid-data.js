@@ -13,10 +13,11 @@
     kings: { name: 'Blessing of Kings', scope: 'raid', helps: 'all', status: 'confirmed', providerExclusive: 'paladin-blessing', note: 'Baseline in Forever. One Blessing from each Paladin can be active on a recipient, so multiple Paladins are needed to stack Kings with other Blessings on the same player.', evidence: 'https://www.wowhead.com/forever/spell=20217/blessing-of-kings' },
     might: { name: 'Blessing of Might', scope: 'raid', helps: 'melee', status: 'confirmed', providerExclusive: 'paladin-blessing', note: 'Melee attack power. One Blessing from each Paladin can be active on a recipient.', evidence: 'https://www.wowhead.com/forever/spell=19740/blessing-of-might' },
     wisdom: { name: 'Blessing of Wisdom', scope: 'raid', helps: 'manaRegen', status: 'confirmed', providerExclusive: 'paladin-blessing', note: 'Mana regeneration. Feral Druids now benefit because Shifting Power makes mana regeneration useful to them. One Blessing from each Paladin can be active on a recipient.', evidence: 'https://www.wowhead.com/forever/spell=19742/blessing-of-wisdom' },
-    salvation: { name: 'Salvation', scope: 'raid', helps: 'nonTank', status: 'confirmed', note: 'Paladins can apply single-target Salvation or class-wide Mass Salvation. The planner models broad non-tank coverage; Revoke removes Salvation or Mass Salvation from a chosen raid member, so tanks are excluded. This effect is independent of the three Blessing assignments.', evidence: 'https://www.wowhead.com/forever/spell=25895/mass-salvation', relatedEvidence: ['https://www.wowhead.com/forever/spell=1038/salvation', 'https://www.wowhead.com/forever/spell=1325499/revoke'] },
     battleShout: { name: 'Battle Shout', scope: 'raid', helps: 'melee', status: 'confirmed', note: 'Baseline Warrior raid-wide melee attack power buff.', evidence: 'https://www.wowhead.com/forever/spell=6192/battle-shout' },
-    moonkin: { name: 'Moonkin Aura', scope: 'raid', helps: 'spell', status: 'confirmed', note: 'Balance talent. Now increases only Spell Critical Strike chance and applies raid-wide.', evidence: 'https://www.wowhead.com/forever/spell=24858/moonkin-form' },
-    leader: { name: 'Leader of the Pack', scope: 'raid', helps: 'physical', status: 'confirmed', note: 'Feral talent. Now increases only Melee and Ranged Critical Strike chance and applies raid-wide.', evidence: 'https://www.wowhead.com/forever/spell=17007/leader-of-the-pack' },
+    moonkin: { name: 'Critical Strike Aura', scope: 'raid', helps: 'all', status: 'confirmed', note: 'Moonkin Aura and Leader of the Pack now provide the same raid-wide 3% Critical Strike chance to every recipient. Either talent satisfies this coverage requirement.', evidence: 'https://www.wowhead.com/forever/spell=24858/moonkin-form', providerVariants: {
+      'druid:balance': { name: 'Moonkin Aura', icon: 'effect-icons/moonkin.jpg', detail: 'Balance talent; increases Critical Strike chance for all nearby party or raid members.' },
+      'druid:feral': { name: 'Leader of the Pack', icon: 'effect-icons/leader.jpg', detail: 'Feral talent; increases Critical Strike chance for all nearby party or raid members.' }
+    } },
     trueshot: { name: 'Trueshot Aura', scope: 'raid', helps: 'rangedPhysical', status: 'confirmed', note: 'Forever trains this Hunter aura at level 32; it is not Marksmanship-only and now applies raid-wide.', evidence: 'https://www.wowhead.com/forever/spell=1299348/trueshot-aura' },
     vampiric: { name: 'Vampiric Embrace', scope: 'party', helps: 'all', status: 'confirmed', note: 'Shadow talent and 30-second effect on a 1-minute cooldown. Shadow damage heals the Priest’s party; this is not an always-on stat buff.', evidence: 'https://www.wowhead.com/forever/spell=15286/vampiric-embrace' },
     windfury: { name: 'Windfury Totem', scope: 'raid', helps: 'melee', status: 'confirmed', exclusive: ['weapon-totem'], note: 'Raid-wide Shaman weapon enhancement. It remains mutually exclusive with Flametongue Totem, but no longer competes with Grace of Air.', evidence: 'https://www.wowhead.com/forever/spell=8512/windfury-totem' },
@@ -49,14 +50,14 @@
 
   const classes = [
     ['warrior', 'Warrior', '#c79c6e', [['arms','Arms','damage',['battleShout','sunder','attackPowerReduction','thunderClap']],['fury','Fury','damage',['battleShout','sunder','attackPowerReduction','thunderClap']],['protection','Protection','tank',['battleShout','sunder','attackPowerReduction','thunderClap']]]],
-    ['paladin', 'Paladin', '#f58cba', [['holy','Holy','healer',['kings','might','wisdom','salvation']],['protection','Protection','tank',['kings','might','wisdom','salvation','attackPowerReduction']],['retribution','Retribution','damage',['kings','might','wisdom','salvation','attackPowerReduction']]]],
+    ['paladin', 'Paladin', '#f58cba', [['holy','Holy','healer',['kings','might','wisdom']],['protection','Protection','tank',['kings','might','wisdom','attackPowerReduction']],['retribution','Retribution','damage',['kings','might','wisdom','attackPowerReduction']]]],
     ['hunter', 'Hunter', '#abd473', [['beast-mastery','Beast Mastery','damage',['huntersMark','trueshot','scorpidSting'],{ roleLabel: 'Ranged Damage' }],['marksmanship','Marksmanship','damage',['huntersMark','trueshot','scorpidSting'],{ roleLabel: 'Ranged Damage' }],['survival','Survival','damage',['huntersMark','trueshot','scorpidSting'],{ roleLabel: 'Melee Damage' }]]],
     ['rogue', 'Rogue', '#fff569', [['assassination','Assassination','damage',['expose']],['combat','Combat','damage',['expose']],['subtlety','Subtlety','damage',['expose']]]],
     ['priest', 'Priest', '#f3f3f3', [['discipline','Discipline','healer',['fortitude','spirit']],['holy','Holy','healer',['fortitude','spirit']],['shadow','Shadow','damage',['fortitude','spirit','vampiric']]]],
     ['shaman', 'Shaman', '#0070de', [['elemental','Elemental','damage',['strength','windfury','grace','tranquil','manaSpring','flametongue']],['enhancement','Enhancement','damage',['strength','windfury','grace','tranquil','manaSpring','flametongue']],['restoration','Restoration','healer',['strength','windfury','grace','tranquil','manaSpring','flametongue','manaTide']]]],
     ['mage', 'Mage', '#69ccf0', [['arcane','Arcane','damage',['intellect']],['fire','Fire','damage',['intellect']],['frost','Frost','damage',['intellect']]]],
     ['warlock', 'Warlock', '#9482c9', [['affliction','Affliction','damage',['curseElements','curseRecklessness']],['demonology','Demonology','damage',['curseElements','curseRecklessness']],['destruction','Destruction','damage',['curseElements','curseRecklessness']]]],
-    ['druid', 'Druid', '#ff7d0a', [['balance','Balance','damage',['mark','moonkin','faerie','insectSwarm']],['feral','Feral','hybrid',['mark','leader','faerie','attackPowerReduction'],{ roleLabel: 'Damage / Tank', forms: ['cat','bear'] }],['restoration','Restoration','healer',['mark','faerie','insectSwarm']]]]
+    ['druid', 'Druid', '#ff7d0a', [['balance','Balance','damage',['mark','moonkin','faerie','insectSwarm']],['feral','Feral','hybrid',['mark','moonkin','faerie','attackPowerReduction'],{ roleLabel: 'Damage / Tank', forms: ['cat','bear'] }],['restoration','Restoration','healer',['mark','faerie','insectSwarm']]]]
   ];
   const roleProfiles = {
     tank: ['physical','melee','tank'], healer: ['mana','spell'],
@@ -78,11 +79,11 @@
     return { id: `${classId}:${specId}`, classId, className, name, role, color, icon: `spec-icons/${classId}-${specId}.jpg`, provides, ...metadata, tags: [...new Set(tags)] };
   }));
   return {
-    version: '2026-10-03-beta-audit-6', groupSize: 5, raidSizes: [5, 10, 20, 40], buffs, specs,
+    version: '2026-10-30-wowhead-70707', groupSize: 5, raidSizes: [5, 10, 20, 40], buffs, specs,
     blessingIds: ['kings','might','wisdom'],
     legacyBlessingIds: ['salvation'],
     legacySpecIds: { 'druid:feral-cat': 'druid:feral', 'druid:feral-bear': 'druid:feral' },
-    recommended: { raid: ['mark','fortitude','spirit','intellect','kings','might','wisdom','salvation','battleShout','moonkin','leader','trueshot','strength','grace','windfury'] },
+    recommended: { raid: ['mark','fortitude','spirit','intellect','kings','might','wisdom','battleShout','moonkin','trueshot','strength','grace','windfury'] },
     providerAssignmentTargets: { 'paladin-blessing': 3 },
     bossRecommendations: [
       { id: 'major-armor', name: 'Sunder Armor', effects: ['sunder','expose'], always: true, iconEffect: 'sunder', preferWhenCovered: ['expose','sunder'] },
@@ -107,7 +108,7 @@
       { id: 'enchanted-lute', name: 'Enchanted Lute', profession: 'Enchanting', covers: ['mark'], warnWhenCovered: true, evidence: 'https://www.wowhead.com/forever/item=279976/enchanted-lute' },
       { id: 'incense-candle', name: 'Incense Candle', profession: 'Herbalism', covers: ['intellect'], warnWhenCovered: true, evidence: 'https://www.wowhead.com/forever/item=279962/incense-candle' },
       { id: 'lodestone', name: 'Lodestone', profession: 'Mining', covers: ['might'], preferCamp: true, evidence: 'https://www.wowhead.com/forever/item=279960/lodestone' },
-      { id: 'camp-chair', name: 'Camp Chair', profession: 'Skinning', covers: ['moonkin', 'leader'], warnWhenCovered: true, evidence: 'https://www.wowhead.com/forever/item=279979/camp-chair' },
+      { id: 'camp-chair', name: 'Camp Chair', profession: 'Skinning', covers: ['moonkin'], warnWhenCovered: true, evidence: 'https://www.wowhead.com/forever/item=279979/camp-chair' },
       { id: 'faction-banner', name: 'Faction Banner', profession: 'Tailoring', covers: ['spirit'], warnWhenCovered: true, evidence: 'https://www.wowhead.com/forever/item=279972/faction-banner' },
       { id: 'first-aid-kit', name: 'First Aid Kit', profession: 'First Aid', covers: ['fortitude'], warnWhenCovered: true, evidence: 'https://www.wowhead.com/forever/item=279968/first-aid-kit' },
       { id: 'fish-bowl', name: 'Fish Bowl', profession: 'Fishing', covers: ['kings'], preferCamp: true, evidence: 'https://www.wowhead.com/forever/item=279967/fish-bowl' }

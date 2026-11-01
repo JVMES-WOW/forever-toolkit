@@ -141,13 +141,20 @@
     const label = data.bossRecommendations.find(item => item.id === recommendationId)?.name || 'Debuff';
     setStatus(`${label} priority ${bossChoices[recommendationId] ? 'overridden' : 'reset to default'}.`);
   }
-  function providersLabel(players) { return players.map(playerLabel).join(', '); }
-  function providerVariant(buff, player) { return buff.providerVariants?.[player?.classId] || null; }
+  function providersLabel(players) {
+    return [...new Map(players.map(player => [player.id, player.name])).values()].join(', ');
+  }
+  function providerVariant(buff, player) { return buff.providerVariants?.[player?.id] || buff.providerVariants?.[player?.classId] || null; }
   function detailedProviders(buff, players) {
-    return players.map(player => {
+    const grouped = new Map();
+    for (const player of players) {
       const variant = providerVariant(buff, player);
-      return variant ? `${variant.name} — ${playerLabel(player)} ${player.className}` : `${playerLabel(player)} ${player.className}`;
-    }).join(', ');
+      const key = `${variant?.name || ''}:${player.id}`;
+      const entry = grouped.get(key) || { variant, players: [] };
+      entry.players.push(player); grouped.set(key, entry);
+    }
+    return [...grouped.values()].map(({ variant, players: matching }) =>
+      `${variant ? `${variant.name} — ` : ''}${providersLabel(matching)}`).join('; ');
   }
   function campRedundancy(camp, player) {
     const position = locate(player.uid);
@@ -267,9 +274,10 @@
       for (const spec of specs) {
         const gapReasons = specializationGapReasons(spec, analysis);
         const button = document.createElement('button'); button.className = `spec-button${gapReasons.length ? ' gap-match' : ''}`; button.draggable = true;
+        button.setAttribute('aria-label', `${spec.name} ${roleLabel(spec)}`);
         if (gapReasons.length) button.title = `Fills missing coverage: ${gapReasons.join(', ')}`;
         const gapLabel = gapReasons.length === 1 ? gapReasons[0] : `${gapReasons.length} gaps`;
-        button.innerHTML = `<img class="spec-mark" src="${spec.icon}" alt=""><span><b>${spec.name}</b><small>${roleLabel(spec)}</small></span>${gapReasons.length ? `<em>${gapLabel}</em>` : ''}`;
+        button.innerHTML = `<img class="spec-mark" src="${spec.icon}" alt=""><span><b>${spec.name}</b></span>${gapReasons.length ? `<em>${gapLabel}</em>` : ''}`;
         button.onclick = () => addSpec(spec.id);
         button.ondragstart = event => { dragPayload = { type: 'spec', specId: spec.id }; event.dataTransfer.effectAllowed = 'copy'; };
         block.append(button);
@@ -313,11 +321,11 @@
             editor.append(image, input, saveName, cancelName); slot.append(editor); queueMicrotask(() => { input.focus(); input.select(); });
           } else {
             const playerButton = document.createElement('button'); playerButton.className = `player-card${selectedPlayer === player.uid ? ' selected' : ''}`; playerButton.draggable = true; playerButton.style.setProperty('--class', player.color);
+            playerButton.setAttribute('aria-label', `${playerLabel(player)} · ${player.className} · ${roleLabel(player)}`);
             const image = document.createElement('img'); image.className = 'player-mark'; image.src = player.icon; image.alt = '';
             const info = document.createElement('span'); info.className = 'player-info';
             const name = document.createElement('b'); name.textContent = playerLabel(player);
-            const meta = document.createElement('small'); meta.textContent = `${player.className} · ${roleLabel(player)}`;
-            info.append(name, meta); playerButton.append(image, info);
+            info.append(name); playerButton.append(image, info);
             playerButton.onclick = () => { selectedPlayer = player.uid; selectedBuff = null; detailMode = 'player'; render(); };
             playerButton.ondragstart = event => { dragPayload = { type: 'player', uid: player.uid }; event.dataTransfer.effectAllowed = 'move'; };
             const rename = document.createElement('button'); rename.className = 'rename-player'; rename.title = `Rename ${playerLabel(player)}`; rename.setAttribute('aria-label', rename.title); rename.textContent = '✎';
@@ -368,7 +376,7 @@
         if (!activeRecipients.length) continue;
         const conflict = analysis.conflicts[groupIndex].some(entry => entry.buffIds.includes(item.buffId));
         const button = document.createElement('button'); button.className = `buff-chip${selectedBuff === item.buffId ? ' selected' : ''}${conflict ? ' conflict' : ''}`;
-        button.title = `${buff.name}: ${activeRecipients.length} of ${occupied} players${conflict ? ' · choice needed' : ''}${buff.note ? ` · ${buff.note}` : ''}`;
+        button.title = `${buff.name}: ${activeRecipients.length} of ${occupied} players${conflict ? ' · choice needed' : ''}`;
         button.innerHTML = `<img class="effect-icon" src="${buff.icon}" alt=""><span>${activeRecipients.length}/${occupied}</span>`;
         button.onclick = () => { selectedBuff = selectedBuff === item.buffId ? null : item.buffId; detailMode = 'overview'; render(); };
         buffRoot.append(button);
@@ -410,7 +418,8 @@
     const preferredCamp = camp.preferredComplete && camp.camps.find(item => item.preferCamp);
     const campFallback = !providerList.length && camp.complete ? camp.camps[0] : null;
     const covered = !relevant || (blessingCount == null ? (providerList.length || camp.complete) : blessingCount > 0);
-    const variant = providerVariant(buff, options.provider);
+    const representativeProvider = options.provider || providerList.find(player => player.id === 'druid:balance') || providerList[0];
+    const variant = providerVariant(buff, representativeProvider);
     const button = document.createElement('button');
     const conflicted = analysis.conflictIds.has(buffId);
     const blessingPartial = blessingCount != null && blessingCount > 0 && blessingCount < blessingTotal;
@@ -491,7 +500,7 @@
       const heading = document.createElement('b'); heading.textContent = buff.name;
       const campText = camp.camps.length ? `Camp: ${camp.camps.map(item => item.name).join(', ')} covers ${camp.recipients.length}/${camp.eligibleRecipients.length} eligible players party-wide` : '';
       const sourceText = sources.length ? `${detailedProviders(buff, sources)}${campText ? ` · ${campText}` : ''}` : (campText || 'None');
-      note.append(heading, document.createElement('br'), document.createTextNode(buff.note || ''), document.createElement('br'), document.createTextNode(`Providers: ${sourceText}`)); root.append(note);
+      note.append(heading, document.createElement('br'), document.createTextNode(`Providers: ${sourceText}`)); root.append(note);
     }
     return root;
   }

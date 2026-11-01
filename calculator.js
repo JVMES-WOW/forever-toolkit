@@ -64,17 +64,61 @@
     return error ? { error } : { points: next };
   }
 
-  function encode(points, rules = defaults) {
+  function validateOrder(points, order, orderKnown, rules = defaults) {
+    if (!Array.isArray(order) || typeof orderKnown !== 'boolean') return 'Invalid leveling order.';
+    if (!orderKnown) return order.length ? 'Invalid unrecorded leveling order.' : '';
+    if (order.length !== total(points)) return 'Leveling order must include every allocated point.';
+    const orderedRanks = {};
+    for (const id of order) {
+      if (!Object.hasOwn(byId, id)) return 'Invalid talent in leveling order.';
+      orderedRanks[id] = (orderedRanks[id] || 0) + 1;
+      if (orderedRanks[id] > (points[id] || 0)) return 'Leveling order does not match the talent allocation.';
+    }
+    for (const [id, rank] of Object.entries(points)) {
+      if ((orderedRanks[id] || 0) !== rank) return 'Leveling order does not match the talent allocation.';
+    }
+    const planned = {};
+    if (order.length > rules.budget) return 'The leveling order exceeds the point budget.';
+    for (const id of order) {
+      const talent = byId[id];
+      const rank = (planned[id] || 0) + 1;
+      if (rank > talent.max) return `Leveling order exceeds the maximum rank of ${talent.name}.`;
+      const problem = requirements(planned, talent, rules);
+      if (problem) return `Leveling order is not learnable in sequence: ${problem}`;
+      planned[id] = rank;
+    }
+    return '';
+  }
+
+  function encode(points, rules = defaults, order = [], orderKnown = total(points) === 0) {
     const error = validate(points, rules);
     if (error) throw new Error(error);
+    const orderError = validateOrder(points, order, orderKnown, rules);
+    if (orderError) throw new Error(orderError);
     const ranks = Object.entries(points).filter(([, rank]) => rank > 0)
       .sort(([a], [b]) => a.localeCompare(b)).map(([id, rank]) => `${id}:${rank}`).join(',') || '-';
     // Name each talent and class so future display-order changes cannot move points.
-    return `FF4.${data.gameClass}.${rules.budget}.${Number(rules.gates)}.${ranks}`;
+    // The ordered suffix is an allocation history, not something inferred from a finished build.
+    return `FF5.${data.gameClass}.${rules.budget}.${Number(rules.gates)}.${ranks}~${orderKnown ? order.join(',') || '-' : '?'}`;
   }
   function decode(code) {
     const invalid = () => new Error(`This is not a valid Forever ${data.name || 'Druid'} build code.`);
     if (typeof code !== 'string' || code.length > 10000) throw invalid();
+    const ordered = /^FF5\.([a-z]+)\.(\d{1,3})\.([01])\.(-|[a-z][a-z0-9-]*:[1-5](?:,[a-z][a-z0-9-]*:[1-5])*)~(-|\?|[a-z][a-z0-9-]*(?:,[a-z][a-z0-9-]*)*)$/.exec(code.trim());
+    if (ordered) {
+      if (ordered[1] !== data.gameClass) throw invalid();
+      const rules = { budget: Number(ordered[2]), gates: Number(ordered[3]) === 1 };
+      const entries = ordered[4] === '-' ? [] : ordered[4].split(',').map(entry => entry.split(':'));
+      if (new Set(entries.map(([id]) => id)).size !== entries.length) throw invalid();
+      const points = Object.fromEntries(entries.map(([id, rank]) => [id, Number(rank)]));
+      const error = validate(points, rules);
+      if (error) throw new Error(error);
+      const orderKnown = ordered[5] !== '?';
+      const order = orderKnown && ordered[5] !== '-' ? ordered[5].split(',') : [];
+      const orderError = validateOrder(points, order, orderKnown, rules);
+      if (orderError) throw invalid();
+      return { points, rules, order, orderKnown };
+    }
     const current = /^FF4\.([a-z]+)\.(\d{1,3})\.([01])\.(-|[a-z][a-z0-9-]*:[1-5](?:,[a-z][a-z0-9-]*:[1-5])*)$/.exec(code.trim());
     if (current) {
       if (current[1] !== data.gameClass) throw invalid();
@@ -110,9 +154,9 @@
       if (error) throw new Error(error);
       if (refunded.length) {
         const count = refunded.reduce((sum, item) => sum + item.rank, 0);
-        return { points, rules, notice: `Talent trees changed: ${count} point${count === 1 ? '' : 's'} refunded from removed talents, reduced ranks, or unmet requirements (${refunded.map(item => item.name).join(', ')}).` };
+        return { points, rules, order: [], orderKnown: total(points) === 0, notice: `Talent trees changed: ${count} point${count === 1 ? '' : 's'} refunded from removed talents, reduced ranks, or unmet requirements (${refunded.map(item => item.name).join(', ')}).` };
       }
-      return { points, rules };
+      return { points, rules, order: [], orderKnown: total(points) === 0 };
     }
     const match = /^FF([23])\.(\d{1,3})\.([01])\.([0-5]+)$/.exec(code.trim());
     if (!match) throw invalid();
@@ -172,7 +216,8 @@
       const count = refunded.reduce((sum, item) => sum + item.rank, 0);
       notices.push(`Talent trees changed: ${count} point${count === 1 ? '' : 's'} refunded from removed talents or unmet requirements (${refunded.map(item => item.name).join(', ')}).`);
     }
-    return notices.length ? { points, rules, notice: notices.join(' ') } : { points, rules };
+    const orderKnown = total(points) === 0;
+    return notices.length ? { points, rules, order: [], orderKnown, notice: notices.join(' ') } : { points, rules, order: [], orderKnown };
   }
   function buildName(value) {
     if (typeof value !== 'string' || !value.trim() || value.trim().length > 80) throw new Error('Use a build name of 1–80 characters.');
@@ -213,6 +258,6 @@
     if (!library.builds.some(item => item.name === name)) throw new Error('Saved build not found.');
     return { ...library, builds: library.builds.filter(item => item.name !== name).map(item => ({ ...item })) };
   }
-  root.FOREVER_CALCULATOR = { talents, byId, defaults, total, treeTotal, descriptionAtRank, requirements, validate, change, transfer, encode, decode, readBuildLibrary, saveNamedBuild, renameNamedBuild, deleteNamedBuild };
+  root.FOREVER_CALCULATOR = { talents, byId, defaults, total, treeTotal, descriptionAtRank, requirements, validate, validateOrder, change, transfer, encode, decode, readBuildLibrary, saveNamedBuild, renameNamedBuild, deleteNamedBuild };
   if (typeof module !== 'undefined') module.exports = root.FOREVER_CALCULATOR;
 })(globalThis);

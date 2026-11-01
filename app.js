@@ -13,6 +13,7 @@
   catch (_) { protectStoredLibrary = true; libraryWarning = 'Saved builds could not be read. New saves stay in this tab; existing browser data is untouched.'; }
   const shareBase = 'https://jvmes-wow.github.io/forever-toolkit/talents.html';
   let points = {}, rules = { ...calc.defaults }, selected = calc.talents[0].id;
+  let levelingOrder = [], orderKnown = true;
   let undoStack = [], query = '';
   let talentDrag = null, talentRepeat = null;
   let initialMessage = '';
@@ -20,29 +21,33 @@
   const classOptions = Object.values(classes).map(item => `<option value="${item.gameClass}" ${item.gameClass === data.gameClass ? 'selected' : ''}>${item.name}</option>`).join('');
   document.title = `${data.name} Talents · Forever Toolkit`;
   try {
-    const isShared = /^#FF[234]\./.test(location.hash);
+    const isShared = /^#FF[2345]\./.test(location.hash);
     const code = isShared ? location.hash.slice(1) : localStorage.getItem(storageKey);
     if (code) {
       const loaded = calc.decode(code);
       ({ points, rules } = loaded);
+      levelingOrder = loaded.order || [];
+      orderKnown = loaded.orderKnown ?? calc.total(points) === 0;
       initialMessage = [isShared ? 'Shared build loaded.' : '', loaded.notice].filter(Boolean).join(' ');
     }
   } catch (error) { initialMessage = `Starting a fresh build. ${error.message}`; }
 
   function save() {
-    const code = calc.encode(points, rules);
+    const code = calc.encode(points, rules, levelingOrder, orderKnown);
     try { localStorage.setItem(storageKey, code); } catch (_) { /* File/private storage may be unavailable. */ }
     // A shared URL takes precedence on reload; keep it in step with subsequent edits.
-    if (/^#FF[234]\./.test(location.hash)) {
+    if (/^#FF[2345]\./.test(location.hash)) {
       try { history.replaceState(null, '', location.pathname + location.search + '#' + code); } catch (_) { /* file: may restrict history */ }
     }
   }
   function status(message) { $('#status').textContent = message; }
-  function commit(next) {
+  function commit(next, nextOrder = levelingOrder, nextOrderKnown = orderKnown) {
     clearTalentTransfer();
-    undoStack.push({ points: { ...points }, rules: { ...rules } });
+    undoStack.push({ points: { ...points }, rules: { ...rules }, order: [...levelingOrder], orderKnown });
     if (undoStack.length > 100) undoStack.shift();
     points = next;
+    levelingOrder = [...nextOrder];
+    orderKnown = nextOrderKnown;
     save(); update();
   }
 
@@ -54,8 +59,9 @@
     <div class="calculator-bar"><div class="toolbar"><label class="search-label">Find a talent <input id="search" type="search" placeholder="Name or effect…" autocomplete="off"></label><button class="ghost" id="undo">Undo</button><button class="ghost" id="reset">Reset build</button><span class="editing-hint">Click to add · Right-click to refund<br>Drag 1 point · Tap destination to repeat</span></div></div>
     <p id="status" role="status" aria-live="polite"></p>
     <section class="workspace"><div class="trees-scroll"><div class="trees" id="trees" aria-label="All ${data.name} talent trees"></div></div><aside><section class="tooltip" id="inspector" aria-label="Talent details"></section><section class="summary saved-builds" aria-labelledby="saved-builds-title"><div class="saved-builds-heading"><h2 id="saved-builds-title">Saved builds</h2><button type="button" class="ghost" id="save-build">Save as</button></div><ul id="saved-build-list"></ul><p id="saved-build-state" role="status" aria-live="polite"></p><div class="calculator-presets"><button type="button" class="ghost" id="update-build" disabled>Update</button><button type="button" class="ghost" id="rename-build" disabled>Rename</button><button type="button" class="ghost" id="delete-build" disabled>Delete</button></div><p id="saved-build-status" role="status" aria-live="polite"></p></section></aside></section>
+    <details class="leveling-order" id="leveling-order"><summary><span><b>Leveling order</b><small id="leveling-order-count"></small></span><span class="leveling-order-chevron" aria-hidden="true">＋</span></summary><div class="leveling-order-body"><div id="leveling-order-content"></div></div></details>
     <footer class="page-foot">Forever ${data.name} · ${data.trees.map(tree => `${tree.talents.length} ${tree.name}`).join(' / ')} · Game artwork © Blizzard Entertainment</footer>
-    <dialog id="build-dialog"><div class="dialog-head"><h2>Share your build</h2><button class="ghost" data-close="build-dialog" aria-label="Close build sharing">×</button></div><p>Anyone with this link can open your exact talent build.</p><label for="build-link">Build link</label><input id="build-link" type="url" readonly spellcheck="false"><div class="actions"><button id="copy-link">Copy build link</button></div><p id="share-status" role="status" aria-live="polite"></p><details class="build-code-options"><summary>Import / export build code</summary><label for="build-code">Build code</label><textarea id="build-code" rows="4" spellcheck="false"></textarea><div class="actions"><button id="copy-code" class="ghost">Copy code</button><button id="import-code" class="ghost">Import code</button></div></details></dialog>
+    <dialog id="build-dialog"><div class="dialog-head"><h2>Share your build</h2><button class="ghost" data-close="build-dialog" aria-label="Close build sharing">×</button></div><p id="share-description">Anyone with this link can open your exact talent build.</p><label for="build-link">Build link</label><input id="build-link" type="url" readonly spellcheck="false"><div class="actions"><button id="copy-link">Copy build link</button></div><p id="share-status" role="status" aria-live="polite"></p><details class="build-code-options"><summary>Import / export build code</summary><label for="build-code">Build code</label><textarea id="build-code" rows="4" spellcheck="false"></textarea><div class="actions"><button id="copy-code" class="ghost">Copy code</button><button id="import-code" class="ghost">Import code</button></div></details></dialog>
   </main>`;
   $('#class-picker').onchange = event => {
     clearTalentTransfer();
@@ -160,14 +166,20 @@
   function beginTalentTransfer(from) {
     clearTalentTransfer();
     if (!points[from]) { status(`${calc.byId[from].name} has no points to move.`); return false; }
-    talentDrag = { from, code: calc.encode(points, rules) };
+    talentDrag = { from, code: calc.encode(points, rules, levelingOrder, orderKnown) };
     $(`[data-id="${from}"]`).classList.toggle('transfer-source', true);
     status(`Move 1 point from ${calc.byId[from].name}. Drop on a talent, or focus it and press M. Escape cancels.`);
     return true;
   }
   function proposedTalentTransfer(from, to, code) {
-    if (code !== calc.encode(points, rules)) return { error: 'Build changed; start the point transfer again.' };
-    return calc.transfer(points, from, to, rules);
+    if (code !== calc.encode(points, rules, levelingOrder, orderKnown)) return { error: 'Build changed; start the point transfer again.' };
+    const result = calc.transfer(points, from, to, rules);
+    if (result.error || !orderKnown) return result;
+    const nextOrder = [...levelingOrder], index = nextOrder.lastIndexOf(from);
+    if (index < 0) return { error: 'The point order is out of sync. Undo or start a fresh leveling order.' };
+    nextOrder[index] = to;
+    const orderError = calc.validateOrder(result.points, nextOrder, true, rules);
+    return orderError ? { error: `That move would break the leveling sequence. Refund and re-add the point instead. ${orderError}` } : { ...result, order: nextOrder };
   }
   function finishTalentTransfer(to) {
     const moving = talentDrag; clearTalentTransfer();
@@ -177,8 +189,8 @@
     const result = proposedTalentTransfer(from, to, code);
     if (result.error) { status(result.error); return; }
     selected = to;
-    commit(result.points);
-    talentRepeat = { from, to, code: calc.encode(points, rules) };
+    commit(result.points, result.order || levelingOrder);
+    talentRepeat = { from, to, code: calc.encode(points, rules, levelingOrder, orderKnown) };
     const target = $(`[data-id="${to}"]`);
     target.classList.toggle('transfer-repeat', true); target.focus({ preventScroll: true });
     status(`Moved 1 point from ${calc.byId[from].name} to ${calc.byId[to].name}. Tap ${calc.byId[to].name} to move another; Escape ends transfer.`);
@@ -218,8 +230,60 @@
     selected = id;
     const result = calc.change(points, id, delta, rules);
     if (result.error) { status(result.error); updateInspector(); return; }
-    commit(result.points);
-    status(`${calc.byId[id].name}: ${points[id] || 0}/${calc.byId[id].max}.`);
+    const learnedAt = orderKnown && delta > 0 ? levelingOrder.length + 10 : null;
+    const nextOrder = [...levelingOrder];
+    if (orderKnown && delta > 0) nextOrder.push(id);
+    else if (orderKnown) nextOrder.splice(nextOrder.lastIndexOf(id), 1);
+    commit(result.points, nextOrder);
+    status(`${calc.byId[id].name}: ${points[id] || 0}/${calc.byId[id].max}.${learnedAt ? ` Added to the order at level ${learnedAt}.` : ''}`);
+  }
+  function renderLevelingOrder() {
+    const used = calc.total(points);
+    $('#leveling-order-count').textContent = orderKnown
+      ? `${used} ${used === 1 ? 'point' : 'points'} recorded`
+      : `${used} ${used === 1 ? 'point' : 'points'} · order unknown`;
+    if (!orderKnown) {
+      $('#leveling-order-content').innerHTML = '<button type="button" class="ghost" id="start-leveling-order">Reset &amp; record order</button>';
+      $('#start-leveling-order').onclick = () => {
+        if (!confirm('Reset this build and start a leveling order from level 10? Undo can restore it.')) return;
+        commit({}, [], true);
+        status('Order recording started at level 10.');
+        $('#leveling-order').open = true;
+      };
+      return;
+    }
+    if (!used) {
+      $('#leveling-order-content').innerHTML = '<p class="leveling-order-note">Add talents in learning order.</p>';
+      return;
+    }
+    const treeColor = id => data.trees.find(tree => tree.id === calc.byId[id].tree)?.color || 'var(--tk-gold)';
+    const icon = talent => talent.icon || (talent.sourceIcon
+      ? `https://wow.zamimg.com/images/wow/icons/large/${encodeURIComponent(talent.sourceIcon)}.jpg`
+      : 'tool-icons/talents.png');
+    const steps = levelingOrder.map((id, index) => {
+      const talent = calc.byId[id];
+      return `<li class="leveling-step" style="--step-tree:${treeColor(id)}" aria-label="Level ${index + 10}: ${escape(talent.name)}" title="${escape(talent.name)}"><span class="step-icon-wrap"><img src="${icon(talent)}" alt=""><b class="step-level">${index + 10}</b></span></li>`;
+    }).join('');
+    const endLevel = used + 9;
+    $('#leveling-order-content').innerHTML = `<div class="leveling-guide" id="leveling-guide"><header class="guide-header"><h2>${escape(data.name)} leveling order</h2><p>${used} points · Lv ${10}–${endLevel}</p></header><ol class="leveling-steps">${steps}</ol></div><div class="leveling-order-tools"><button type="button" class="ghost" id="copy-leveling-order">Copy order</button><button type="button" id="guide-view">Guide view</button><button type="button" class="ghost" id="exit-guide-view" hidden>Back</button></div>`;
+    $('#copy-leveling-order').onclick = async () => {
+      const text = levelingOrder.map((id, index) => `${index + 10}: ${calc.byId[id].name}`).join('\n');
+      try { await navigator.clipboard.writeText(`${data.name} leveling order\n${text}`); status('Leveling order copied as text.'); }
+      catch (_) { status('Clipboard access is unavailable in this browser.'); }
+    };
+    $('#guide-view').onclick = () => {
+      document.body.classList.add('guide-only');
+      $('#leveling-order').open = true;
+      $('#guide-view').hidden = true;
+      $('#exit-guide-view').hidden = false;
+      window.scrollTo({ top: $('#leveling-order').getBoundingClientRect().top + window.scrollY - 18, behavior: 'smooth' });
+      $('#exit-guide-view').focus({ preventScroll: true });
+    };
+    $('#exit-guide-view').onclick = () => {
+      document.body.classList.remove('guide-only');
+      $('#guide-view').hidden = false;
+      $('#exit-guide-view').hidden = true;
+    };
   }
   function update() {
     const used = calc.total(points);
@@ -252,10 +316,11 @@
     $('#reset').disabled = !used;
     updateInspector();
     updateLibraryControls();
+    renderLevelingOrder();
   }
   function updateLibraryControls() {
     const current = library.builds.find(item => item.name === savedName);
-    const changed = current && calc.encode(points, rules) !== current.code;
+    const changed = current && calc.encode(points, rules, levelingOrder, orderKnown) !== current.code;
     $('#update-build').disabled = !changed;
     $('#rename-build').disabled = !current;
     $('#delete-build').disabled = !current;
@@ -300,9 +365,11 @@
     try {
       const loaded = calc.decode(entry.code);
       clearTalentTransfer();
-      undoStack.push({ points: { ...points }, rules: { ...rules } });
+      undoStack.push({ points: { ...points }, rules: { ...rules }, order: [...levelingOrder], orderKnown });
       if (undoStack.length > 100) undoStack.shift();
       ({ points, rules } = loaded);
+      levelingOrder = loaded.order || [];
+      orderKnown = loaded.orderKnown ?? calc.total(points) === 0;
       savedName = entry.name;
       save(); update();
       status([`Loaded “${entry.name}”.`, loaded.notice].filter(Boolean).join(' '));
@@ -330,7 +397,7 @@
           $('#saved-build-replace-label').hidden = false;
           throw new Error('This name is already saved. Choose another name or allow replacement.');
         }
-        library = calc.saveNamedBuild(library, name, calc.encode(points, rules), libraryAction === 'update' || $('#saved-build-replace').checked);
+        library = calc.saveNamedBuild(library, name, calc.encode(points, rules, levelingOrder, orderKnown), libraryAction === 'update' || $('#saved-build-replace').checked);
         savedName = name.trim();
       }
       persistLibrary(); $('#saved-build-dialog').close();
@@ -338,19 +405,24 @@
     } catch (error) { $('#saved-build-error').textContent = error.message; }
   };
   $('#search').oninput = event => { clearTalentTransfer(); query = event.target.value.trim().toLowerCase(); update(); };
-  $('#reset').onclick = () => { commit({}); status('Build reset. Undo restores it.'); };
+  $('#reset').onclick = () => { commit({}, [], true); status('Build reset. New talent points will be recorded from level 10. Undo restores the previous build.'); };
   $('#undo').onclick = () => {
     clearTalentTransfer();
     const previous = undoStack.pop();
     if (!previous) return;
     ({ points, rules } = previous);
+    levelingOrder = previous.order || [];
+    orderKnown = previous.orderKnown ?? calc.total(points) === 0;
     save(); update(); status('Previous build restored.');
   };
   $('#share').onclick = () => {
     clearTalentTransfer();
-    const code = calc.encode(points, rules);
+    const code = calc.encode(points, rules, levelingOrder, orderKnown);
     $('#build-code').value = code;
     $('#build-link').value = `${shareBase}${data.gameClass === 'druid' ? '' : `?class=${data.gameClass}`}#${code}`;
+    $('#share-description').textContent = orderKnown && levelingOrder.length
+      ? 'Anyone with this link can open your exact talent build and its recorded leveling order.'
+      : 'Anyone with this link can open your exact talent build. This build has no recorded leveling order.';
     $('#share-status').textContent = '';
     $('#build-dialog').showModal();
   };
@@ -366,18 +438,22 @@
     clearTalentTransfer();
     try {
       const imported = calc.decode($('#build-code').value);
-      undoStack.push({ points: { ...points }, rules: { ...rules } });
+      undoStack.push({ points: { ...points }, rules: { ...rules }, order: [...levelingOrder], orderKnown });
       ({ points, rules } = imported);
+      levelingOrder = imported.order || [];
+      orderKnown = imported.orderKnown ?? calc.total(points) === 0;
       save(); update(); $('#build-dialog').close(); status(['Build imported.', imported.notice].filter(Boolean).join(' '));
     } catch (error) { $('#share-status').textContent = error.message; }
   };
   window.addEventListener('hashchange', () => {
     clearTalentTransfer();
-    if (!/^#FF[234]\./.test(location.hash)) return;
+    if (!/^#FF[2345]\./.test(location.hash)) return;
     try {
       const shared = calc.decode(location.hash.slice(1));
-      undoStack.push({ points: { ...points }, rules: { ...rules } });
+      undoStack.push({ points: { ...points }, rules: { ...rules }, order: [...levelingOrder], orderKnown });
       ({ points, rules } = shared);
+      levelingOrder = shared.order || [];
+      orderKnown = shared.orderKnown ?? calc.total(points) === 0;
       save(); update(); status(['Shared build loaded.', shared.notice].filter(Boolean).join(' '));
     } catch (error) { status(`Could not load shared build. ${error.message}`); }
   });

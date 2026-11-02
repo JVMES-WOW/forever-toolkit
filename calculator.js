@@ -90,6 +90,39 @@
     return '';
   }
 
+  // Replace one recorded point without requiring the replacement to be learned
+  // at the same moment. Keep the rest of the order intact whenever possible.
+  function reinsertOrderPoint(points, order, from, to, rules = defaults) {
+    const sourceIndex = order.lastIndexOf(from);
+    if (sourceIndex < 0) return null;
+    const remaining = [...order];
+    remaining.splice(sourceIndex, 1);
+    const positions = Array.from({ length: remaining.length + 1 }, (_, index) => index)
+      .sort((a, b) => Math.abs(a - sourceIndex) - Math.abs(b - sourceIndex) || a - b);
+    for (const index of positions) {
+      const candidate = [...remaining];
+      candidate.splice(index, 0, to);
+      if (!validateOrder(points, candidate, true, rules)) return candidate;
+    }
+
+    // If moving only the replacement cannot restore the gates, keep the
+    // requested order as a preference and postpone talents until learnable.
+    const pending = [...remaining];
+    pending.splice(sourceIndex, 0, to);
+    const planned = {}, repaired = [];
+    while (pending.length) {
+      const readyIndex = pending.findIndex(id => {
+        const talent = byId[id];
+        return (planned[id] || 0) < talent.max && !requirements(planned, talent, rules);
+      });
+      if (readyIndex < 0) return null;
+      const [id] = pending.splice(readyIndex, 1);
+      planned[id] = (planned[id] || 0) + 1;
+      repaired.push(id);
+    }
+    return validateOrder(points, repaired, true, rules) ? null : repaired;
+  }
+
   function encode(points, rules = defaults, order = [], orderKnown = total(points) === 0) {
     const error = validate(points, rules);
     if (error) throw new Error(error);
@@ -258,6 +291,6 @@
     if (!library.builds.some(item => item.name === name)) throw new Error('Saved build not found.');
     return { ...library, builds: library.builds.filter(item => item.name !== name).map(item => ({ ...item })) };
   }
-  root.FOREVER_CALCULATOR = { talents, byId, defaults, total, treeTotal, descriptionAtRank, requirements, validate, validateOrder, change, transfer, encode, decode, readBuildLibrary, saveNamedBuild, renameNamedBuild, deleteNamedBuild };
+  root.FOREVER_CALCULATOR = { talents, byId, defaults, total, treeTotal, descriptionAtRank, requirements, validate, validateOrder, reinsertOrderPoint, change, transfer, encode, decode, readBuildLibrary, saveNamedBuild, renameNamedBuild, deleteNamedBuild };
   if (typeof module !== 'undefined') module.exports = root.FOREVER_CALCULATOR;
 })(globalThis);

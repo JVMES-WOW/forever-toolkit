@@ -175,11 +175,15 @@
     if (code !== calc.encode(points, rules, levelingOrder, orderKnown)) return { error: 'Build changed; start the point transfer again.' };
     const result = calc.transfer(points, from, to, rules);
     if (result.error || !orderKnown) return result;
-    const nextOrder = [...levelingOrder], index = nextOrder.lastIndexOf(from);
-    if (index < 0) return { error: 'The point order is out of sync. Undo or start a fresh leveling order.' };
-    nextOrder[index] = to;
-    const orderError = calc.validateOrder(result.points, nextOrder, true, rules);
-    return orderError ? { error: `That move would break the leveling sequence. Refund and re-add the point instead. ${orderError}` } : { ...result, order: nextOrder };
+    const index = levelingOrder.lastIndexOf(from), desired = [...levelingOrder];
+    if (index >= 0) desired[index] = to;
+    const nextOrder = index >= 0 ? calc.reinsertOrderPoint(result.points, levelingOrder, from, to, rules) : null;
+    return {
+      ...result,
+      order: nextOrder || [],
+      orderKnown: Boolean(nextOrder),
+      orderAdjusted: !nextOrder || nextOrder.join(',') !== desired.join(',')
+    };
   }
   function finishTalentTransfer(to) {
     const moving = talentDrag; clearTalentTransfer();
@@ -189,11 +193,11 @@
     const result = proposedTalentTransfer(from, to, code);
     if (result.error) { status(result.error); return; }
     selected = to;
-    commit(result.points, result.order || levelingOrder);
+    commit(result.points, result.order || levelingOrder, result.orderKnown ?? orderKnown);
     talentRepeat = { from, to, code: calc.encode(points, rules, levelingOrder, orderKnown) };
     const target = $(`[data-id="${to}"]`);
     target.classList.toggle('transfer-repeat', true); target.focus({ preventScroll: true });
-    status(`Moved 1 point from ${calc.byId[from].name} to ${calc.byId[to].name}. Tap ${calc.byId[to].name} to move another; Escape ends transfer.`);
+    status(`Moved 1 point from ${calc.byId[from].name} to ${calc.byId[to].name}.${result.orderAdjusted ? result.orderKnown ? ' Leveling order adjusted.' : ' Leveling order cleared.' : ''} Tap ${calc.byId[to].name} to move another; Escape ends transfer.`);
   }
   const endRepeatOutside = event => {
     if (talentRepeat && event.target?.closest?.('.node[data-id]')?.dataset.id !== talentRepeat.to) clearTalentTransfer();
